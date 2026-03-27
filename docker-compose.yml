@@ -7,6 +7,6 @@ services:
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=inovapim
+      - POSTGRES_DB=jornadapim
 
  
