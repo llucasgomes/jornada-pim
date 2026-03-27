@@ -18,6 +18,11 @@
     "outDir": "./build",
     "rootDir": "./src",
 
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
