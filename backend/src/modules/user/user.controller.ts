@@ -7,11 +7,13 @@ import {
 import { createUserDto } from './dtos/create-user.dto'
 import { createUserResponseDto, userResponseDto } from './dtos/user-response'
 import { userService } from './user.service'
+import { permission } from '@/shared/middlewares/permission'
 
 export default function userController(_server: FastifyInstance) {
   _server.post(
     '/register',
     {
+      preHandler:permission(['colaborador', 'gestor', 'rh']),
       schema: {
         summary: 'Rota para registrar um novo usuário',
         tags: ['Usuário'],

@@ -7,9 +7,9 @@ export const createUserDto = z4.object({
   senha: z4.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
   perfil: perfilEnumSchema
     .default('colaborador')
-    .refine(val => ['colaborador', 'gestor', 'admin'].includes(val), {
+    .refine(val => ['colaborador', 'gestor', 'rh'].includes(val), {
       message:
-        'Perfil inválido. Valores permitidos: colaborador, gestor, admin',
+        'Perfil inválido. Valores permitidos: colaborador, gestor, rh',
     }),
   setor: z4.string().min(1, 'O setor é obrigatório'),
 })

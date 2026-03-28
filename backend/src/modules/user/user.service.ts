@@ -11,6 +11,11 @@ export const userService = {
   async create(req: FastifyRequest, reply: FastifyReply) {
     const { senha, ...rest } = createUserDto.parse(req.body)
 
+    const userExist = await userRepository.findById(rest.matricula)
+
+    if (!userExist)
+      throw new AppError('Usuário já existe com essa matricula', 409)
+
     // Criptografar a senha
     const hashedPassword = await bcrypt.hash(senha, 10)
 
