@@ -1,105 +1,9 @@
 {
-  "id": "2bd95c22-a579-42a6-b267-e5391cd66a96",
+  "id": "604810e1-d3b2-4f2f-9367-956bcc512f98",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.colaborador": {
-      "name": "colaborador",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "nome": {
-          "name": "nome",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "matricula": {
-          "name": "matricula",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cargo": {
-          "name": "cargo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "setor": {
-          "name": "setor",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "turno": {
-          "name": "turno",
-          "type": "turno",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "carga_horaria_dia": {
-          "name": "carga_horaria_dia",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "horario_entrada": {
-          "name": "horario_entrada",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "horario_saida": {
-          "name": "horario_saida",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ativo": {
-          "name": "ativo",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "colaborador_matricula_unique": {
-          "name": "colaborador_matricula_unique",
-          "nullsNotDistinct": false,
-          "columns": ["matricula"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.registro_ponto": {
       "name": "registro_ponto",
       "schema": "",
@@ -111,8 +15,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "colaborador_id": {
-          "name": "colaborador_id",
+        "usuario_id": {
+          "name": "usuario_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -154,12 +58,16 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "registro_ponto_colaborador_id_colaborador_id_fk": {
-          "name": "registro_ponto_colaborador_id_colaborador_id_fk",
+        "registro_ponto_usuario_id_usuario_id_fk": {
+          "name": "registro_ponto_usuario_id_usuario_id_fk",
           "tableFrom": "registro_ponto",
-          "tableTo": "colaborador",
-          "columnsFrom": ["colaborador_id"],
-          "columnsTo": ["id"],
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -167,8 +75,12 @@
           "name": "registro_ponto_registrado_por_usuario_id_fk",
           "tableFrom": "registro_ponto",
           "tableTo": "usuario",
-          "columnsFrom": ["registrado_por"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "registrado_por"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -190,8 +102,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "colaborador_id": {
-          "name": "colaborador_id",
+        "usuario_id": {
+          "name": "usuario_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -240,12 +152,16 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "resumo_diario_colaborador_id_colaborador_id_fk": {
-          "name": "resumo_diario_colaborador_id_colaborador_id_fk",
+        "resumo_diario_usuario_id_usuario_id_fk": {
+          "name": "resumo_diario_usuario_id_usuario_id_fk",
           "tableFrom": "resumo_diario",
-          "tableTo": "colaborador",
-          "columnsFrom": ["colaborador_id"],
-          "columnsTo": ["id"],
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -293,11 +209,42 @@
           "notNull": true,
           "default": "'colaborador'"
         },
+        "cargo": {
+          "name": "cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "setor": {
           "name": "setor",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "turno": {
+          "name": "turno",
+          "type": "turno",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "carga_horaria_dia": {
+          "name": "carga_horaria_dia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "horario_entrada": {
+          "name": "horario_entrada",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "horario_saida": {
+          "name": "horario_saida",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": false
         },
         "ativo": {
           "name": "ativo",
@@ -328,7 +275,9 @@
         "usuario_matricula_unique": {
           "name": "usuario_matricula_unique",
           "nullsNotDistinct": false,
-          "columns": ["matricula"]
+          "columns": [
+            "matricula"
+          ]
         }
       },
       "policies": {},
@@ -340,27 +289,49 @@
     "public.origem_batida": {
       "name": "origem_batida",
       "schema": "public",
-      "values": ["sistema", "ajuste"]
+      "values": [
+        "sistema",
+        "ajuste"
+      ]
     },
     "public.perfil": {
       "name": "perfil",
       "schema": "public",
-      "values": ["colaborador", "gestor", "rh"]
+      "values": [
+        "colaborador",
+        "gestor",
+        "rh"
+      ]
     },
     "public.status_dia": {
       "name": "status_dia",
       "schema": "public",
-      "values": ["completo", "incompleto", "falta", "afastamento"]
+      "values": [
+        "completo",
+        "incompleto",
+        "falta",
+        "afastamento"
+      ]
     },
     "public.tipo_batida": {
       "name": "tipo_batida",
       "schema": "public",
-      "values": ["entrada", "saida_almoco", "retorno_almoco", "saida"]
+      "values": [
+        "entrada",
+        "saida_almoco",
+        "retorno_almoco",
+        "saida"
+      ]
     },
     "public.turno": {
       "name": "turno",
       "schema": "public",
-      "values": ["manha", "tarde", "noite", "administrativo"]
+      "values": [
+        "manha",
+        "tarde",
+        "noite",
+        "administrativo"
+      ]
     }
   },
   "schemas": {},

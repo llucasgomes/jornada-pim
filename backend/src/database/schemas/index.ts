@@ -33,63 +33,39 @@ export const statusEnum = pgEnum('status_dia', [
 ])
 
 export const usuario = pgTable('usuario', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  nome: text('nome').notNull(),
-  matricula: text('matricula').notNull().unique(),
-  senha: text('senha').notNull(),
-  perfil: perfilEnum('perfil').notNull().default('colaborador'),
-  setor: text('setor').notNull(),
-  ativo: boolean('ativo').notNull().default(true),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-})
-
-export const colaborador = pgTable('colaborador', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  nome: text('nome').notNull(),
-  matricula: text('matricula').notNull().unique(),
-  cargo: text('cargo').notNull(),
-  setor: text('setor').notNull(),
-  turno: turnoEnum('turno').notNull(),
-  carga_horaria_dia: numeric('carga_horaria_dia').notNull(),
-  horario_entrada: time('horario_entrada').notNull(),
-  horario_saida: time('horario_saida').notNull(),
-  ativo: boolean('ativo').notNull().default(true),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  id:                uuid('id').primaryKey().defaultRandom(),
+  nome:              text('nome').notNull(),
+  matricula:         text('matricula').notNull().unique(),
+  senha:             text('senha').notNull(),
+  perfil:            perfilEnum('perfil').notNull().default('colaborador'),
+  cargo:             text('cargo'),
+  setor:             text('setor'),
+  turno:             turnoEnum('turno'),
+  carga_horaria_dia: integer('carga_horaria_dia'),
+  horario_entrada:   time('horario_entrada'),
+  horario_saida:     time('horario_saida'),
+  ativo:             boolean('ativo').notNull().default(true),
+  created_at:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updated_at:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const registro_ponto = pgTable('registro_ponto', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  colaborador_id: uuid('colaborador_id')
-    .notNull()
-    .references(() => colaborador.id),
-  tipo: tipoEnum('tipo').notNull(),
-  timestamp: timestamp('timestamp', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  origem: origemEnum('origem').notNull().default('sistema'),
-  justificativa: text('justificativa'),
+  id:             uuid('id').primaryKey().defaultRandom(),
+  usuario_id:     uuid('usuario_id').notNull().references(() => usuario.id),
+  tipo:           tipoEnum('tipo').notNull(),
+  timestamp:      timestamp('timestamp', { withTimezone: true }).notNull().defaultNow(),
+  origem:         origemEnum('origem').notNull().default('sistema'),
+  justificativa:  text('justificativa'),
   registrado_por: uuid('registrado_por').references(() => usuario.id),
 })
 
 export const resumo_diario = pgTable('resumo_diario', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  colaborador_id: uuid('colaborador_id')
-    .notNull()
-    .references(() => colaborador.id),
-  data: date('data').notNull(),
+  id:                uuid('id').primaryKey().defaultRandom(),
+  usuario_id:        uuid('usuario_id').notNull().references(() => usuario.id),
+  data:              date('data').notNull(),
   horas_trabalhadas: numeric('horas_trabalhadas').notNull().default('0'),
-  horas_esperadas: numeric('horas_esperadas').notNull(),
-  horas_extras: numeric('horas_extras').notNull().default('0'),
-  atraso_minutos: integer('atraso_minutos').notNull().default(0),
-  status: statusEnum('status').notNull().default('incompleto'),
+  horas_esperadas:   numeric('horas_esperadas').notNull(),
+  horas_extras:      numeric('horas_extras').notNull().default('0'),
+  atraso_minutos:    integer('atraso_minutos').notNull().default(0),
+  status:            statusEnum('status').notNull().default('incompleto'),
 })
