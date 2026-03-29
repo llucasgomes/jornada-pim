@@ -18,9 +18,9 @@ const CARGOS = [
 ]
 
 const TURNOS = [
-  { turno: 'manha'         , entrada: '07:00', saida: '16:00', carga: 480 },
-  { turno: 'tarde'         , entrada: '15:00', saida: '23:00', carga: 480 },
-  { turno: 'noite'         , entrada: '23:00', saida: '07:00', carga: 480 },
+  { turno: 'manha', entrada: '07:00', saida: '16:00', carga: 480 },
+  { turno: 'tarde', entrada: '15:00', saida: '23:00', carga: 480 },
+  { turno: 'noite', entrada: '23:00', saida: '07:00', carga: 480 },
   { turno: 'administrativo', entrada: '08:00', saida: '17:00', carga: 480 },
 ] as const
 
@@ -53,22 +53,22 @@ function calcularResumo(
   batidas: { tipo: string; timestamp: Date }[],
   cargaMinutos: number,
   entradaEsperada: string,
-  data: Date,
+  data: Date
 ) {
   const get = (tipo: string) => batidas.find(b => b.tipo === tipo)?.timestamp
 
-  const entrada        = get('entrada')
-  const saida_almoco   = get('saida_almoco')
+  const entrada = get('entrada')
+  const saida_almoco = get('saida_almoco')
   const retorno_almoco = get('retorno_almoco')
-  const saida          = get('saida')
+  const saida = get('saida')
 
   if (!entrada) {
     return {
       horas_trabalhadas: '0',
-      horas_esperadas:   (cargaMinutos / 60).toFixed(2),
-      horas_extras:      '0',
-      atraso_minutos:    0,
-      status:            'falta' as const,
+      horas_esperadas: (cargaMinutos / 60).toFixed(2),
+      horas_extras: '0',
+      atraso_minutos: 0,
+      status: 'falta' as const,
     }
   }
 
@@ -81,18 +81,21 @@ function calcularResumo(
   }
 
   const trabalhadoHoras = trabalhadoMs / (1000 * 60 * 60)
-  const cargaHoras      = cargaMinutos / 60
-  const completo        = !!(entrada && saida_almoco && retorno_almoco && saida)
-  const extras          = completo ? Math.max(0, trabalhadoHoras - cargaHoras) : 0
-  const esperado        = setTime(data, entradaEsperada)
-  const atraso          = Math.max(0, Math.floor((entrada.getTime() - esperado.getTime()) / 60000))
+  const cargaHoras = cargaMinutos / 60
+  const completo = !!(entrada && saida_almoco && retorno_almoco && saida)
+  const extras = completo ? Math.max(0, trabalhadoHoras - cargaHoras) : 0
+  const esperado = setTime(data, entradaEsperada)
+  const atraso = Math.max(
+    0,
+    Math.floor((entrada.getTime() - esperado.getTime()) / 60000)
+  )
 
   return {
     horas_trabalhadas: trabalhadoHoras.toFixed(2),
-    horas_esperadas:   cargaHoras.toFixed(2),
-    horas_extras:      extras.toFixed(2),
-    atraso_minutos:    atraso,
-    status:            (completo ? 'completo' : 'incompleto') as any,
+    horas_esperadas: cargaHoras.toFixed(2),
+    horas_extras: extras.toFixed(2),
+    atraso_minutos: atraso,
+    status: (completo ? 'completo' : 'incompleto') as any,
   }
 }
 
@@ -108,9 +111,24 @@ async function seed() {
   console.log('Criando gestores e RH...')
 
   await db.insert(usuario).values([
-    { nome: 'Juliana Rocha Tavares', matricula: matricula(901), senha: SENHA_HASH, perfil: 'gestor' },
-    { nome: 'Marcelo Andrade Pinto', matricula: matricula(902), senha: SENHA_HASH, perfil: 'gestor' },
-    { nome: 'Ana Paula Meireles',    matricula: matricula(903), senha: SENHA_HASH, perfil: 'rh'     },
+    {
+      nome: 'Juliana Rocha Tavares',
+      matricula: matricula(901),
+      senha: SENHA_HASH,
+      perfil: 'gestor',
+    },
+    {
+      nome: 'Marcelo Andrade Pinto',
+      matricula: matricula(902),
+      senha: SENHA_HASH,
+      perfil: 'gestor',
+    },
+    {
+      nome: 'Ana Paula Meireles',
+      matricula: matricula(903),
+      senha: SENHA_HASH,
+      perfil: 'rh',
+    },
   ])
 
   // ── 2. Colaboradores ──────────────────────────────────────────────────────
@@ -118,7 +136,7 @@ async function seed() {
 
   const colaboradoresCriados: Array<{
     usuario_id: string
-    turnoConfig: typeof TURNOS[number]
+    turnoConfig: (typeof TURNOS)[number]
   }> = []
 
   for (let i = 0; i < 20; i++) {
@@ -127,16 +145,16 @@ async function seed() {
     const [novoUsuario] = await db
       .insert(usuario)
       .values({
-        nome:              faker.person.fullName(),
-        matricula:         matricula(i + 1),
-        senha:             SENHA_HASH,
-        perfil:            'colaborador',
-        cargo:             faker.helpers.arrayElement(CARGOS),
-        setor:             faker.helpers.arrayElement(SETORES),
-        turno:             turnoConfig.turno,
+        nome: faker.person.fullName(),
+        matricula: matricula(i + 1),
+        senha: SENHA_HASH,
+        perfil: 'colaborador',
+        cargo: faker.helpers.arrayElement(CARGOS),
+        setor: faker.helpers.arrayElement(SETORES),
+        turno: turnoConfig.turno,
         carga_horaria_dia: turnoConfig.carga,
-        horario_entrada:   turnoConfig.entrada,
-        horario_saida:     turnoConfig.saida,
+        horario_entrada: turnoConfig.entrada,
+        horario_saida: turnoConfig.saida,
       })
       .returning({ id: usuario.id })
 
@@ -148,7 +166,7 @@ async function seed() {
 
   const hoje = new Date()
   const meses = [
-    { ano: hoje.getFullYear(), mes: hoje.getMonth()     },
+    { ano: hoje.getFullYear(), mes: hoje.getMonth() },
     { ano: hoje.getFullYear(), mes: hoje.getMonth() + 1 },
   ]
 
@@ -159,51 +177,62 @@ async function seed() {
       for (const dia of dias) {
         if (dia > hoje) continue
 
-        if (faker.datatype.boolean({ probability: 0.10 })) {
+        if (faker.datatype.boolean({ probability: 0.1 })) {
           await db.insert(resumo_diario).values({
             usuario_id,
-            data:              dia.toISOString().split('T')[0],
+            data: dia.toISOString().split('T')[0],
             horas_trabalhadas: '0',
-            horas_esperadas:   (turnoConfig.carga / 60).toFixed(2),
-            horas_extras:      '0',
-            atraso_minutos:    0,
-            status:            'falta',
+            horas_esperadas: (turnoConfig.carga / 60).toFixed(2),
+            horas_extras: '0',
+            atraso_minutos: 0,
+            status: 'falta',
           })
           continue
         }
 
-        const atrasoMin = faker.datatype.boolean({ probability: 0.30 })
+        const atrasoMin = faker.datatype.boolean({ probability: 0.3 })
           ? faker.number.int({ min: 5, max: 20 })
           : 0
 
-        const entrada      = addMinutes(setTime(dia, turnoConfig.entrada), atrasoMin)
-        const inicioAlmoco = addMinutes(entrada, faker.number.int({ min: 230, max: 250 }))
-        const fimAlmoco    = addMinutes(inicioAlmoco, faker.number.int({ min: 55, max: 65 }))
+        const entrada = addMinutes(setTime(dia, turnoConfig.entrada), atrasoMin)
+        const inicioAlmoco = addMinutes(
+          entrada,
+          faker.number.int({ min: 230, max: 250 })
+        )
+        const fimAlmoco = addMinutes(
+          inicioAlmoco,
+          faker.number.int({ min: 55, max: 65 })
+        )
 
-        const extraMin = faker.datatype.boolean({ probability: 0.20 })
+        const extraMin = faker.datatype.boolean({ probability: 0.2 })
           ? faker.number.int({ min: 30, max: 90 })
           : 0
 
-        const saida      = addMinutes(fimAlmoco, turnoConfig.carga - 240 + extraMin)
+        const saida = addMinutes(fimAlmoco, turnoConfig.carga - 240 + extraMin)
         const incompleto = faker.datatype.boolean({ probability: 0.05 })
 
         const batidas = [
-          { tipo: 'entrada',        timestamp: entrada      },
-          { tipo: 'saida_almoco',   timestamp: inicioAlmoco },
-          { tipo: 'retorno_almoco', timestamp: fimAlmoco    },
+          { tipo: 'entrada', timestamp: entrada },
+          { tipo: 'saida_almoco', timestamp: inicioAlmoco },
+          { tipo: 'retorno_almoco', timestamp: fimAlmoco },
           ...(!incompleto ? [{ tipo: 'saida', timestamp: saida }] : []),
         ]
 
         await db.insert(registro_ponto).values(
           batidas.map(b => ({
             usuario_id,
-            tipo:      b.tipo as any,
+            tipo: b.tipo as any,
             timestamp: b.timestamp,
-            origem:    'sistema' as const,
+            origem: 'sistema' as const,
           }))
         )
 
-        const resumo = calcularResumo(batidas, turnoConfig.carga, turnoConfig.entrada, dia)
+        const resumo = calcularResumo(
+          batidas,
+          turnoConfig.carga,
+          turnoConfig.entrada,
+          dia
+        )
 
         await db.insert(resumo_diario).values({
           usuario_id,

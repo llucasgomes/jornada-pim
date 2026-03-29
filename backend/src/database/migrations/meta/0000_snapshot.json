@@ -62,12 +62,8 @@
           "name": "registro_ponto_usuario_id_usuario_id_fk",
           "tableFrom": "registro_ponto",
           "tableTo": "usuario",
-          "columnsFrom": [
-            "usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["usuario_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -75,12 +71,8 @@
           "name": "registro_ponto_registrado_por_usuario_id_fk",
           "tableFrom": "registro_ponto",
           "tableTo": "usuario",
-          "columnsFrom": [
-            "registrado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["registrado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -156,12 +148,8 @@
           "name": "resumo_diario_usuario_id_usuario_id_fk",
           "tableFrom": "resumo_diario",
           "tableTo": "usuario",
-          "columnsFrom": [
-            "usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["usuario_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -275,9 +263,7 @@
         "usuario_matricula_unique": {
           "name": "usuario_matricula_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "matricula"
-          ]
+          "columns": ["matricula"]
         }
       },
       "policies": {},
@@ -289,49 +275,27 @@
     "public.origem_batida": {
       "name": "origem_batida",
       "schema": "public",
-      "values": [
-        "sistema",
-        "ajuste"
-      ]
+      "values": ["sistema", "ajuste"]
     },
     "public.perfil": {
       "name": "perfil",
       "schema": "public",
-      "values": [
-        "colaborador",
-        "gestor",
-        "rh"
-      ]
+      "values": ["colaborador", "gestor", "rh"]
     },
     "public.status_dia": {
       "name": "status_dia",
       "schema": "public",
-      "values": [
-        "completo",
-        "incompleto",
-        "falta",
-        "afastamento"
-      ]
+      "values": ["completo", "incompleto", "falta", "afastamento"]
     },
     "public.tipo_batida": {
       "name": "tipo_batida",
       "schema": "public",
-      "values": [
-        "entrada",
-        "saida_almoco",
-        "retorno_almoco",
-        "saida"
-      ]
+      "values": ["entrada", "saida_almoco", "retorno_almoco", "saida"]
     },
     "public.turno": {
       "name": "turno",
       "schema": "public",
-      "values": [
-        "manha",
-        "tarde",
-        "noite",
-        "administrativo"
-      ]
+      "values": ["manha", "tarde", "noite", "administrativo"]
     }
   },
   "schemas": {},
