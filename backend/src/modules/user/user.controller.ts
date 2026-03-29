@@ -5,7 +5,7 @@ import {
   notFoundErrorSchema,
 } from '@/shared/errors/errorSchemas'
 import { createUserDto } from './dtos/create-user.dto'
-import { createUserResponseDto, userResponseDto } from './dtos/user-response'
+import {  userResponseDto } from './dtos/user-response'
 import { userService } from './user.service'
 import { permission } from '@/shared/middlewares/permission'
 
@@ -19,7 +19,7 @@ export default function userController(_server: FastifyInstance) {
         tags: ['Usuário'],
         body: createUserDto,
         response: {
-          201: createUserResponseDto,
+          201: createUserDto,
         },
       },
     },
@@ -32,7 +32,7 @@ export default function userController(_server: FastifyInstance) {
         summary: 'Rota para obter todos os usuários',
         tags: ['Usuário'],
         response: {
-          200: z4.array(createUserResponseDto),
+          200: z4.array(createUserDto),
           500: internalServerErrorSchema,
         },
       },
@@ -70,7 +70,7 @@ export default function userController(_server: FastifyInstance) {
         }),
         body: createUserDto.partial(),
         response: {
-          200: createUserResponseDto,
+          200: createUserDto,
           404: z4.object({
             statusCode: z4.literal(404),
             error: z4.literal('Not Found'),

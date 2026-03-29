@@ -5,38 +5,37 @@ import { usuario } from '@/database/schemas'
 import { AppError } from '@/shared/errors/AppError'
 import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
+import { gerarHashSenha } from '@/shared/utils/auth'
 
 export const userService = {
-  //create user
   async create(req: FastifyRequest, reply: FastifyReply) {
     const { senha, ...rest } = createUserDto.parse(req.body)
 
-    const userExist = await userRepository.findById(rest.matricula)
+    const userExist = await userRepository.findByMatricula(rest.matricula)
 
-    if (!userExist)
-      throw new AppError('Usuário já existe com essa matricula', 409)
+  
+    if (userExist) {
+      throw new AppError('Usuário já existe com essa matrícula', 409)
+    }
 
-    // Criptografar a senha
-    const hashedPassword = await bcrypt.hash(senha, 10)
+    const hashedPassword =  await gerarHashSenha(senha)
 
-    //envia para o banco de dados
-    const [user] = await db
-      .insert(usuario)
-      .values({ ...rest, senha: hashedPassword })
-      .returning()
+    const user = await userRepository.create({ ...rest, senha: hashedPassword })
+
+   
 
     return reply.status(201).send(user)
   },
-  //get all users
-  async findAll() {
-    return await userRepository.findAll()
+
+  async findAll(_req: FastifyRequest, reply: FastifyReply) {
+    const users = await userRepository.findAll()
+    return reply.status(200).send(users)
   },
 
-  //get user by id
   async findById(req: FastifyRequest, reply: FastifyReply) {
     const { matricula } = req.params as { matricula: string }
-    const user = await userRepository.findById(matricula)
 
+    const user = await userRepository.findByMatricula(matricula)
     if (!user) throw new AppError('Usuário não encontrado', 404)
 
     return reply.status(200).send(user)
@@ -47,22 +46,19 @@ export const userService = {
     const data = createUserDto.partial().parse(req.body)
 
     if (data.senha) {
-      data.senha = await bcrypt.hash(data.senha, 10)
+      data.senha =await gerarHashSenha(data.senha)
     }
 
     const updatedUser = await userRepository.update(matricula, data)
-
     if (!updatedUser) throw new AppError('Usuário não encontrado', 404)
 
     return reply.status(200).send(updatedUser)
   },
 
-  //delete user by id
   async delete(req: FastifyRequest, reply: FastifyReply) {
     const { matricula } = req.params as { matricula: string }
 
     const deleted = await userRepository.delete(matricula)
-
     if (!deleted) throw new AppError('Usuário não encontrado', 404)
 
     return reply.status(200).send({ message: 'Usuário deletado com sucesso' })
