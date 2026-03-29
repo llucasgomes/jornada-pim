@@ -1,7 +1,5 @@
-import bcrypt from 'bcryptjs'
+
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { db } from '@/config/database'
-import { usuario } from '@/database/schemas'
 import { AppError } from '@/shared/errors/AppError'
 import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
@@ -13,13 +11,16 @@ export const userService = {
 
     const userExist = await userRepository.findByMatricula(rest.matricula)
 
+  
     if (userExist) {
       throw new AppError('Usuário já existe com essa matrícula', 409)
     }
 
-    const hashedPassword = await gerarHashSenha(senha)
+    const hashedPassword =  await gerarHashSenha(senha)
 
     const user = await userRepository.create({ ...rest, senha: hashedPassword })
+
+   
 
     return reply.status(201).send(user)
   },
@@ -43,7 +44,7 @@ export const userService = {
     const data = createUserDto.partial().parse(req.body)
 
     if (data.senha) {
-      data.senha = await gerarHashSenha(data.senha)
+      data.senha =await gerarHashSenha(data.senha)
     }
 
     const updatedUser = await userRepository.update(matricula, data)
