@@ -30,6 +30,14 @@ export const userRepository = {
     return db.select(safeColumns).from(usuario)
   },
 
+  async findAllActive() {
+    return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, true))
+  },
+
+  async findAllInactive() {
+    return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, false))
+  },
+
   async findByMatricula(matricula: string) {
     const result = await db
       .select(safeColumns)
@@ -59,7 +67,8 @@ export const userRepository = {
 
   async delete(matricula: string) {
     const result = await db
-      .delete(usuario)
+      .update(usuario)
+      .set({ ativo: false, updated_at: new Date() })
       .where(eq(usuario.matricula, matricula))
       .returning(safeColumns)
     return result[0] ?? null

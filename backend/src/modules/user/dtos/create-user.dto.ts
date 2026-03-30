@@ -9,7 +9,12 @@ export const createUserDto = z4.object({
   cargo: z4.string().min(1).optional(),
   setor: z4.string().min(1).optional(),
   turno: turnoEnumSchema.optional(),
-  carga_horaria_dia: z4.number().int().min(240).max(720).optional(),
+  carga_horaria_dia: z4
+    .number()
+    .int()
+    .min(240, ' carga horária deve ser entre 240 e 720 minutos')
+    .max(720, 'A carga horária deve ser entre 240 e 720 minutos')
+    .optional(),
   horario_entrada: z4
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Formato HH:MM')

@@ -4,10 +4,10 @@ import {
   internalServerErrorSchema,
   notFoundErrorSchema,
 } from '@/shared/errors/errorSchemas'
+import { permission } from '@/shared/middlewares/permission'
 import { createUserDto } from './dtos/create-user.dto'
 import { userResponseDto } from './dtos/user-response'
 import { userService } from './user.service'
-import { permission } from '@/shared/middlewares/permission'
 
 export default function userController(_server: FastifyInstance) {
   _server.post(
@@ -25,6 +25,8 @@ export default function userController(_server: FastifyInstance) {
     },
     userService.create
   )
+
+  //Rota para obter todos os usuarios ativos e Inativos
   _server.get(
     '/all',
     {
@@ -32,7 +34,7 @@ export default function userController(_server: FastifyInstance) {
         summary: 'Rota para obter todos os usuários',
         tags: ['Usuário'],
         response: {
-          200: z4.array(createUserDto),
+          200: z4.array(userResponseDto),
           500: internalServerErrorSchema,
         },
       },
@@ -40,6 +42,38 @@ export default function userController(_server: FastifyInstance) {
     userService.findAll
   )
 
+  //Rota para obter todos os usuarios ativos
+  _server.get(
+    '/findAllActive',
+    {
+      schema: {
+        summary: 'Rota para obter todos os usuários ativos',
+        tags: ['Usuário'],
+        response: {
+          200: z4.array(userResponseDto),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    userService.findAllActive
+  )
+
+  //Rota para obter todos os usuarios ativos
+  _server.get(
+    '/findAllInactive',
+    {
+      schema: {
+        summary: 'Rota para obter todos os usuários ativos',
+        tags: ['Usuário'],
+        response: {
+          200: z4.array(userResponseDto),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    userService.findAllInactive
+  )
+  // Rota para obter usuario pelo id (matricula)
   _server.get(
     '/:matricula',
     {
@@ -59,6 +93,7 @@ export default function userController(_server: FastifyInstance) {
     userService.findById
   )
 
+  //Rota para atualizar usuario pelo id (matricula)
   _server.put(
     '/:matricula',
     {
@@ -70,7 +105,7 @@ export default function userController(_server: FastifyInstance) {
         }),
         body: createUserDto.partial(),
         response: {
-          200: createUserDto,
+          200: userResponseDto,
           404: z4.object({
             statusCode: z4.literal(404),
             error: z4.literal('Not Found'),
@@ -83,11 +118,12 @@ export default function userController(_server: FastifyInstance) {
     userService.update
   )
 
-  _server.delete(
-    '/:matricula',
+  // Rota para desativar usuario pelo id (matricula)
+  _server.put(
+    '/disable/:matricula',
     {
       schema: {
-        summary: 'Rota para deletar um usuário por matrícula',
+        summary: 'Rota para desativar um usuário por matrícula',
         tags: ['Usuário'],
         params: z4.object({
           matricula: z4.string().min(1, 'A matrícula é obrigatória'),

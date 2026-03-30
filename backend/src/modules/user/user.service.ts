@@ -1,9 +1,8 @@
-
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { AppError } from '@/shared/errors/AppError'
+import { gerarHashSenha } from '@/shared/utils/auth'
 import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
-import { gerarHashSenha } from '@/shared/utils/auth'
 
 export const userService = {
   async create(req: FastifyRequest, reply: FastifyReply) {
@@ -11,22 +10,28 @@ export const userService = {
 
     const userExist = await userRepository.findByMatricula(rest.matricula)
 
-  
     if (userExist) {
       throw new AppError('Usuário já existe com essa matrícula', 409)
     }
 
-    const hashedPassword =  await gerarHashSenha(senha)
+    const hashedPassword = await gerarHashSenha(senha)
 
     const user = await userRepository.create({ ...rest, senha: hashedPassword })
-
-   
 
     return reply.status(201).send(user)
   },
 
   async findAll(_req: FastifyRequest, reply: FastifyReply) {
     const users = await userRepository.findAll()
+    return reply.status(200).send(users)
+  },
+
+  async findAllActive(_req: FastifyRequest, reply: FastifyReply) {
+    const users = await userRepository.findAll()
+    return reply.status(200).send(users)
+  },
+  async findAllInactive(_req: FastifyRequest, reply: FastifyReply) {
+    const users = await userRepository.findAllInactive()
     return reply.status(200).send(users)
   },
 
@@ -44,7 +49,7 @@ export const userService = {
     const data = createUserDto.partial().parse(req.body)
 
     if (data.senha) {
-      data.senha =await gerarHashSenha(data.senha)
+      data.senha = await gerarHashSenha(data.senha)
     }
 
     const updatedUser = await userRepository.update(matricula, data)
