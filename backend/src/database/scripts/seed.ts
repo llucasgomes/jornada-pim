@@ -1,7 +1,8 @@
 import { faker } from '@faker-js/faker/locale/pt_BR'
 import bcrypt from 'bcryptjs'
-import { db } from '@/config/database'
-import { registro_ponto, resumo_diario, usuario } from '@/database/schemas'
+
+import { registro_ponto, resumo_diario, usuario } from '../../database/schemas'
+import { db } from '../../config/database'
 
 faker.seed(42)
 

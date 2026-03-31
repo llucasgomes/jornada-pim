@@ -38,6 +38,9 @@ COPY package.json ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
+COPY drizzle.config.ts ./
+COPY src ./src
+
 EXPOSE 3000
 
 CMD ["node", "dist/server.js"]
