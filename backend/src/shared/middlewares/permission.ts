@@ -24,8 +24,9 @@ export const permission = (rolesPermitidas: string[]) => {
 
     // valida parcialmente com Zod
     const parseResult = userPartialSchema.safeParse(payload)
-    
-    if (!parseResult.success)  throw new AppError('Dados do usuário inválidos', 401)
+
+    if (!parseResult.success)
+      throw new AppError('Dados do usuário inválidos', 401)
 
     const user = parseResult.data
     const role = user.perfil

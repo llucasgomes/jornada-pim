@@ -11,9 +11,12 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+     "db:setup": "pnpm db:generate && pnpm db:migrate && pnpm db:seed",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:reset": "tsx ./src/database/scripts/reset-db.ts",
+    "db:seed": "tsx  ./src/database/scripts/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +39,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.8",
+    "@faker-js/faker": "^10.4.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.5.0",
     "@types/supertest": "^7.2.0",

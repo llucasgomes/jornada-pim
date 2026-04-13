@@ -1,12 +1,38 @@
 services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_HOST=service-pg
+      - NODE_ENV=production
+    depends_on:
+      service-pg:
+        condition: service_healthy
+    command: sh -c "pnpm db:setup && node dist/server.js"
+    restart: unless-stopped
+
   service-pg:
     container_name: bd-postgres
     image: bitnami/postgresql
+    restart: unless-stopped
     ports:
-      - '5432:5432'
+      - "5432:5432"
     environment:
-      - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=jornadapim
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=jornadapim
+    volumes:
+      - pgdata:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docker -d jornadapim"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
- 
+volumes:
+  pgdata:

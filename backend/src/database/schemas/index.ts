@@ -38,26 +38,12 @@ export const usuario = pgTable('usuario', {
   matricula: text('matricula').notNull().unique(),
   senha: text('senha').notNull(),
   perfil: perfilEnum('perfil').notNull().default('colaborador'),
-  setor: text('setor').notNull(),
-  ativo: boolean('ativo').notNull().default(true),
-  created_at: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updated_at: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-})
-
-export const colaborador = pgTable('colaborador', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  nome: text('nome').notNull(),
-  matricula: text('matricula').notNull().unique(),
-  cargo: text('cargo').notNull(),
-  setor: text('setor').notNull(),
-  turno: turnoEnum('turno').notNull(),
-  carga_horaria_dia: numeric('carga_horaria_dia').notNull(),
-  horario_entrada: time('horario_entrada').notNull(),
-  horario_saida: time('horario_saida').notNull(),
+  cargo: text('cargo'),
+  setor: text('setor'),
+  turno: turnoEnum('turno'),
+  carga_horaria_dia: integer('carga_horaria_dia'),
+  horario_entrada: time('horario_entrada'),
+  horario_saida: time('horario_saida'),
   ativo: boolean('ativo').notNull().default(true),
   created_at: timestamp('created_at', { withTimezone: true })
     .notNull()
@@ -69,9 +55,9 @@ export const colaborador = pgTable('colaborador', {
 
 export const registro_ponto = pgTable('registro_ponto', {
   id: uuid('id').primaryKey().defaultRandom(),
-  colaborador_id: uuid('colaborador_id')
+  usuario_id: uuid('usuario_id')
     .notNull()
-    .references(() => colaborador.id),
+    .references(() => usuario.id),
   tipo: tipoEnum('tipo').notNull(),
   timestamp: timestamp('timestamp', { withTimezone: true })
     .notNull()
@@ -83,9 +69,9 @@ export const registro_ponto = pgTable('registro_ponto', {
 
 export const resumo_diario = pgTable('resumo_diario', {
   id: uuid('id').primaryKey().defaultRandom(),
-  colaborador_id: uuid('colaborador_id')
+  usuario_id: uuid('usuario_id')
     .notNull()
-    .references(() => colaborador.id),
+    .references(() => usuario.id),
   data: date('data').notNull(),
   horas_trabalhadas: numeric('horas_trabalhadas').notNull().default('0'),
   horas_esperadas: numeric('horas_esperadas').notNull(),

@@ -32,14 +32,13 @@ export const authMiddleware = async (
     // valida parcialmente com Zod
     const parseResult = userPartialSchema.safeParse(payload)
 
-    if (!parseResult.success)  throw new AppError('Dados do usuário inválidos', 401)
-
+    if (!parseResult.success)
+      throw new AppError('Dados do usuário inválidos', 401)
 
     req.user = payload // Adiciona os dados do usuário ao request
     done()
   } catch (error) {
     console.error('Erro no middleware de autenticação:', error)
     throw new AppError('Token inválido', 401)
-
   }
 }
