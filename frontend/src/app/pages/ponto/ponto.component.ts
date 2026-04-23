@@ -1,0 +1,227 @@
+import { Component, signal, computed, OnInit } from '@angular/core';
+import { PontoService } from '../../services/ponto.service';
+import { AuthService } from '../../services/auth.service';
+import type { PontoHoje, TipoBatida } from '../../models/interfaces';
+
+@Component({
+  selector: 'app-ponto',
+  template: `
+    <div class="max-w-[900px]">
+      <header class="mb-8 animate-in fade-in slide-in-from-left duration-500">
+        <h1 class="text-3xl font-bold text-white">Registro de Ponto</h1>
+        <p class="text-slate-400 text-sm mt-1 capitalize">{{ today }}</p>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Botão de registro -->
+        <div class="card flex flex-col gap-5 animate-in fade-in duration-700" style="animation-delay: 0.1s">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Próxima Batida</h2>
+            @if (proximaBatida()) {
+              <span class="badge badge-primary">{{ formatTipoBatida(proximaBatida()!) }}</span>
+            } @else {
+              <span class="badge badge-success">Jornada Completa</span>
+            }
+          </div>
+
+          <div class="py-6 text-center">
+            <span class="text-5xl font-bold tracking-tighter text-white tabular-nums">
+              {{ currentTime() }}
+            </span>
+          </div>
+
+          <button
+            class="btn-primary w-full py-4 text-lg"
+            [disabled]="!proximaBatida() || punching()"
+            (click)="registrarPonto()"
+          >
+            @if (punching()) {
+              <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Registrando...</span>
+            } @else if (!proximaBatida()) {
+              ✓ Jornada Completa
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              Registrar {{ formatTipoBatida(proximaBatida()!) }}
+            }
+          </button>
+
+          @if (successMsg()) {
+            <div class="p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-sm rounded-xl text-center animate-in fade-in zoom-in duration-300">
+              {{ successMsg() }}
+            </div>
+          }
+          @if (errorMsg()) {
+            <div class="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl text-center animate-in fade-in zoom-in duration-300">
+              {{ errorMsg() }}
+            </div>
+          }
+        </div>
+
+        <!-- Resumo do dia -->
+        <div class="card animate-in fade-in duration-700" style="animation-delay: 0.2s">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-5">Resumo do Dia</h2>
+          @if (dados()?.resumo; as resumo) {
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Trabalhadas</span>
+                <span class="text-xl font-bold text-indigo-400 tabular-nums">{{ formatMinutes(resumo.horas_trabalhadas) }}</span>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Esperadas</span>
+                <span class="text-xl font-bold text-slate-300 tabular-nums">{{ formatMinutes(resumo.horas_esperadas) }}</span>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Extras</span>
+                <span class="text-xl font-bold text-green-400 tabular-nums">{{ formatMinutes(resumo.horas_extras) }}</span>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Atraso</span>
+                <span class="text-xl font-bold text-amber-400 tabular-nums">{{ resumo.atraso_minutos }} min</span>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+              <span class="badge" [class]="statusBadge(resumo.status)">{{ resumo.status }}</span>
+            </div>
+          } @else {
+            <div class="h-32 flex items-center justify-center text-slate-500 text-sm italic">
+              <p>Nenhuma batida registrada ainda hoje.</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Batidas de hoje -->
+      <div class="card animate-in fade-in duration-700" style="animation-delay: 0.3s">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-6">Linha do Tempo</h2>
+        @if (dados()?.batidas?.length) {
+          <div class="relative pl-6 space-y-0 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-800">
+            @for (batida of dados()!.batidas; track batida.id) {
+              <div class="relative py-4 flex items-center justify-between group animate-in slide-in-from-left duration-300">
+                <div class="absolute -left-6 w-3.5 h-3.5 rounded-full border-2 bg-slate-900 z-10" [class]="dotClass(batida.tipo)"></div>
+                <span class="font-medium text-slate-200">{{ formatTipoBatida(batida.tipo) }}</span>
+                <span class="text-slate-500 text-sm tabular-nums">{{ formatTime(batida.timestamp) }}</span>
+              </div>
+            }
+            @if (proximaBatida()) {
+              <div class="relative py-4 flex items-center justify-between opacity-40">
+                <div class="absolute -left-6 w-3.5 h-3.5 rounded-full border-2 border-slate-700 border-dashed bg-slate-900 z-10"></div>
+                <span class="font-medium text-slate-400 italic">{{ formatTipoBatida(proximaBatida()!) }}</span>
+                <span class="badge badge-info scale-75">Pendente</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex flex-col items-center justify-center gap-4 py-8 text-slate-500">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="opacity-20">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <p class="text-sm italic">Nenhuma batida registrada hoje</p>
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  styles: []
+})
+export class PontoComponent implements OnInit {
+  dados = signal<PontoHoje | null>(null);
+  punching = signal(false);
+  successMsg = signal('');
+  errorMsg = signal('');
+  currentTime = signal('');
+  today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  proximaBatida = computed(() => this.dados()?.proxima_batida ?? null);
+
+  private timerInterval: any;
+
+  constructor(
+    private pontoService: PontoService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    this.updateClock();
+    this.timerInterval = setInterval(() => this.updateClock(), 1000);
+    this.loadDados();
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.timerInterval);
+  }
+
+  private updateClock() {
+    this.currentTime.set(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+  }
+
+  loadDados() {
+    this.pontoService.buscarHoje().subscribe({
+      next: (data) => this.dados.set(data),
+      error: () => {}
+    });
+  }
+
+  registrarPonto() {
+    this.punching.set(true);
+    this.successMsg.set('');
+    this.errorMsg.set('');
+
+    this.pontoService.registrarBatida().subscribe({
+      next: (batida) => {
+        this.punching.set(false);
+        this.successMsg.set(`${this.formatTipoBatida(batida.tipo)} registrada com sucesso!`);
+        this.loadDados();
+        setTimeout(() => this.successMsg.set(''), 4000);
+      },
+      error: (err) => {
+        this.punching.set(false);
+        this.errorMsg.set(err.error?.message || 'Erro ao registrar batida');
+        setTimeout(() => this.errorMsg.set(''), 4000);
+      }
+    });
+  }
+
+  formatTipoBatida(tipo: TipoBatida): string {
+    const map: Record<string, string> = {
+      entrada: 'Entrada',
+      saida_almoco: 'Saída Almoço',
+      retorno_almoco: 'Retorno Almoço',
+      saida: 'Saída',
+    };
+    return map[tipo] || tipo;
+  }
+
+  formatTime(ts: string): string {
+    return new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  formatMinutes(val: string): string {
+    const minutes = Math.round(Number(val));
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h}h${m.toString().padStart(2, '0')}`;
+  }
+
+  dotClass(tipo: string): string {
+    const map: Record<string, string> = {
+      entrada: 'border-green-500 bg-green-500',
+      saida_almoco: 'border-amber-500 bg-amber-500',
+      retorno_almoco: 'border-cyan-500 bg-cyan-500',
+      saida: 'border-red-500 bg-red-500',
+    };
+    return map[tipo] || 'border-slate-500 bg-slate-500';
+  }
+
+  statusBadge(status: string): string {
+    const map: Record<string, string> = {
+      completo: 'badge-success',
+      incompleto: 'badge-warning',
+      falta: 'badge-danger',
+      afastamento: 'badge-info',
+    };
+    return map[status] || 'badge-info';
+  }
+}

@@ -1,0 +1,145 @@
+import { Component, computed, inject } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+
+@Component({
+  selector: 'app-layout',
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  template: `
+    <div class="flex min-h-screen bg-[#0f172a]">
+      <!-- Sidebar -->
+      <aside class="fixed inset-y-0 left-0 w-64 bg-slate-900/50 backdrop-blur-xl border-r border-slate-800 flex flex-col hidden md:flex z-50">
+        <div class="p-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 flex items-center justify-center text-indigo-500 shrink-0">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                <path d="M24 4L4 14V34L24 44L44 34V14L24 4Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+                <path d="M24 14V34" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                <path d="M14 19L24 14L34 19" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="text-xl font-bold text-white tracking-tight">JornadaPIM</span>
+          </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto mt-4">
+          @if (isColaborador()) {
+            <a routerLink="/ponto" routerLinkActive="bg-indigo-500/10 text-indigo-400" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:scale-110 transition-transform">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span class="font-medium text-sm">Meu Ponto</span>
+            </a>
+            <a routerLink="/historico" routerLinkActive="bg-indigo-500/10 text-indigo-400" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:scale-110 transition-transform">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span class="font-medium text-sm">Histórico</span>
+            </a>
+          }
+          @if (isAdmin()) {
+            <a routerLink="/dashboard" routerLinkActive="bg-indigo-500/10 text-indigo-400" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:scale-110 transition-transform">
+                <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/><path d="M9 22V9"/><path d="M15 22V9"/>
+              </svg>
+              <span class="font-medium text-sm">Dashboard</span>
+            </a>
+            <a routerLink="/admin/users" routerLinkActive="bg-indigo-500/10 text-indigo-400" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="group-hover:scale-110 transition-transform">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span class="font-medium text-sm">Colaboradores</span>
+            </a>
+          }
+        </nav>
+
+        <div class="p-4 border-t border-slate-800/50 mt-auto">
+          <div class="flex items-center gap-3 p-3 bg-slate-800/30 rounded-2xl">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-lg">
+              {{ userInitials() }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-white truncate">{{ userName() }}</p>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">{{ perfil() }}</span>
+            </div>
+            <button (click)="onLogout()" class="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all" title="Sair">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 md:ml-64 p-4 md:p-8">
+        <router-outlet />
+      </main>
+
+      <!-- Mobile Nav -->
+      <nav class="fixed bottom-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-lg border-t border-slate-800 flex md:hidden items-center justify-around px-2 z-50">
+        @if (isColaborador()) {
+          <a routerLink="/ponto" routerLinkActive="text-indigo-400" class="flex flex-col items-center gap-1 text-slate-500">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span class="text-[10px] font-medium">Ponto</span>
+          </a>
+          <a routerLink="/historico" routerLinkActive="text-indigo-400" class="flex flex-col items-center gap-1 text-slate-500">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="text-[10px] font-medium">Histórico</span>
+          </a>
+        }
+        @if (isAdmin()) {
+          <a routerLink="/dashboard" routerLinkActive="text-indigo-400" class="flex flex-col items-center gap-1 text-slate-500">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/><path d="M9 22V9"/><path d="M15 22V9"/>
+            </svg>
+            <span class="text-[10px] font-medium">Dashboard</span>
+          </a>
+          <a routerLink="/admin/users" routerLinkActive="text-indigo-400" class="flex flex-col items-center gap-1 text-slate-500">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            </svg>
+            <span class="text-[10px] font-medium">Colaboradores</span>
+          </a>
+        }
+        <button (click)="onLogout()" class="flex flex-col items-center gap-1 text-slate-500">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/>
+          </svg>
+          <span class="text-[10px] font-medium">Sair</span>
+        </button>
+      </nav>
+    </div>
+  `,
+  styles: []
+})
+export class LayoutComponent {
+  private authService = inject(AuthService);
+
+  perfil = this.authService.perfil;
+  userName = computed(() => this.authService.currentUser()?.nome || '');
+  userInitials = computed(() => {
+    const name = this.userName();
+    if (!name) return '?';
+    const parts = name.split(' ');
+    return (parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '');
+  });
+
+  isColaborador = computed(() => this.perfil() === 'colaborador');
+  isAdmin = computed(() => this.perfil() === 'gestor' || this.perfil() === 'rh');
+
+  roleBadgeClass = computed(() => {
+    const p = this.perfil();
+    if (p === 'rh') return 'badge-danger';
+    if (p === 'gestor') return 'badge-warning';
+    return 'badge-info';
+  });
+
+  onLogout() {
+    this.authService.logout();
+  }
+}
