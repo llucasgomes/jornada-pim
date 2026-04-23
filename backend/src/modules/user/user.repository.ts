@@ -47,6 +47,15 @@ export const userRepository = {
     return result[0] ?? null
   },
 
+  async findByMatriculaWithPassword(matricula: string) {
+    const result = await db
+      .select()
+      .from(usuario)
+      .where(eq(usuario.matricula, matricula))
+      .limit(1)
+    return result[0] ?? null
+  },
+
   async findByUuid(id: string) {
     const result = await db
       .select(safeColumns)

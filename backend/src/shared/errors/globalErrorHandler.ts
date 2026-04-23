@@ -35,6 +35,14 @@ export const globalErrorHandler = (
       message: error.message,
     })
   }
+
+  // Fallback para erros não tratados (previne o request de ficar pendurado)
+  console.error('Unhandled Error:', error)
+  return reply.status(500).send({
+    statusCode: 500,
+    error: 'Internal Server Error',
+    message: 'Ocorreu um erro interno no servidor.',
+  })
 }
 
 // helper

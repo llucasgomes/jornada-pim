@@ -6,6 +6,7 @@ import {
 } from '@/shared/errors/errorSchemas'
 import { authRequestSchema, authResponseSchema } from './auth.schema'
 import { authService } from './auth.service'
+import { userResponseDto } from '../user/dtos/user-response'
 
 export default async function authController(server: FastifyInstance) {
   server.post(
@@ -23,6 +24,22 @@ export default async function authController(server: FastifyInstance) {
         },
       },
     },
-    authService
+    authService.login
+  )
+
+  server.get(
+    '/me',
+    {
+      schema: {
+        summary: 'Retorna os dados do usuário logado',
+        tags: ['Login'],
+        response: {
+          200: userResponseDto,
+          401: unauthorizedErrorSchema,
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    authService.getMe
   )
 }

@@ -4,21 +4,32 @@ import { gerarToken, verificarSenha } from '@/shared/utils/auth'
 import { userRepository } from '../user/user.repository'
 import { authRequestSchema } from './auth.schema'
 
-export const authService = async (req: FastifyRequest, reply: FastifyReply) => {
-  const { matricula, senha } = authRequestSchema.parse(req.body)
+export const authService = {
+  async login(req: FastifyRequest, reply: FastifyReply) {
+    const { matricula, senha } = authRequestSchema.parse(req.body)
 
-  const user = await userRepository.findById(matricula)
+    const user = await userRepository.findByMatriculaWithPassword(matricula)
 
-  if (!user) throw new AppError('Credenciais inválidas', 401)
+    if (!user) throw new AppError('Credenciais inválidas', 401)
 
-  const senhaValida = await verificarSenha(senha, user.senha)
+    const senhaValida = await verificarSenha(senha, user.senha)
 
-  if (!senhaValida) throw new AppError('Credenciais inválidas', 401)
+    if (!senhaValida) throw new AppError('Credenciais inválidas', 401)
 
-  const token = gerarToken(user.id, user.perfil, user.nome, user.matricula)
+    const token = gerarToken(user.id, user.perfil, user.nome, user.matricula)
 
-  return reply.status(200).send({
-    message: 'Login autenticado',
-    token,
-  })
+    return reply.status(200).send({
+      message: 'Login autenticado',
+      token,
+    })
+  },
+
+  async getMe(req: FastifyRequest, reply: FastifyReply) {
+    const { id } = req.user as { id: string }
+    const user = await userRepository.findByUuid(id)
+
+    if (!user) throw new AppError('Usuário não encontrado', 404)
+
+    return reply.status(200).send(user)
+  }
 }

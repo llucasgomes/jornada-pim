@@ -63,6 +63,25 @@ export async function registroPontoController(server: FastifyInstance) {
     },
   }, registroPontoService.buscarHistorico)
 
+  // GET /ponto/:usuario_id/relatorio-mensal?mes=&ano=
+  server.get('/:usuario_id/relatorio-mensal', {
+    schema: {
+      summary: 'Retorna relatório mensal consolidado',
+      tags: ['Ponto'],
+      params: z4.object({
+        usuario_id: z4.string().uuid(),
+      }),
+      querystring: z4.object({
+        mes: z4.string().optional(),
+        ano: z4.string().optional(),
+      }),
+      response: {
+        200: z4.array(z4.any()),
+        500: internalServerErrorSchema,
+      },
+    },
+  }, registroPontoService.buscarRelatorioMensal)
+
   // DELETE /ponto/:id — remove batida (gestor/rh)
   server.delete('/:id', {
     schema: {

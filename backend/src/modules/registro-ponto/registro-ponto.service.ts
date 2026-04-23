@@ -6,7 +6,7 @@ import { AppError } from '@/shared/errors/AppError'
 
 import { registroPontoRepository } from './registro-ponto.repository'
 
-import { and, eq } from 'drizzle-orm'
+import { and, eq, gte, lte } from 'drizzle-orm'
 import { userRepository } from '../user/user.repository'
 import { calcularResumo } from './registro-ponto.utils'
 
@@ -92,6 +92,33 @@ export const registroPontoService = {
     await registroPontoRepository.delete(id)
 
     return reply.status(200).send({ message: 'Batida removida com sucesso' })
+  },
+
+  // GET /ponto/:usuario_id/relatorio-mensal?mes=4&ano=2024
+  async buscarRelatorioMensal(req: FastifyRequest, reply: FastifyReply) {
+    const { usuario_id } = req.params as { usuario_id: string }
+    const { mes, ano } = req.query as { mes?: string; ano?: string }
+
+    const hoje = new Date()
+    const targetMes = mes ? Number(mes) : hoje.getMonth() + 1
+    const targetAno = ano ? Number(ano) : hoje.getFullYear()
+
+    const inicioMes = `${targetAno}-${String(targetMes).padStart(2, '0')}-01`
+    const fimMes = `${targetAno}-${String(targetMes).padStart(2, '0')}-${new Date(targetAno, targetMes, 0).getDate()}`
+
+    const resumos = await db
+      .select()
+      .from(resumo_diario)
+      .where(
+        and(
+          eq(resumo_diario.usuario_id, usuario_id),
+          gte(resumo_diario.data, inicioMes),
+          lte(resumo_diario.data, fimMes)
+        )
+      )
+      .orderBy(resumo_diario.data)
+
+    return reply.status(200).send(resumos)
   },
 }
 
