@@ -11,12 +11,14 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-     "db:setup": "pnpm db:generate && pnpm db:migrate && pnpm db:seed",
+    "db:setup": "pnpm db:generate && pnpm db:migrate && pnpm db:seed",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:reset": "tsx --env-file=.env ./src/database/scripts/reset-db.ts",
-    "db:seed": "tsx --env-file=.env ./src/database/scripts/seed.ts"
+    "db:seed": "tsx --env-file=.env ./src/database/scripts/seed.ts",
+    "db:seedsqlite": "tsx ./src/database/scripts/seed-sqlite.ts"
+
   },
   "keywords": [],
   "author": "",
@@ -27,14 +29,14 @@
     "@fastify/jwt": "^10.0.0",
     "@fastify/swagger": "^9.7.0",
     "@fastify/swagger-ui": "^5.2.5",
+    "@libsql/client": "^0.17.3",
     "@scalar/fastify-api-reference": "^1.49.3",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-orm": "0.45.2",
     "fastify": "^5.8.4",
     "fastify-type-provider-zod": "^6.1.0",
     "jsonwebtoken": "^9.0.3",
-    "postgres": "^3.4.8",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -50,5 +52,10 @@
     "typescript": "^5.9.3",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "drizzle-orm": "0.45.2"
+    }
   }
 }

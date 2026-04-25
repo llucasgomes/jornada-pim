@@ -12,7 +12,7 @@ export const userResponseDto = z4.object({
   carga_horaria_dia: z4.number().nullable().optional(),
   horario_entrada: z4.string().nullable().optional(),
   horario_saida: z4.string().nullable().optional(),
-  ativo: z4.boolean(),
+  ativo: z4.coerce.boolean(),
   created_at: z4.coerce.date(),
   updated_at: z4.coerce.date(),
 })

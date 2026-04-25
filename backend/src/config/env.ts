@@ -5,13 +5,14 @@ const envSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
 
-  PORT: z.coerce.number().default(3000),
+  PORT: z.coerce.number().default(3333),
 
   DB_HOST: z.string().default('localhost'),
   DB_PORT: z.coerce.number().default(5432),
   DB_USER: z.string().default('postgres'),
   DB_PASS: z.string().default('senha'),
   DB_NAME: z.string().default('jornadapim'),
+  SQLITE_URL: z.string().default('file:./src/database/data/dev.db'),
 
   JWT_SECRET: z.string().default('chaveSuperSecreta'),
 })

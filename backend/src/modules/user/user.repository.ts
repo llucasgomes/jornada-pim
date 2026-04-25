@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@/config/database'
-import { usuario } from '@/database/schemas'
+import { usuario } from '@/database/schemas/sqlite'
 import type { CreateUserDto } from './dtos/create-user.dto'
 
 // colunas seguras reutilizadas em todos os selects (sem senha)
@@ -12,12 +12,12 @@ const safeColumns = {
   cargo: usuario.cargo,
   setor: usuario.setor,
   turno: usuario.turno,
-  carga_horaria_dia: usuario.carga_horaria_dia,
-  horario_entrada: usuario.horario_entrada,
-  horario_saida: usuario.horario_saida,
+  carga_horaria_dia: usuario.cargaHorariaDia,
+  horario_entrada: usuario.horarioEntrada,
+  horario_saida: usuario.horarioSaida,
   ativo: usuario.ativo,
-  created_at: usuario.created_at,
-  updated_at: usuario.updated_at,
+  created_at: usuario.createdAt,
+  updated_at: usuario.updatedAt,
 }
 
 export const userRepository = {
@@ -68,7 +68,7 @@ export const userRepository = {
   async update(matricula: string, data: Partial<CreateUserDto>) {
     const result = await db
       .update(usuario)
-      .set({ ...data, updated_at: new Date() })
+      .set({ ...data, updatedAt: new Date().toDateString() })
       .where(eq(usuario.matricula, matricula))
       .returning(safeColumns)
     return result[0] ?? null
@@ -77,7 +77,7 @@ export const userRepository = {
   async delete(matricula: string) {
     const result = await db
       .update(usuario)
-      .set({ ativo: false, updated_at: new Date() })
+      .set({ ativo: false, updatedAt: new Date().toDateString() })
       .where(eq(usuario.matricula, matricula))
       .returning(safeColumns)
     return result[0] ?? null
