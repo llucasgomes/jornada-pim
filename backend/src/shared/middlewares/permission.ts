@@ -40,6 +40,7 @@ export const permission = (rolesPermitidas: string[]) => {
       throw new AppError('Acesso negado', 401)
     }
 
-    return
+    // popula req.user para os services conseguirem acessar
+    req.user = user
   }
 }

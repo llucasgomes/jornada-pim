@@ -1,59 +1,60 @@
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { db } from '@/config/database'
-import { registro_ponto } from '@/database/schemas'
+import { registroPonto } from '@/database/schemas/sqlite'
 import type { CreateRegistroPontoDto } from './dtos/create-registro-ponto.dto'
+
+// Manaus = UTC-4, sem horário de verão
+const localDate = (col: unknown) => sql`DATE(datetime(${col}, '-4 hours'))`
 
 export const registroPontoRepository = {
   async create(data: CreateRegistroPontoDto) {
     const [result] = await db
-      .insert(registro_ponto)
+      .insert(registroPonto)
       .values(data)
       .returning()
     return result
   },
 
-  // busca todas as batidas de um usuário em um dia específico
-  async findByUsuarioEDia(usuario_id: string, data: string) {
+  async findByUsuarioEDia(usuarioId: string, data: string) {
     return db
       .select()
-      .from(registro_ponto)
+      .from(registroPonto)
       .where(
         and(
-          eq(registro_ponto.usuario_id, usuario_id),
-          sql`DATE(${registro_ponto.timestamp} AT TIME ZONE 'America/Manaus') = ${data}`
+          eq(registroPonto.usuarioId, usuarioId),
+          sql`${localDate(registroPonto.timestamp)} = ${data}`
         )
       )
-      .orderBy(registro_ponto.timestamp)
+      .orderBy(registroPonto.timestamp)
   },
 
-  // busca histórico por período
-  async findByUsuarioEPeriodo(usuario_id: string, de: string, ate: string) {
+  async findByUsuarioEPeriodo(usuarioId: string, de: string, ate: string) {
     return db
       .select()
-      .from(registro_ponto)
+      .from(registroPonto)
       .where(
         and(
-          eq(registro_ponto.usuario_id, usuario_id),
-          gte(sql`DATE(${registro_ponto.timestamp} AT TIME ZONE 'America/Manaus')`, de),
-          lte(sql`DATE(${registro_ponto.timestamp} AT TIME ZONE 'America/Manaus')`, ate)
+          eq(registroPonto.usuarioId, usuarioId),
+          sql`${localDate(registroPonto.timestamp)} >= ${de}`,
+          sql`${localDate(registroPonto.timestamp)} <= ${ate}`
         )
       )
-      .orderBy(desc(registro_ponto.timestamp))
+      .orderBy(desc(registroPonto.timestamp))
   },
 
   async findById(id: string) {
     const result = await db
       .select()
-      .from(registro_ponto)
-      .where(eq(registro_ponto.id, id))
+      .from(registroPonto)
+      .where(eq(registroPonto.id, id))
       .limit(1)
     return result[0] ?? null
   },
 
   async delete(id: string) {
     const result = await db
-      .delete(registro_ponto)
-      .where(eq(registro_ponto.id, id))
+      .delete(registroPonto)
+      .where(eq(registroPonto.id, id))
       .returning()
     return result[0] ?? null
   },
