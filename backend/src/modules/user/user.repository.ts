@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm'
 import { db } from '@/config/database'
 import { usuario } from '@/database/schemas/sqlite'
+import { desc, eq } from 'drizzle-orm'
 import type { CreateUserDto } from './dtos/create-user.dto'
 
 // colunas seguras reutilizadas em todos os selects (sem senha)
@@ -21,7 +21,7 @@ const safeColumns = {
 }
 
 export const userRepository = {
-  async create(data: CreateUserDto) {
+  async create(data: any) {
     const [user] = await db.insert(usuario).values(data).returning(safeColumns)
     return user
   },
@@ -36,6 +36,14 @@ export const userRepository = {
 
   async findAllInactive() {
     return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, false))
+  },
+  async lastUser(){
+    const ultimo = await db
+        .select({ matricula: usuario.matricula })
+        .from(usuario)
+        .orderBy(desc(usuario.matricula))
+        .limit(1)
+     return ultimo[0]?.matricula ?? null
   },
 
   async findByMatricula(matricula: string) {

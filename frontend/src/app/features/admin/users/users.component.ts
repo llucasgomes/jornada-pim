@@ -1,7 +1,8 @@
+import { Perfil, Turno, User } from '@/core/models/interfaces';
+import { UserService } from '@/core/services/user.service';
 import { Component, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../../services/user.service';
-import type { User, CreateUser, Perfil, Turno } from '../../../models/interfaces';
+
 
 @Component({
   selector: 'app-users',

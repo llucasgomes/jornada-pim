@@ -1,8 +1,8 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PontoService } from '../../services/ponto.service';
-import { AuthService } from '../../services/auth.service';
-import type { RegistroPonto, TipoBatida } from '../../models/interfaces';
+import { PontoService } from '../../core/services/ponto.service';
+import { AuthService } from '../../core/services/auth.service';
+import type { RegistroPonto, TipoBatida } from '../../core/models/interfaces';
 
 @Component({
   selector: 'app-historico',

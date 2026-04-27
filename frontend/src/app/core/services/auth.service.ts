@@ -1,8 +1,8 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
-import type { LoginRequest, LoginResponse, JwtPayload, Perfil } from '../models/interfaces';
+import { environment } from '../../../environments/environment';
+import type { LoginRequest, LoginResponse, JwtPayload, Perfil } from '@/core/models/interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

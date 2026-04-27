@@ -1,22 +1,32 @@
-import type { FastifyReply, FastifyRequest } from 'fastify'
 import { AppError } from '@/shared/errors/AppError'
 import { gerarHashSenha } from '@/shared/utils/auth'
+import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
 
+
+
+
+
 export const userService = {
+  async  gerarMatricula(){
+    const ultimo = await userRepository.lastUser()
+
+    const numero = ultimo.length
+      ? parseInt(ultimo[0].split('-')[1], 10) + 1
+      : 1
+
+    return `PIM-${String(numero).padStart(4, '0')}`
+  },
   async create(req: FastifyRequest, reply: FastifyReply) {
     const { senha, ...rest } = createUserDto.parse(req.body)
 
-    const userExist = await userRepository.findByMatricula(rest.matricula)
-
-    if (userExist) {
-      throw new AppError('Usuário já existe com essa matrícula', 409)
-    }
-
+   
+    const matricula = await userService.gerarMatricula()
+    
     const hashedPassword = await gerarHashSenha(senha)
 
-    const user = await userRepository.create({ ...rest, senha: hashedPassword })
+    const user = await userRepository.create({ ...rest, matricula, senha: hashedPassword })
 
     return reply.status(201).send(user)
   },
@@ -65,5 +75,6 @@ export const userService = {
     if (!deleted) throw new AppError('Usuário não encontrado', 404)
 
     return reply.status(200).send({ message: 'Usuário deletado com sucesso' })
-  },
+  }
+  
 }

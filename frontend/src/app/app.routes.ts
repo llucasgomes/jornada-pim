@@ -1,33 +1,33 @@
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard } from './guards/auth.guard';
+import { authGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
+    loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent),
   },
   {
     path: '',
-    loadComponent: () => import('./layout/layout.component').then(m => m.LayoutComponent),
     canActivate: [authGuard],
+    loadComponent: () => import('./shared/components/layout/layout.component').then(m => m.LayoutComponent),
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [roleGuard(['rh', 'gestor'])],
+        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
       },
       {
         path: 'ponto',
-        loadComponent: () => import('./pages/ponto/ponto.component').then(m => m.PontoComponent),
+        loadComponent: () => import('./features/ponto/ponto.component').then(m => m.PontoComponent),
       },
       {
         path: 'historico',
-        loadComponent: () => import('./pages/historico/historico.component').then(m => m.HistoricoComponent),
+        loadComponent: () => import('./features/historico/historico.component').then(m => m.HistoricoComponent),
       },
       {
         path: 'admin/users',
-        loadComponent: () => import('./pages/admin/users/users.component').then(m => m.UsersComponent),
         canActivate: [roleGuard(['rh', 'gestor'])],
+        loadComponent: () => import('./features/admin/users/users.component').then(m => m.UsersComponent),
       },
       {
         path: '',

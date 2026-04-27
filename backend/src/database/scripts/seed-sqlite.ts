@@ -1,10 +1,9 @@
+import { faker } from '@faker-js/faker/locale/pt_BR'
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
-
 import { db } from '../../config/database'
+import type { StatusDia, TipoBatida } from '../../database/schemas/sqlite'
 import { registroPonto, resumoDiario, usuario } from '../../database/schemas/sqlite'
-import type { TipoBatida, StatusDia } from '../../database/schemas/sqlite'
-import { faker } from '@faker-js/faker/locale/pt_BR'
 
 faker.seed(42)
 
@@ -27,8 +26,10 @@ const TURNOS = [
     { turno: 'administrativo', entrada: '08:00', saida: '17:00', carga: 480 },
 ] as const
 
-function matricula(index: number) {
-    return `PIM-${String(index).padStart(4, '0')}`
+let MATRICULA_SEQ = 1
+
+function gerarMatricula() {
+    return `PIM-${String(MATRICULA_SEQ++).padStart(4, '0')}`
 }
 
 function addMinutes(base: Date, minutes: number) {
@@ -127,21 +128,21 @@ async function seed() {
         {
             id: randomUUID(),
             nome: 'Juliana Rocha Tavares',
-            matricula: matricula(901),
+            matricula: gerarMatricula(),
             senha: SENHA_HASH,
             perfil: 'gestor' as const,
         },
         {
             id: randomUUID(),
             nome: 'Marcelo Andrade Pinto',
-            matricula: matricula(902),
+            matricula: gerarMatricula(),
             senha: SENHA_HASH,
             perfil: 'gestor' as const,
         },
         {
             id: randomUUID(),
             nome: 'Ana Paula Meireles',
-            matricula: matricula(903),
+            matricula: gerarMatricula(),
             senha: SENHA_HASH,
             perfil: 'rh' as const,
         },
@@ -161,7 +162,7 @@ async function seed() {
         await db.insert(usuario).values({
             id,
             nome: faker.person.fullName(),
-            matricula: matricula(i + 1),
+            matricula: gerarMatricula(),
             senha: SENHA_HASH,
             perfil: 'colaborador' as const,
             cargo: faker.helpers.arrayElement(CARGOS),

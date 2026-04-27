@@ -1,10 +1,10 @@
+import { sql } from 'drizzle-orm'
 import {
-    sqliteTable,
-    text,
     integer,
     real,
+    sqliteTable,
+    text,
 } from 'drizzle-orm/sqlite-core'
-import { sql } from 'drizzle-orm'
 
 // "Enums" como tipos TS
 export const perfilEnum = ['colaborador', 'gestor', 'rh'] as const

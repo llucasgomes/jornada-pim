@@ -1,9 +1,9 @@
-import z4 from 'zod/v4'
 import { perfilEnumSchema, turnoEnumSchema } from '@/shared/schemas/enums'
+import z4 from 'zod/v4'
 
 export const createUserDto = z4.object({
   nome: z4.string().min(1, 'O nome é obrigatório'),
-  matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+  // matricula: z4.string().min(1, 'A matrícula é obrigatória'),
   senha: z4.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
   perfil: perfilEnumSchema.default('colaborador'),
   cargo: z4.string().min(1).optional(),

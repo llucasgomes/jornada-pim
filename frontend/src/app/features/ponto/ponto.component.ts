@@ -1,12 +1,13 @@
 import { Component, signal, computed, OnInit } from '@angular/core';
-import { PontoService } from '../../services/ponto.service';
-import { AuthService } from '../../services/auth.service';
-import type { PontoHoje, TipoBatida } from '../../models/interfaces';
+
+import type { PontoHoje, TipoBatida } from '../../core/models/interfaces';
+import { PontoService } from '../../core/services/ponto.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-ponto',
   template: `
-    <div class="max-w-[900px]">
+    <div class="max-w-225">
       <header class="mb-8 animate-in fade-in slide-in-from-left duration-500">
         <h1 class="text-3xl font-bold text-white">Registro de Ponto</h1>
         <p class="text-slate-400 text-sm mt-1 capitalize">{{ today }}</p>
