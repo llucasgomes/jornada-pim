@@ -31,21 +31,25 @@ export async function registroPontoController(server: FastifyInstance) {
   }, registroPontoService.registrarBatida)
 
   // GET /ponto/hoje — batidas e resumo do dia
-  server.get('/hoje', {
-    preHandler: permission(['colaborador', 'gestor', 'rh']),
-    schema: {
-      summary: 'Retorna batidas e resumo do dia do colaborador autenticado',
-      tags: ['Ponto'],
-      response: {
-        200: z4.object({
-          batidas: z4.array(z4.any()),
-          resumo: z4.any().nullable(),
-          proxima_batida: tipoBatidaEnumSchema.nullable(),
-        }),
-        500: internalServerErrorSchema,
+  server.get(
+    "/hoje",
+    {
+      preHandler: permission(["colaborador", "gestor", "rh"]),
+      schema: {
+        summary: "Retorna batidas e resumo do dia do colaborador autenticado",
+        tags: ["Ponto"],
+        response: {
+          200: z4.object({
+            batidas: z4.array(z4.any()),
+            resumo: z4.any().nullable(),
+            proxima_batida: tipoBatidaEnumSchema.nullable(),
+          }),
+          500: internalServerErrorSchema,
+        },
       },
     },
-  }, registroPontoService.buscarHoje)
+    registroPontoService.buscarHoje,
+  );
 
   // GET /ponto/:usuario_id/historico?de=&ate=
   server.get('/:usuario_id/historico', {

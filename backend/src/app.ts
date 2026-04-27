@@ -36,8 +36,8 @@ export function buildApp() {
   server.register(fastifySwagger, {
     openapi: {
       info: {
-        title: 'API - JornadaPIM',
-        version: '1.0.0',
+        title: "API - JornadaPIM",
+        version: "1.0.0",
         description: `
 ## Sobre o projeto
 
@@ -90,9 +90,19 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
 | PIM-0001 | 123456789 | colaborador |
     `,
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT", // Especifica que é um JWT
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }], // Aplica o esquema de segurança globalmente
     },
     transform: jsonSchemaTransform,
-  })
+  });
 
   server.register(ScalarFastifyApiReference, {
     routePrefix: '/docs',
