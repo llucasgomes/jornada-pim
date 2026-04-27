@@ -41,7 +41,7 @@ export interface User {
 
 export interface CreateUser {
   nome: string;
-  matricula: string;
+  // matricula: string;
   senha: string;
   perfil?: Perfil;
   cargo?: string;

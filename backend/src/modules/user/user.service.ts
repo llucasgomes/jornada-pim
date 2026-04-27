@@ -3,26 +3,18 @@ import { gerarHashSenha } from '@/shared/utils/auth'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
+import { gerarMatricula } from '@/shared/utils/gerar-matricula'
 
 
 
 
 
 export const userService = {
-  async  gerarMatricula(){
-    const ultimo = await userRepository.lastUser()
-
-    const numero = ultimo.length
-      ? parseInt(ultimo[0].split('-')[1], 10) + 1
-      : 1
-
-    return `PIM-${String(numero).padStart(4, '0')}`
-  },
+ 
   async create(req: FastifyRequest, reply: FastifyReply) {
     const { senha, ...rest } = createUserDto.parse(req.body)
 
-   
-    const matricula = await userService.gerarMatricula()
+    const matricula = await gerarMatricula()
     
     const hashedPassword = await gerarHashSenha(senha)
 

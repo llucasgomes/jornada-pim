@@ -19,7 +19,7 @@ export default function userController(_server: FastifyInstance) {
         tags: ['Usuário'],
         body: createUserDto,
         response: {
-          201: createUserDto,
+          201: userResponseDto,
         },
       },
     },

@@ -132,10 +132,10 @@ import { FormsModule } from '@angular/forms';
                   <label class="text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">Nome Completo *</label>
                   <input class="input" [(ngModel)]="form.nome" name="nome" required placeholder="Ex: João da Silva" />
                 </div>
-                <div class="space-y-1.5">
+                <!-- <div class="space-y-1.5">
                   <label class="text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">Matrícula *</label>
                   <input class="input" [(ngModel)]="form.matricula" name="matricula" required placeholder="PIM-0000" [disabled]="!!editingUser()" />
-                </div>
+                </div> -->
               </div>
 
               @if (!editingUser()) {
@@ -278,7 +278,7 @@ export class UsersComponent implements OnInit {
     this.editingUser.set(user);
     this.form = {
       nome: user.nome,
-      matricula: user.matricula,
+      // matricula: user.matricula,
       senha: '',
       perfil: user.perfil,
       cargo: user.cargo || '',
@@ -321,8 +321,8 @@ export class UsersComponent implements OnInit {
         }
       });
     } else {
-      if (!this.form.nome || !this.form.matricula || !this.form.senha) {
-        this.modalError.set('Nome, matrícula e senha são obrigatórios');
+      if (!this.form.nome || !this.form.senha) {
+        this.modalError.set('Nome e senha são obrigatórios');
         this.saving.set(false);
         return;
       }
@@ -371,7 +371,7 @@ export class UsersComponent implements OnInit {
   private emptyForm() {
     return {
       nome: '',
-      matricula: '',
+      // matricula: '',
       senha: '',
       perfil: 'colaborador' as Perfil,
       cargo: '',
