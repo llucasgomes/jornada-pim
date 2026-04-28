@@ -17,7 +17,7 @@
     "db:studio": "drizzle-kit studio",
     "db:reset": "tsx --env-file=.env ./src/database/scripts/reset-db.ts",
     "db:seed": "tsx --env-file=.env ./src/database/scripts/seed.ts",
-    "db:seedsqlite": "tsx ./src/database/scripts/seed-sqlite.ts"
+    "db:seedsqlite": "tsx --env-file=.env ./src/database/scripts/seed-sqlite.ts"
   },
   "keywords": [],
   "author": "",

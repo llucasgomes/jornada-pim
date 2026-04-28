@@ -4,29 +4,12 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
 import { gerarMatricula } from '@/shared/utils/gerar-matricula'
-import { uploadImage } from '@/shared/utils/upload-image'
-import type {  MultipartFile } from '@fastify/multipart'
 
-
-type UploadedFile = {
-  buffer: Buffer;
-  filename: string;
-};
 
 export const userService = {
  
   async create(req: FastifyRequest, reply: FastifyReply) {
     const { senha, ...rest } = createUserDto.parse(req.body)
-
-    const file = (await req.file()) as MultipartFile | undefined;
-
-    let imageUrl
-
-    if (file)  {
-      const buffer = await file.toBuffer()
-      imageUrl = await uploadImage(buffer, file.filename);
-    }  
-
 
     const matricula = await gerarMatricula()
     
@@ -36,9 +19,8 @@ export const userService = {
       ...rest,
       matricula,
       senha: hashedPassword,
-      imageUrl,
     });
-
+    
     return reply.status(201).send(user)
   },
 

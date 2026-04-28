@@ -3,7 +3,7 @@ import z4 from 'zod/v4'
 
 export const createUserDto = z4.object({
   nome: z4.string().min(1, "O nome é obrigatório"),
-  // imageUrl: z4.string().optional(),
+  imageUrl: z4.string().optional(),
   senha: z4.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   perfil: perfilEnumSchema.default("colaborador"),
   cargo: z4.string().min(1).nullable().optional(),
