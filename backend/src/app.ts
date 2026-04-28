@@ -21,6 +21,7 @@ import uploadRoutes from './modules/upload/upload.route'
 import { globalErrorHandler } from './shared/errors/globalErrorHandler'
 import registroPontoRoutes from './modules/registro-ponto/registro-ponto.route'
 import dashboardRoutes from './modules/dashboard/dashboard.route'
+import relatorioRoutes from './modules/relatorio/relatorio.route'
 
 export function buildApp() {
   const server = fastify().withTypeProvider<ZodTypeProvider>()
@@ -125,6 +126,8 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
   server.register(uploadRoutes)
   server.register(registroPontoRoutes)
   server.register(dashboardRoutes)
+  server.register(relatorioRoutes)
+
   //handle errors Global
   // registrar o handler global
   server.setErrorHandler(globalErrorHandler)
