@@ -7,6 +7,7 @@ import type { CreateUserDto } from './dtos/create-user.dto'
 const safeColumns = {
   id: usuario.id,
   nome: usuario.nome,
+  imageUrl:usuario.imageUrl,
   matricula: usuario.matricula,
   perfil: usuario.perfil,
   cargo: usuario.cargo,

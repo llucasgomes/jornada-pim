@@ -7,9 +7,10 @@ export function gerarToken(
   id: string,
   perfil: string,
   nome: string,
-  matricula: string
+  matricula: string,
+  imageUrl:string | null,
 ) {
-  return jwt.sign({ id, perfil, nome, matricula }, SECRET_KEY, {
-    expiresIn: '8h',
-  })
+  return jwt.sign({ id, perfil, nome, matricula, imageUrl }, SECRET_KEY, {
+    expiresIn: "8h",
+  });
 }

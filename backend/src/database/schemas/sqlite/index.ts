@@ -48,7 +48,7 @@ export const usuario = sqliteTable('usuario', {
     nome: text('nome').notNull(),
     matricula: text('matricula').notNull().unique(),
     senha: text('senha').notNull(),
-
+    imageUrl:text('image'),
     perfil: text('perfil')
         .$type<Perfil>()
         .notNull()

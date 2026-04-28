@@ -16,7 +16,7 @@ export const authService = {
 
     if (!senhaValida) throw new AppError('Credenciais inválidas', 401)
 
-    const token = gerarToken(user.id, user.perfil, user.nome, user.matricula)
+    const token = gerarToken(user.id, user.perfil, user.nome, user.matricula, user.imageUrl )
 
     return reply.status(200).send({
       message: 'Login autenticado',

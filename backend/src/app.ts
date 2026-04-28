@@ -2,6 +2,7 @@
 
 import fasttifyCors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
+import fastifyMultipart from '@fastify/multipart'
 import fastifySwagger from '@fastify/swagger'
 import ScalarFastifyApiReference from '@scalar/fastify-api-reference'
 import fastify from 'fastify'
@@ -16,6 +17,7 @@ import {
 import { env } from './config/env'
 import authRoutes from './modules/auth/auth.route'
 import userRoutes from './modules/user/user.route'
+import uploadRoutes from './modules/upload/upload.route'
 import { globalErrorHandler } from './shared/errors/globalErrorHandler'
 import registroPontoRoutes from './modules/registro-ponto/registro-ponto.route'
 import dashboardRoutes from './modules/dashboard/dashboard.route'
@@ -29,6 +31,9 @@ export function buildApp() {
   server.register(fasttifyCors, {
     origin: '*', // Permitir todas as origens (ajuste conforme necessário)
   })
+
+  server.register(fastifyMultipart)
+
   server.register(fastifyJwt, {
     secret: env.JWT_SECRET,
   })
@@ -117,9 +122,9 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
 
   server.register(authRoutes)
   server.register(userRoutes)
+  server.register(uploadRoutes)
   server.register(registroPontoRoutes)
   server.register(dashboardRoutes)
-
   //handle errors Global
   // registrar o handler global
   server.setErrorHandler(globalErrorHandler)

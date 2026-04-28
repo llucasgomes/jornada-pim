@@ -1,87 +1,87 @@
-import type { FastifyInstance } from 'fastify'
-import z4 from 'zod/v4'
+import type { FastifyInstance } from "fastify";
+import z4 from "zod/v4";
 import {
   internalServerErrorSchema,
   notFoundErrorSchema,
-} from '@/shared/errors/errorSchemas'
-import { permission } from '@/shared/middlewares/permission'
-import { createUserDto } from './dtos/create-user.dto'
-import { userResponseDto } from './dtos/user-response'
-import { userService } from './user.service'
+} from "@/shared/errors/errorSchemas";
+import { permission } from "@/shared/middlewares/permission";
+import { createUserDto } from "./dtos/create-user.dto";
+import { userResponseDto } from "./dtos/user-response";
+import { userService } from "./user.service";
 
 export default function userController(_server: FastifyInstance) {
   _server.post(
-    '/register',
+    "/register",
     {
-      preHandler: permission(['colaborador', 'gestor', 'rh']),
+      preHandler: permission(["colaborador", "gestor", "rh"]),
       schema: {
-        summary: 'Rota para registrar um novo usuário',
-        tags: ['Usuário'],
+        summary: "Rota para registrar um novo usuário",
+        tags: ["Usuário"],
         body: createUserDto,
         response: {
           201: userResponseDto,
         },
       },
     },
-    userService.create
-  )
+    userService.create,
+  );
 
   //Rota para obter todos os usuarios ativos e Inativos
   _server.get(
-    '/all',
+    "/all",
     {
       schema: {
-        summary: 'Rota para obter todos os usuários',
-        tags: ['Usuário'],
+        summary: "Rota para obter todos os usuários",
+        tags: ["Usuário"],
         response: {
           200: z4.array(userResponseDto),
           500: internalServerErrorSchema,
         },
       },
     },
-    userService.findAll
-  )
+    userService.findAll,
+  );
 
   //Rota para obter todos os usuarios ativos
   _server.get(
-    '/findAllActive',
+    "/findAllActive",
     {
       schema: {
-        summary: 'Rota para obter todos os usuários ativos',
-        tags: ['Usuário'],
+        summary: "Rota para obter todos os usuários ativos",
+        tags: ["Usuário"],
         response: {
           200: z4.array(userResponseDto),
           500: internalServerErrorSchema,
         },
       },
     },
-    userService.findAllActive
-  )
+    userService.findAllActive,
+  );
 
   //Rota para obter todos os usuarios ativos
   _server.get(
-    '/findAllInactive',
+    "/findAllInactive",
     {
       schema: {
-        summary: 'Rota para obter todos os usuários ativos',
-        tags: ['Usuário'],
+        summary: "Rota para obter todos os usuários ativos",
+        tags: ["Usuário"],
         response: {
           200: z4.array(userResponseDto),
           500: internalServerErrorSchema,
         },
       },
     },
-    userService.findAllInactive
-  )
+    userService.findAllInactive,
+  );
   // Rota para obter usuario pelo id (matricula)
   _server.get(
-    '/:matricula',
+    "/:matricula",
     {
       schema: {
-        summary: 'Rota para obter um usuário por matrícula',
-        tags: ['Usuário'],
+        summary: "Rota para obter um usuário por matrícula",
+        tags: ["Usuário"],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          matricula: z4.string().min(1, "A matrícula é obrigatória"),
         }),
         response: {
           200: userResponseDto,
@@ -90,43 +90,43 @@ export default function userController(_server: FastifyInstance) {
         },
       },
     },
-    userService.findById
-  )
+    userService.findById,
+  );
 
   //Rota para atualizar usuario pelo id (matricula)
   _server.put(
-    '/:matricula',
+    "/:matricula",
     {
       schema: {
-        summary: 'Rota para atualizar um usuário por matrícula',
-        tags: ['Usuário'],
+        summary: "Rota para atualizar um usuário por matrícula",
+        tags: ["Usuário"],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          matricula: z4.string().min(1, "A matrícula é obrigatória"),
         }),
         body: createUserDto.partial(),
         response: {
           200: userResponseDto,
           404: z4.object({
             statusCode: z4.literal(404),
-            error: z4.literal('Not Found'),
+            error: z4.literal("Not Found"),
             message: z4.string(),
           }),
           500: internalServerErrorSchema,
         },
       },
     },
-    userService.update
-  )
+    userService.update,
+  );
 
   // Rota para desativar usuario pelo id (matricula)
   _server.put(
-    '/disable/:matricula',
+    "/disable/:matricula",
     {
       schema: {
-        summary: 'Rota para desativar um usuário por matrícula',
-        tags: ['Usuário'],
+        summary: "Rota para desativar um usuário por matrícula",
+        tags: ["Usuário"],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          matricula: z4.string().min(1, "A matrícula é obrigatória"),
         }),
         response: {
           200: z4.object({
@@ -134,13 +134,13 @@ export default function userController(_server: FastifyInstance) {
           }),
           404: z4.object({
             statusCode: z4.literal(404),
-            error: z4.literal('Not Found'),
+            error: z4.literal("Not Found"),
             message: z4.string(),
           }),
           500: internalServerErrorSchema,
         },
       },
     },
-    userService.delete
-  )
+    userService.delete,
+  );
 }
