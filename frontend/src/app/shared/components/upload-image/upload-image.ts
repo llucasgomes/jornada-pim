@@ -33,6 +33,15 @@ export class UploadImage {
     this.isDragging.set(true);
   }
 
+  setPreviewFromUrl(url: string | null) {
+    if (this.previewUrl()) {
+      URL.revokeObjectURL(this.previewUrl()!);
+    }
+
+    this.selectedFile.set(null);
+    this.previewUrl.set(url);
+  }
+
   onDragLeave() {
     this.isDragging.set(false);
   }

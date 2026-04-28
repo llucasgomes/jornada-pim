@@ -125,28 +125,31 @@ async function seed() {
     console.log('Criando gestores e RH...')
 
     await db.insert(usuario).values([
-        {
-            id: randomUUID(),
-            nome: 'Juliana Rocha Tavares',
-            matricula: gerarMatricula(),
-            senha: SENHA_HASH,
-            perfil: 'gestor' as const,
-        },
-        {
-            id: randomUUID(),
-            nome: 'Marcelo Andrade Pinto',
-            matricula: gerarMatricula(),
-            senha: SENHA_HASH,
-            perfil: 'gestor' as const,
-        },
-        {
-            id: randomUUID(),
-            nome: 'Ana Paula Meireles',
-            matricula: gerarMatricula(),
-            senha: SENHA_HASH,
-            perfil: 'rh' as const,
-        },
-    ])
+      {
+        id: randomUUID(),
+        nome: "Juliana Rocha Tavares",
+        matricula: gerarMatricula(),
+        imageUrl: faker.image.personPortrait(),
+        senha: SENHA_HASH,
+        perfil: "gestor" as const,
+      },
+      {
+        id: randomUUID(),
+        nome: "Marcelo Andrade Pinto",
+        imageUrl: faker.image.personPortrait(),
+        matricula: gerarMatricula(),
+        senha: SENHA_HASH,
+        perfil: "gestor" as const,
+      },
+      {
+        id: randomUUID(),
+        nome: "Ana Paula Meireles",
+        imageUrl: faker.image.personPortrait(),
+        matricula: gerarMatricula(),
+        senha: SENHA_HASH,
+        perfil: "rh" as const,
+      },
+    ]);
 
     console.log('Criando colaboradores...')
 
@@ -160,18 +163,19 @@ async function seed() {
         const turnoConfig = faker.helpers.arrayElement(TURNOS)
 
         await db.insert(usuario).values({
-            id,
-            nome: faker.person.fullName(),
-            matricula: gerarMatricula(),
-            senha: SENHA_HASH,
-            perfil: 'colaborador' as const,
-            cargo: faker.helpers.arrayElement(CARGOS),
-            setor: faker.helpers.arrayElement(SETORES),
-            turno: turnoConfig.turno,
-            cargaHorariaDia: turnoConfig.carga,
-            horarioEntrada: turnoConfig.entrada,
-            horarioSaida: turnoConfig.saida,
-        })
+          id,
+          nome: faker.person.fullName(),
+          imageUrl: faker.image.personPortrait(),
+          matricula: gerarMatricula(),
+          senha: SENHA_HASH,
+          perfil: "colaborador" as const,
+          cargo: faker.helpers.arrayElement(CARGOS),
+          setor: faker.helpers.arrayElement(SETORES),
+          turno: turnoConfig.turno,
+          cargaHorariaDia: turnoConfig.carga,
+          horarioEntrada: turnoConfig.entrada,
+          horarioSaida: turnoConfig.saida,
+        });
 
         colaboradoresCriados.push({ usuarioId: id, turnoConfig })
     }

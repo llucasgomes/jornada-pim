@@ -533,6 +533,11 @@ export class UsersComponent implements OnInit {
     };
     this.modalError.set('');
     this.showModal.set(true);
+
+     // 👉 AQUI está o segredo
+  setTimeout(() => {
+    this.uploadImage?.setPreviewFromUrl(user.imageUrl || null);
+  });
   }
 
   closeModal() {
