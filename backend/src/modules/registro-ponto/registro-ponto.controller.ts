@@ -107,4 +107,57 @@ export async function registroPontoController(server: FastifyInstance) {
       },
     },
   }, registroPontoService.deletarBatida)
+
+  server.get(
+    "/resumo-mensal",
+    {
+      schema: {
+        summary: "Dashboard completo mensal",
+        tags: ["Dashboard"],
+        params: z4.object({
+          data: z4.string().optional(),
+          mes: z4.string().optional(),
+        }),
+        response: {
+          200: z4.object({
+            totalHorasExtras: z4.number(),
+            totalAtrasos: z4.number(),
+            totalFaltas: z4.number(),
+            totalColaboradores: z4.number(),
+            totalDiasProcessados: z4.number(),
+            presencaHoje: z4.number(),
+            mediaExtras: z4.number(),
+            topAtrasos: z4.array(
+              z4.object({
+                id: z4.string(),
+                nome: z4.string(),
+                imageUrl: z4.string().nullable().optional(),
+                setor: z4.string().nullable().optional(),
+                cargo: z4.string().nullable().optional(),
+                total: z4.number(),
+              }),
+            ),
+            topFaltosos: z4.array(
+              z4.object({
+                id: z4.string(),
+                nome: z4.string(),
+                imageUrl: z4.string().nullable().optional(),
+                setor: z4.string().nullable().optional(),
+                cargo: z4.string().nullable().optional(),
+                total: z4.number(),
+              }),
+            ),
+
+            graficoExtras: z4.array(
+              z4.object({
+                data: z4.string(),
+                total: z4.number(),
+              }),
+            ),
+          }),
+        },
+      },
+    },
+    registroPontoService.relatorioMensal,
+  );
 }
