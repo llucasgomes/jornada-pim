@@ -82,3 +82,35 @@ export interface PontoHoje {
   resumo: ResumoDiario | null;
   proxima_batida: TipoBatida | null;
 }
+
+export interface DashboardStats {
+  totalHorasExtras: number;
+  totalAtrasos: number;
+  totalFaltas: number;
+  totalColaboradores: number;
+  totalDiasProcessados: number;
+  presencaHoje: number;
+  mediaExtras: number;
+
+  topAtrasos: {
+    id: string;
+    nome: string;
+    total: number;
+    imageUrl?: string | null;
+    cargo?: string;
+    setor?: string;
+  }[];
+
+  topFaltosos: {
+    id: string;
+    nome: string;
+    total: number;
+    imageUrl?: string | null;
+    cargo?: string;
+    setor?: string;
+  }[];
+  graficoExtras: {
+    data: string;
+    total: number;
+  }[];
+}

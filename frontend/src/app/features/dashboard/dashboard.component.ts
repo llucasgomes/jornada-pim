@@ -1,99 +1,179 @@
 import { Component, signal, OnInit, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { AuthService } from '@/core/services/auth.service';
+import { PontoService } from '@/core/services/ponto.service';
+import { DashboardStats } from '@/core/models/interfaces';
+import { DecimalPipe } from '@angular/common';
 
-interface DashboardStats {
-  totalColaboradores: number;
-  ativos: number;
-  presentesHoje: number;
-  horasExtrasMes: string;
-  atrasosMesMinutos: number;
-}
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  imports: [DecimalPipe],
   template: `
     <div class="max-w-[1200px]">
-      <header class="mb-8 animate-in fade-in slide-in-from-top duration-500">
+      <header class="mb-8">
         <h1 class="text-3xl font-bold text-white">Dashboard Gerencial</h1>
         <p class="text-slate-400 text-sm mt-1">Acompanhamento em tempo real da equipe</p>
       </header>
 
       @if (loading()) {
         <div class="flex flex-col items-center justify-center py-20 gap-4 text-slate-500">
-          <div class="w-10 h-10 border-4 border-slate-800 border-t-primary rounded-full animate-spin"></div>
+          <div
+            class="w-10 h-10 border-4 border-slate-800 border-t-primary rounded-full animate-spin"
+          ></div>
           <p class="animate-pulse">Calculando métricas...</p>
         </div>
       } @else {
+        <!-- 🔹 CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Card Total -->
-          <div class="card flex items-start gap-4 group cursor-default">
-            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total Colaboradores</span>
-              <h2 class="text-3xl font-bold text-white mt-0.5">{{ stats()?.totalColaboradores }}</h2>
-              <span class="text-[11px] text-slate-500">{{ stats()?.ativos }} ativos no sistema</span>
+          <!-- TOTAL -->
+          <div class="card">
+            <span class="text-xs text-slate-500">Total Colaboradores</span>
+            <h2 class="text-3xl font-bold text-white">
+              {{ stats()?.totalColaboradores }}
+            </h2>
+          </div>
+
+          <!-- PRESENÇA -->
+          <div class="card">
+            <span class="text-xs text-slate-500">Presentes Hoje</span>
+            <h2 class="text-3xl font-bold text-green-400">
+              {{ stats()?.presencaHoje }}
+            </h2>
+          </div>
+
+          <!-- EXTRAS -->
+          <div class="card">
+            <span class="text-xs text-slate-500">Horas Extras</span>
+            <h2 class="text-3xl font-bold text-amber-400">
+              {{ stats()?.totalHorasExtras | number: '1.2-2' }}h
+            </h2>
+          </div>
+
+          <!-- ATRASOS -->
+          <div class="card">
+            <span class="text-xs text-slate-500">Atrasos</span>
+            <h2 class="text-3xl font-bold text-red-400">{{ stats()?.totalAtrasos }}m</h2>
+          </div>
+        </div>
+
+        <!-- 🔹 LINHA PRINCIPAL -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <!-- 📊 GRÁFICO -->
+          <div class="card col-span-2">
+            <h3 class="text-sm text-slate-400 mb-4">Horas Extras por Dia</h3>
+
+            <div class="h-[300px] flex items-center justify-center text-slate-500">
+              @if (!stats()?.graficoExtras?.length) {
+                <span>Sem dados</span>
+              } @else {
+                <!-- FUTURO: Chart.js -->
+                <pre class="text-xs text-slate-500 overflow-auto"
+                  >{{ stats()?.graficoExtras }}
+            </pre>
+              }
             </div>
           </div>
 
-          <!-- Card Presentes -->
-          <div class="card flex items-start gap-4 group cursor-default">
-            <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
+          <!-- 🧑‍💼 TOP ATRASOS -->
+          <div class="card">
+            <h3 class="text-sm text-slate-400 mb-4">Top Atrasos</h3>
+
+            <div class="flex flex-col gap-4">
+              @for (user of stats()?.topAtrasos || []; track user.nome) {
+                <div class="flex items-center gap-3">
+                  <!-- FOTO -->
+                  <img
+                    [src]="user.imageUrl || 'https://i.pravatar.cc/40'"
+                    class="w-10 h-10 rounded-full object-cover"
+                  />
+
+                  <!-- INFO -->
+                  <div class="flex-1">
+                    <div class="text-sm text-white font-medium">
+                      {{ user.nome }}
+                    </div>
+                    <div class="text-xs text-slate-500">{{ user.cargo }} • {{ user.setor }}</div>
+                  </div>
+
+                  <!-- ATRASO -->
+                  <span class="text-red-400 text-sm font-mono"> {{ user.total }}m </span>
+                </div>
+              }
             </div>
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Presentes Hoje</span>
-              <h2 class="text-3xl font-bold text-white mt-0.5">{{ stats()?.presentesHoje }}</h2>
-              <span class="text-[11px] text-slate-500">Batidas registradas hoje</span>
+          </div>
+        </div>
+
+        <!-- 🔹 SEGUNDA LINHA -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <!-- 📊 RESUMO -->
+          <div class="card col-span-2">
+            <h3 class="text-sm text-slate-400 mb-4">Resumo do Mês</h3>
+
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-slate-500">Dias processados</span>
+                <div class="text-white font-bold">
+                  {{ stats()?.totalDiasProcessados }}
+                </div>
+              </div>
+
+              <div>
+                <span class="text-slate-500">Faltas</span>
+                <div class="text-red-400 font-bold">
+                  {{ stats()?.totalFaltas }}
+                </div>
+              </div>
+
+              <div>
+                <span class="text-slate-500">Média extras</span>
+                <div class="text-amber-400 font-bold">
+                  {{ stats()?.mediaExtras | number: '1.2-2' }}h
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Card Horas Extras -->
-          <div class="card flex items-start gap-4 group cursor-default">
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Horas Extras (Mês)</span>
-              <h2 class="text-3xl font-bold text-white mt-0.5">{{ stats()?.horasExtrasMes }}h</h2>
-              <span class="text-[11px] text-slate-500">Total acumulado de extras</span>
-            </div>
-          </div>
+          <!-- 🚨 FALTOSOS -->
+          <div class="card">
+            <h3 class="text-sm font-bold text-slate-400 mb-4">Mais Faltosos</h3>
 
-          <!-- Card Atrasos -->
-          <div class="card flex items-start gap-4 group cursor-default">
-            <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-            </div>
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Atrasos (Mês)</span>
-              <h2 class="text-3xl font-bold text-white mt-0.5">{{ stats()?.atrasosMesMinutos }}m</h2>
-              <span class="text-[11px] text-slate-500">Minutos de atraso na entrada</span>
+            <div class="flex flex-col gap-3">
+              @for (user of stats()?.topFaltosos || []; track user.id) {
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    @if (user.imageUrl) {
+                      <img [src]="user.imageUrl" class="w-8 h-8 rounded-full" />
+                    } @else {
+                      <div
+                        class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs"
+                      >
+                        {{ user.nome[0] }}
+                      </div>
+                    }
+
+                    <div class="flex flex-col">
+                      <span class="text-sm text-slate-300">{{ user.nome }}</span>
+                      <span class="text-xs text-slate-500">
+                        {{ user.cargo || '—' }} • {{ user.setor || '—' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span class="text-red-400 font-mono"> {{ user.total }} faltas </span>
+                </div>
+              }
             </div>
           </div>
         </div>
       }
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class DashboardComponent implements OnInit {
   stats = signal<DashboardStats | null>(null);
   loading = signal(true);
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private pontoService: PontoService) {}
 
   ngOnInit() {
     this.loadStats();
@@ -101,12 +181,16 @@ export class DashboardComponent implements OnInit {
 
   loadStats() {
     this.loading.set(true);
-    this.http.get<DashboardStats>(`${environment.apiUrl}/dashboard/stats`).subscribe({
+
+    const today = new Date().toISOString().split('T')[0]; // 👉 "2026-04-28"
+
+    this.pontoService.getStats(today).subscribe({
       next: (data) => {
+        console.log('🔥 DADOS DO BACKEND:', data); // 👈 AQUI
         this.stats.set(data);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => this.loading.set(false),
     });
   }
 }

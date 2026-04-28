@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import type { RegistroPonto, PontoHoje } from '../models/interfaces';
+import type { RegistroPonto, PontoHoje, DashboardStats } from '../models/interfaces';
 import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
+
 
 @Injectable({ providedIn: 'root' })
 export class PontoService {
@@ -32,6 +34,12 @@ export class PontoService {
   }
 
   buscarRelatorioMensal(usuarioId: string, mes: number, ano: number) {
-    return this.http.get<any[]>(`${this.apiUrl}/${usuarioId}/relatorio-mensal?mes=${mes}&ano=${ano}`);
+    return this.http.get<any[]>(
+      `${this.apiUrl}/${usuarioId}/relatorio-mensal?mes=${mes}&ano=${ano}`,
+    );
+  }
+
+  getStats(date: string): Observable<DashboardStats> {
+    return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal?date=${date}`);
   }
 }
