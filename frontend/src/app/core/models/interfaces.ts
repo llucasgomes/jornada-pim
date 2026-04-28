@@ -35,6 +35,7 @@ export interface User {
   horario_entrada?: string | null;
   horario_saida?: string | null;
   ativo: boolean;
+  imageUrl?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +52,8 @@ export interface CreateUser {
   horario_entrada?: string;
   horario_saida?: string;
   ativo?: boolean;
+  imageUrl?: string;
+  imageFile?: File;
 }
 
 export interface RegistroPonto {
