@@ -9,7 +9,7 @@ export function calcularResumo(
   batidas: { tipo: string; timestamp: Date }[],
   cargaMinutos: number,
   entradaEsperada: string,
-  data: Date,
+  data: Date
 ) {
   const get = (tipo: string) => batidas.find(b => b.tipo === tipo)?.timestamp
 
@@ -41,7 +41,10 @@ export function calcularResumo(
   const completo = !!(entrada && saidaAlmoco && retornoAlmoco && saida)
   const extras = completo ? Math.max(0, trabalhadoHoras - cargaHoras) : 0
   const esperado = setTime(data, entradaEsperada)
-  const atraso = Math.max(0, Math.floor((entrada.getTime() - esperado.getTime()) / 60000))
+  const atraso = Math.max(
+    0,
+    Math.floor((entrada.getTime() - esperado.getTime()) / 60000)
+  )
 
   return {
     horasTrabalhadas: Number(trabalhadoHoras.toFixed(2)),

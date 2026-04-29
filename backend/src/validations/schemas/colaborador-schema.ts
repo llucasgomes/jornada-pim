@@ -1,5 +1,5 @@
+import { turnoEnumSchema } from '@/shared/schemas/enums'
 import z from 'zod/v4'
-import { turnoEnumSchema } from '../enums'
 
 export const colaboradorSchema = z.object({
   id: z.string().uuid().optional(),

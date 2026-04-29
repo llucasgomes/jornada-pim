@@ -1,5 +1,5 @@
+import { statusDiaEnumSchema } from '@/shared/schemas/enums'
 import z from 'zod/v4'
-import { statusDiaEnumSchema } from '../enums'
 
 export const resumoDiarioSchema = z.object({
   id: z.string().uuid().optional(),

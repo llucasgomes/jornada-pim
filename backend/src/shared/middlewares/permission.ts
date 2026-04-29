@@ -10,7 +10,7 @@ interface UserPayload {
   perfil?: string
   nome?: string
   matricula?: string
-  imageUrl?:string
+  imageUrl?: string
 }
 
 export const permission = (rolesPermitidas: string[]) => {

@@ -5,7 +5,7 @@ export const userResponseDto = z4.object({
   id: z4.uuid(),
   nome: z4.string(),
   matricula: z4.string(),
-  imageUrl:z4.string().nullable().optional(),
+  imageUrl: z4.string().nullable().optional(),
   perfil: perfilEnumSchema,
   cargo: z4.string().nullable().optional(),
   setor: z4.string().nullable().optional(),

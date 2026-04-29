@@ -5,22 +5,20 @@ import { createUserDto } from './dtos/create-user.dto'
 import { userRepository } from './user.repository'
 import { gerarMatricula } from '@/shared/utils/gerar-matricula'
 
-
 export const userService = {
- 
   async create(req: FastifyRequest, reply: FastifyReply) {
     const { senha, ...rest } = createUserDto.parse(req.body)
 
     const matricula = await gerarMatricula()
-    
+
     const hashedPassword = await gerarHashSenha(senha)
 
     const user = await userRepository.create({
       ...rest,
       matricula,
       senha: hashedPassword,
-    });
-    
+    })
+
     return reply.status(201).send(user)
   },
 
@@ -68,6 +66,5 @@ export const userService = {
     if (!deleted) throw new AppError('Usuário não encontrado', 404)
 
     return reply.status(200).send({ message: 'Usuário deletado com sucesso' })
-  }
-  
+  },
 }

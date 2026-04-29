@@ -8,10 +8,7 @@ const localDate = (col: unknown) => sql`DATE(datetime(${col}, '-4 hours'))`
 
 export const registroPontoRepository = {
   async create(data: CreateRegistroPontoDto) {
-    const [result] = await db
-      .insert(registroPonto)
-      .values(data)
-      .returning()
+    const [result] = await db.insert(registroPonto).values(data).returning()
     return result
   },
 

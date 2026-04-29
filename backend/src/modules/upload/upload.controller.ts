@@ -1,19 +1,19 @@
-import type { FastifyInstance } from "fastify";
-import z4 from "zod/v4";
+import type { FastifyInstance } from 'fastify'
+import z4 from 'zod/v4'
 
-import { uploadService } from "./upload.service";
-import { permission } from "@/shared/middlewares/permission";
-import { internalServerErrorSchema } from "@/shared/errors/errorSchemas";
+import { uploadService } from './upload.service'
+import { permission } from '@/shared/middlewares/permission'
+import { internalServerErrorSchema } from '@/shared/errors/errorSchemas'
 
 export default function uploadController(_server: FastifyInstance) {
   _server.post(
-    "/",
+    '/',
     {
-      preHandler: permission(["colaborador", "gestor", "rh"]),
+      preHandler: permission(['colaborador', 'gestor', 'rh']),
       schema: {
-        summary: "Upload de imagem",
-        tags: ["Upload"],
-        consumes: ["multipart/form-data"], // 🔥 obrigatório
+        summary: 'Upload de imagem',
+        tags: ['Upload'],
+        consumes: ['multipart/form-data'],
         response: {
           200: z4.object({
             url: z4.string().url(),
@@ -26,6 +26,6 @@ export default function uploadController(_server: FastifyInstance) {
         },
       },
     },
-    uploadService.upload,
-  );
+    uploadService.upload
+  )
 }

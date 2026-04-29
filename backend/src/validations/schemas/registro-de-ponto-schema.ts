@@ -1,5 +1,8 @@
+import {
+  origemBatidaEnumSchema,
+  tipoBatidaEnumSchema,
+} from '@/shared/schemas/enums'
 import z from 'zod/v4'
-import { origemBatidaEnumSchema, tipoBatidaEnumSchema } from '../enums'
 
 export const registroPontoSchema = z.object({
   id: z.string().uuid().optional(),

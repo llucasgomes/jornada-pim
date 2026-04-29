@@ -1,5 +1,8 @@
 import z4 from 'zod/v4'
-import { tipoBatidaEnumSchema, origemBatidaEnumSchema } from '@/shared/schemas/enums'
+import {
+  tipoBatidaEnumSchema,
+  origemBatidaEnumSchema,
+} from '@/shared/schemas/enums'
 
 export const registroPontoResponseDto = z4.object({
   id: z4.uuid(),

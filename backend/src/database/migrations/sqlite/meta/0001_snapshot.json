@@ -65,12 +65,8 @@
           "name": "registro_ponto_usuario_id_usuario_id_fk",
           "tableFrom": "registro_ponto",
           "tableTo": "usuario",
-          "columnsFrom": [
-            "usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["usuario_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -78,12 +74,8 @@
           "name": "registro_ponto_registrado_por_usuario_id_fk",
           "tableFrom": "registro_ponto",
           "tableTo": "usuario",
-          "columnsFrom": [
-            "registrado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["registrado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -162,12 +154,8 @@
           "name": "resumo_diario_usuario_id_usuario_id_fk",
           "tableFrom": "resumo_diario",
           "tableTo": "usuario",
-          "columnsFrom": [
-            "usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["usuario_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -292,9 +280,7 @@
       "indexes": {
         "usuario_matricula_unique": {
           "name": "usuario_matricula_unique",
-          "columns": [
-            "matricula"
-          ],
+          "columns": ["matricula"],
           "isUnique": true
         }
       },

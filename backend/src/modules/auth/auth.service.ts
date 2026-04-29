@@ -16,7 +16,13 @@ export const authService = {
 
     if (!senhaValida) throw new AppError('Credenciais inválidas', 401)
 
-    const token = gerarToken(user.id, user.perfil, user.nome, user.matricula, user.imageUrl )
+    const token = gerarToken(
+      user.id,
+      user.perfil,
+      user.nome,
+      user.matricula,
+      user.imageUrl
+    )
 
     return reply.status(200).send({
       message: 'Login autenticado',
@@ -31,5 +37,5 @@ export const authService = {
     if (!user) throw new AppError('Usuário não encontrado', 404)
 
     return reply.status(200).send(user)
-  }
+  },
 }

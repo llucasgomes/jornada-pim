@@ -6,7 +6,10 @@ export const dashboardService = {
   async getStats() {
     // 1. Total de colaboradores ativos e inativos
     const [totalUsers] = await db.select({ value: count() }).from(usuario)
-    const [activeUsers] = await db.select({ value: count() }).from(usuario).where(eq(usuario.ativo, true))
+    const [activeUsers] = await db
+      .select({ value: count() })
+      .from(usuario)
+      .where(eq(usuario.ativo, true))
 
     // 2. Colaboradores que bateram ponto hoje (presentes)
     const hojeStr = new Date().toISOString().split('T')[0]
@@ -19,8 +22,12 @@ export const dashboardService = {
     const inicioMes = new Date()
     inicioMes.setDate(1)
     inicioMes.setHours(0, 0, 0, 0)
-    
-    const fimMes = new Date(inicioMes.getFullYear(), inicioMes.getMonth() + 1, 0)
+
+    const fimMes = new Date(
+      inicioMes.getFullYear(),
+      inicioMes.getMonth() + 1,
+      0
+    )
     fimMes.setHours(23, 59, 59, 999)
 
     const [monthStats] = await db

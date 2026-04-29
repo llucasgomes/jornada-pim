@@ -43,8 +43,8 @@ export function buildApp() {
   server.register(fastifySwagger, {
     openapi: {
       info: {
-        title: "API - JornadaPIM",
-        version: "1.0.0",
+        title: 'API - JornadaPIM',
+        version: '1.0.0',
         description: `
 ## Sobre o projeto
 
@@ -100,16 +100,16 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
       components: {
         securitySchemes: {
           bearerAuth: {
-            type: "http",
-            scheme: "bearer",
-            bearerFormat: "JWT", // Especifica que é um JWT
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT', // Especifica que é um JWT
           },
         },
       },
       security: [{ bearerAuth: [] }], // Aplica o esquema de segurança globalmente
     },
     transform: jsonSchemaTransform,
-  });
+  })
 
   server.register(ScalarFastifyApiReference, {
     routePrefix: '/docs',
@@ -128,7 +128,7 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
   server.register(registroPontoRoutes)
   server.register(dashboardRoutes)
   server.register(relatorioRoutes)
-  server.register(setorRoutes);
+  server.register(setorRoutes)
 
   //handle errors Global
   // registrar o handler global
