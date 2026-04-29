@@ -1,13 +1,21 @@
 import { DashboardStats } from "@/core/models/interfaces";
 import { PontoService } from "@/core/services/ponto.service";
 import { DecimalPipe } from "@angular/common";
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, computed, OnInit, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import {
+  NgApexchartsModule,
+  ApexChart,
+  ApexXAxis,
+  ApexStroke,
+  ApexDataLabels,
+  ApexAxisChartSeries,
+} from 'ng-apexcharts';
 
 
 @Component({
   selector: 'app-dashboard',
-  imports: [FormsModule, DecimalPipe],
+  imports: [FormsModule, DecimalPipe, NgApexchartsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -20,6 +28,44 @@ export class Dashboard implements OnInit {
   ngOnInit() {
     this.loadStats();
   }
+
+  chartOptions = computed(() => {
+    const data = this.stats()?.graficoExtras || [];
+
+    return {
+      series: [
+        {
+          name: 'Horas Extras',
+          data: data.map((d) => Number(d.total.toFixed(2))),
+        },
+      ],
+      chart: {
+        type: 'area',
+        height: 300,
+        toolbar: { show: false },
+      },
+      xaxis: {
+        categories: data.map((d) =>
+          new Date(d.data).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+          }),
+        ),
+      },
+      stroke: {
+        curve: 'smooth',
+      },
+      dataLabels: {
+        enabled: false,
+      },
+    } as {
+      series: ApexAxisChartSeries;
+      chart: ApexChart;
+      xaxis: ApexXAxis;
+      stroke: ApexStroke;
+      dataLabels: ApexDataLabels;
+    };
+  });
 
   loadStats() {
     this.loading.set(true);

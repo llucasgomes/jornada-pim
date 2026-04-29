@@ -51,16 +51,21 @@
       <div class="card col-span-2">
         <h3 class="text-sm text-slate-400 mb-4">Horas Extras por Dia</h3>
 
-        <div class="h-75 flex items-center justify-center text-slate-500">
-          @if (!stats()?.graficoExtras?.length) {
-            <span>Sem dados</span>
+        <div class="h-75">
+          @if (stats()?.graficoExtras?.length) {
+            <apx-chart
+              [series]="chartOptions().series"
+              [chart]="chartOptions().chart"
+              [xaxis]="chartOptions().xaxis"
+              [stroke]="chartOptions().stroke"
+              [dataLabels]="chartOptions().dataLabels"
+            />
           } @else {
-            <!-- FUTURO: Chart.js -->
-            <pre class="text-xs text-slate-500 overflow-auto"
-              >{{ stats()?.graficoExtras }}
-            </pre>
+            <span class="text-slate-500">Sem dados</span>
           }
         </div>
+
+
       </div>
 
       <!-- 🧑‍💼 TOP ATRASOS -->
