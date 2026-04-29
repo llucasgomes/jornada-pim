@@ -1,13 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
-
-
-@Component({
-  selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  template: `
-    <div class="flex min-h-screen bg-[#0f172a]">
+ <div class="flex min-h-screen bg-[#0f172a]">
       <!-- Sidebar -->
       <aside class="fixed inset-y-0 left-0 w-64 bg-slate-900/50 backdrop-blur-xl border-r border-slate-800 flex flex-col hidden md:flex z-50">
         <div class="p-6">
@@ -115,32 +106,3 @@ import { AuthService } from '../../../core/services/auth.service';
         </button>
       </nav>
     </div>
-  `,
-  styles: []
-})
-export class LayoutComponent {
-  private authService = inject(AuthService);
-
-  perfil = this.authService.perfil;
-  userName = computed(() => this.authService.currentUser()?.nome || '');
-  userInitials = computed(() => {
-    const name = this.userName();
-    if (!name) return '?';
-    const parts = name.split(' ');
-    return (parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '');
-  });
-
-  isColaborador = computed(() => this.perfil() === 'colaborador');
-  isAdmin = computed(() => this.perfil() === 'gestor' || this.perfil() === 'rh');
-
-  roleBadgeClass = computed(() => {
-    const p = this.perfil();
-    if (p === 'rh') return 'badge-danger';
-    if (p === 'gestor') return 'badge-warning';
-    return 'badge-info';
-  });
-
-  onLogout() {
-    this.authService.logout();
-  }
-}
