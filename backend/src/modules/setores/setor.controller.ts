@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import z4 from "zod/v4";
 import { setorService } from "./setor.service";
 import { internalServerErrorSchema } from "@/shared/errors/errorSchemas";
+import { permission } from "@/shared/middlewares/permission";
 
 const setorSchema = z4.object({
   id: z4.string(),
@@ -17,6 +18,7 @@ export default function setorController(server: FastifyInstance) {
   server.get(
     "/",
     {
+        preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Listar todos os setores ativos",
         tags: ["Setor"],
@@ -34,6 +36,7 @@ export default function setorController(server: FastifyInstance) {
     "/:id",
     {
       schema: {
+        preHandler: permission(["gestor", "rh"]),
         summary: "Buscar setor por ID",
         tags: ["Setor"],
         params: z4.object({ id: z4.string() }),
@@ -51,6 +54,7 @@ export default function setorController(server: FastifyInstance) {
   server.post(
     "/",
     {
+      preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Criar novo setor",
         tags: ["Setor"],
@@ -72,6 +76,7 @@ export default function setorController(server: FastifyInstance) {
   server.patch(
     "/:id",
     {
+      preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Atualizar setor",
         tags: ["Setor"],
@@ -96,6 +101,7 @@ export default function setorController(server: FastifyInstance) {
   server.delete(
     "/:id",
     {
+      preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Desativar setor",
         tags: ["Setor"],

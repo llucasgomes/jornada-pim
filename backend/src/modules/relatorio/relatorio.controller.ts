@@ -11,7 +11,7 @@ export default function relatorioController(server: FastifyInstance) {
   server.get(
     "/:userId",
     {
-      // preHandler: permission(["gestor", "rh"]),
+      preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Baixar relatório de ponto por usuário",
         tags: ["Relatório"],
@@ -35,7 +35,7 @@ export default function relatorioController(server: FastifyInstance) {
   server.post(
     "/allActives",
     {
-      // preHandler: permission(["gestor", "rh"]),
+      preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Baixar relatório de todos os colaboradores",
         tags: ["Relatório"],

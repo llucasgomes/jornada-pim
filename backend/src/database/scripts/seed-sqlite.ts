@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
 import { db } from '../../config/database'
 import type { StatusDia, TipoBatida } from '../../database/schemas/sqlite'
-import { registroPonto, resumoDiario, usuario } from '../../database/schemas/sqlite'
+import { registroPonto, resumoDiario, setor, usuario } from '../../database/schemas/sqlite'
 
 faker.seed(42)
 
@@ -121,6 +121,27 @@ async function seed() {
     await db.delete(resumoDiario)
     await db.delete(registroPonto)
     await db.delete(usuario)
+    await db.delete(setor)
+
+    console.log("Criando setores...");
+
+    await db.insert(setor).values([
+      {
+        nome: "Produção",
+      },
+      {
+        nome: "Montagem",
+      },
+      {
+        nome: "Logística",
+      },
+      {
+        nome: "Qualidade",
+      },
+      {
+        nome: "Manutenção",
+      },
+    ]);
 
     console.log('Criando gestores e RH...')
 
