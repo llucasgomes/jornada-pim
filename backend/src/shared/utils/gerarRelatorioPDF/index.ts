@@ -357,6 +357,49 @@ export async function gerarPdfComPagina(
   return Buffer.from(pdf);
 }
 
+// Gera um único PDF com todos os usuários (página separada por usuário)
+export async function gerarPdfMultiplos(htmls: string[]): Promise<Buffer> {
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+  const page = await browser.newPage();
+
+  const pdfs: Buffer[] = [];
+
+  try {
+    for (const html of htmls) {
+      await page.setContent(html, { waitUntil: "domcontentloaded", timeout: 60000 });
+      const pdf = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: "8mm", bottom: "8mm", left: "6mm", right: "6mm" },
+      });
+      pdfs.push(Buffer.from(pdf));
+    }
+  } finally {
+    await browser.close();
+  }
+
+  // Merge todos os PDFs em um
+  return mergePdfs(pdfs);
+}
+
+// Merge simples de PDFs binários usando pdf-lib
+async function mergePdfs(pdfs: Buffer[]): Promise<Buffer> {
+  const { PDFDocument } = await import("pdf-lib");
+
+  const merged = await PDFDocument.create();
+
+  for (const pdfBuffer of pdfs) {
+    const doc = await PDFDocument.load(pdfBuffer);
+    const pages = await merged.copyPages(doc, doc.getPageIndices());
+    pages.forEach((page) => merged.addPage(page));
+  }
+
+  const bytes = await merged.save();
+  return Buffer.from(bytes);
+}
+
 
 function formatarData(iso: string) {
   const d = new Date(iso);

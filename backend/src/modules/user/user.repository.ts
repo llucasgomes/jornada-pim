@@ -1,6 +1,6 @@
 import { db } from '@/config/database'
 import { usuario } from '@/database/schemas/sqlite'
-import { desc, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import type { CreateUserDto } from './dtos/create-user.dto'
 
 // colunas seguras reutilizadas em todos os selects (sem senha)
@@ -23,28 +23,34 @@ const safeColumns = {
 
 export const userRepository = {
   async create(data: any) {
-    const [user] = await db.insert(usuario).values(data).returning(safeColumns)
-    return user
+    const [user] = await db.insert(usuario).values(data).returning(safeColumns);
+    return user;
   },
 
   async findAll() {
-    return db.select(safeColumns).from(usuario)
+    return db.select(safeColumns).from(usuario);
   },
 
   async findAllActive() {
-    return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, true))
+    return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, true));
+  },
+  async findActiveBySetor(setor: string) {
+    return db
+      .select(safeColumns)
+      .from(usuario)
+      .where(and(eq(usuario.ativo, true), eq(usuario.setor, setor)));
   },
 
   async findAllInactive() {
-    return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, false))
+    return db.select(safeColumns).from(usuario).where(eq(usuario.ativo, false));
   },
-  async lastUser(){
+  async lastUser() {
     const ultimo = await db
-        .select({ matricula: usuario.matricula })
-        .from(usuario)
-        .orderBy(desc(usuario.matricula))
-        .limit(1)
-     return ultimo[0]?.matricula ?? null
+      .select({ matricula: usuario.matricula })
+      .from(usuario)
+      .orderBy(desc(usuario.matricula))
+      .limit(1);
+    return ultimo[0]?.matricula ?? null;
   },
 
   async findByMatricula(matricula: string) {
@@ -52,8 +58,8 @@ export const userRepository = {
       .select(safeColumns)
       .from(usuario)
       .where(eq(usuario.matricula, matricula))
-      .limit(1)
-    return result[0] ?? null
+      .limit(1);
+    return result[0] ?? null;
   },
 
   async findByMatriculaWithPassword(matricula: string) {
@@ -61,8 +67,8 @@ export const userRepository = {
       .select()
       .from(usuario)
       .where(eq(usuario.matricula, matricula))
-      .limit(1)
-    return result[0] ?? null
+      .limit(1);
+    return result[0] ?? null;
   },
 
   async findByUuid(id: string) {
@@ -70,8 +76,8 @@ export const userRepository = {
       .select(safeColumns)
       .from(usuario)
       .where(eq(usuario.id, id))
-      .limit(1)
-    return result[0] ?? null
+      .limit(1);
+    return result[0] ?? null;
   },
 
   async update(matricula: string, data: Partial<CreateUserDto>) {
@@ -79,8 +85,8 @@ export const userRepository = {
       .update(usuario)
       .set({ ...data, updatedAt: new Date().toDateString() })
       .where(eq(usuario.matricula, matricula))
-      .returning(safeColumns)
-    return result[0] ?? null
+      .returning(safeColumns);
+    return result[0] ?? null;
   },
 
   async delete(matricula: string) {
@@ -88,7 +94,7 @@ export const userRepository = {
       .update(usuario)
       .set({ ativo: false, updatedAt: new Date().toDateString() })
       .where(eq(usuario.matricula, matricula))
-      .returning(safeColumns)
-    return result[0] ?? null
+      .returning(safeColumns);
+    return result[0] ?? null;
   },
-}
+};

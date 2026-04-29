@@ -18,10 +18,6 @@ export default function relatorioController(server: FastifyInstance) {
         params: z4.object({
           userId: z4.string(),
         }),
-        querystring: z4.object({
-          mes: z4.string().optional(), // formato: 2026-04
-          data: z4.string().optional(), // fallback
-        }),
         response: {
           200: z4.any(), // PDF (não valida binário)
           400: z4.object({
@@ -35,20 +31,34 @@ export default function relatorioController(server: FastifyInstance) {
     relatorioService.pdf,
   );
 
-  // 🔹 RELATÓRIO DE TODOS (ZIP)
-  server.get(
+  // 🔹 RELATÓRIO DE TODOS 
+  server.post(
     "/allActives",
     {
       // preHandler: permission(["gestor", "rh"]),
       schema: {
         summary: "Baixar relatório de todos os colaboradores",
         tags: ["Relatório"],
-        querystring: z4.object({
-          mes: z4.string().optional(),
-          data: z4.string().optional(),
+        body: z4.object({
+          mes: z4
+            .string()
+            .regex(
+              /^\d{4}-\d{2}$/,
+              "Formato inválido. Use AAAA-MM (ex: 2026-04)",
+            )
+            .describe(
+              "Mês de referência no formato AAAA-MM (ex: 2026-04). Se não informado, usa o mês atual.",
+            )
+            .optional(),
+          setor: z4
+            .string()
+            .describe(
+              "Filtrar por setor específico (ex: Produção). Se não informado, retorna todos os colaboradores.",
+            )
+            .optional(),
         }),
         response: {
-          200: z4.any(), // ZIP
+          200: z4.any(),
           400: z4.object({
             statusCode: z4.literal(400),
             message: z4.string(),

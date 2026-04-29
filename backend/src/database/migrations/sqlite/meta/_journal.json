@@ -15,6 +15,13 @@
       "when": 1777402111278,
       "tag": "0001_daffy_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777486109213,
+      "tag": "0002_material_bloodscream",
+      "breakpoints": true
     }
   ]
 }
