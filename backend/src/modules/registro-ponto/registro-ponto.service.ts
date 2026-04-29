@@ -214,7 +214,7 @@ export const registroPontoService = {
       .where(filtroMes)
       .groupBy(usuario.id)
       .orderBy(desc(sql`SUM(${resumoDiario.atrasoMinutos})`))
-      .limit(10)
+      .limit(5)
 
     const topFaltosos = await db
       .select({
