@@ -1,0 +1,53 @@
+<z-layout class="h-screen overflow-hidden rounded-md border">
+ <app-header></app-header>
+
+  <z-layout class="h-full">
+    <z-sidebar
+      [zWidth]="250"
+      [zCollapsible]="true"
+      [zCollapsed]="sidebarCollapsed()"
+      [zCollapsedWidth]="70"
+      (zCollapsedChange)="onCollapsedChange($event)"
+      class="p-0!"
+    >
+      <nav class="flex h-full flex-col gap-2 p-2">
+        <z-sidebar-group class="gap-2 h-full">
+          <z-sidebar-group-label>Menu</z-sidebar-group-label>
+
+          @for (item of menu; track $index) {
+            <z-button
+              zType="ghost"
+              zSize="lg"
+              [class]="
+                sidebarCollapsed()
+                  ? 'w-full flex justify-center text-lg cursor-pointer'
+                  : 'justify-start text-lg '
+              "
+              [routerLink]="item.path"
+            >
+              <ng-icon [name]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2 text-xl'" />
+              @if (!sidebarCollapsed()) {
+                {{ item.label }}
+              }
+            </z-button>
+          }
+        </z-sidebar-group>
+
+        <app-card-user
+          [sidebarCollapsed]="sidebarCollapsed"
+          (collapsed)="onCollapsedChange($event)"
+        ></app-card-user>
+      </nav>
+    </z-sidebar>
+
+    <z-layout>
+      <z-content class="min-h-50">
+        <div class="space-y-4">
+          <router-outlet />
+        </div>
+      </z-content>
+
+     <app-footer></app-footer>
+    </z-layout>
+  </z-layout>
+</z-layout>

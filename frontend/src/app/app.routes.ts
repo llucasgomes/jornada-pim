@@ -1,43 +1,77 @@
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard } from './core/guards/auth.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { RedirectGuard } from './core/guards/redirect.guard';
+import { Login } from './pages/login/login';
+import { RoleGuard } from './core/guards/role.guard';
+import { Rh } from './pages/rh/rh';
+import { Gestor } from './pages/gestor/gestor';
+import { Colaborador } from './pages/colaborador/colaborador';
 
 export const routes: Routes = [
+  // LOGIN
   {
     path: 'login',
-    loadComponent: () => import('./features/login/login').then(m => m.Login),
+    canActivate: [RedirectGuard],
+    component: Login,
   },
+  // // ADMIN
   {
-    path: '',
-    canActivate: [authGuard],
-    loadComponent: () => import('./shared/components/layout/layout').then(m => m.Layout),
+    path: 'rh',
+    canActivate: [authGuard, RoleGuard],
+    data: { roles: ['rh'] },
+    component: Rh,
     children: [
       {
-        path: 'dashboard',
-        canActivate: [roleGuard(['rh', 'gestor'])],
-        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard),
-      },
-      {
-        path: 'ponto',
-        loadComponent: () => import('./features/ponto/ponto').then(m => m.Ponto),
-      },
-      {
-        path: 'historico',
-        loadComponent: () => import('./features/historico/historico').then(m => m.Historico),
-      },
-      {
-        path: 'admin/users',
-        canActivate: [roleGuard(['rh', 'gestor'])],
-        loadComponent: () => import('./features/admin/users/users').then(m => m.Users),
-      },
-      {
         path: '',
-        redirectTo: 'ponto',
         pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
       },
     ],
   },
   {
-    path: '**',
-    redirectTo: 'login',
+    path: 'gestor',
+    canActivate: [authGuard, RoleGuard],
+    data: { roles: ['gestor'] },
+    component: Gestor,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
+      },
+    ],
   },
+  {
+    path: 'colaborador',
+    canActivate: [authGuard, RoleGuard],
+    data: { roles: ['colaborador'] },
+    component: Colaborador,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
+      },
+    ],
+  },
+  // // ROOT
+  // { path: '', redirectTo: 'login', pathMatch: 'full' },
+
+  // // 404
+  // { path: '**', redirectTo: 'login' },
+
+
+  // {
+  //   path: '**',
+  //   redirectTo: 'login',
+  // },
+
+  // ACESSO NEGADO
+  // {
+  //   path: 'acesso-negado',
+  //   component: AcessoNegado,
+  // },
 ];

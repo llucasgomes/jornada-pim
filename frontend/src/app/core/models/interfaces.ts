@@ -14,6 +14,11 @@ export interface LoginResponse {
   token: string;
 }
 
+export interface LoginPayload {
+  matricula: string;
+  senha: string;
+}
+
 export interface JwtPayload {
   id: string;
   perfil: string;

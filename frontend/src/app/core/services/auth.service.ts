@@ -1,45 +1,59 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
-import type { LoginRequest, LoginResponse, JwtPayload, Perfil } from '@/core/models/interfaces';
+import { Perfil } from '../models/interfaces';
 
-@Injectable({ providedIn: 'root' })
+
+export interface StoredUser {
+  id: string;
+  nome: string;
+  matricula: string;
+  perfil: Perfil;
+  imageUrl?: string | null;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
-  private readonly apiUrl = environment.apiUrl;
-  private readonly tokenKey = 'jpim_token';
+  private userKey = 'user_logged';
+  private tokenKey = 'auth_token';
+  private router = inject(Router);
 
-  readonly isLoggedIn = signal(this.hasToken());
-  readonly currentUser = signal<JwtPayload | null>(this.decodeStoredToken());
-  readonly perfil = computed<Perfil | null>(() => {
-    const user = this.currentUser();
-    return user ? (user.perfil as Perfil) : null;
-  });
-
-  constructor(private http: HttpClient, private router: Router) {}
-
-  login(credentials: LoginRequest) {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials);
-  }
-
-  handleLoginSuccess(response: LoginResponse): void {
-    localStorage.setItem(this.tokenKey, response.token);
-    const decoded = this.decodeToken(response.token);
-    this.currentUser.set(decoded);
-    this.isLoggedIn.set(true);
-
-    const perfil = decoded?.perfil as Perfil;
-    if (perfil === 'rh' || perfil === 'gestor') {
-      this.router.navigate(['/dashboard']);
-    } else {
-      this.router.navigate(['/ponto']);
+  private decodeToken(token: string): StoredUser | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(''),
+      );
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
     }
   }
 
-  logout(): void {
+  login(token: string) {
+    localStorage.setItem(this.tokenKey, token);
+    const payload = this.decodeToken(token);
+    if (payload) {
+      const userData: StoredUser = {
+        id: payload.id,
+        nome: payload.nome,
+        matricula: payload.matricula,
+        perfil: payload.perfil as Perfil,
+        imageUrl: payload.imageUrl,
+      };
+      localStorage.setItem(this.userKey, JSON.stringify(userData));
+    }
+  }
+
+  logout() {
+    localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.tokenKey);
-    this.currentUser.set(null);
-    this.isLoggedIn.set(false);
     this.router.navigate(['/login']);
   }
 
@@ -47,27 +61,35 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  private hasToken(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-    const decoded = this.decodeToken(token);
-    if (!decoded) return false;
-    return decoded.exp * 1000 > Date.now();
-  }
-
-  private decodeStoredToken(): JwtPayload | null {
-    const token = this.getToken();
-    if (!token) return null;
-    return this.decodeToken(token);
-  }
-
-  private decodeToken(token: string): JwtPayload | null {
-    try {
-      const payload = token.split('.')[1];
-      const decoded = atob(payload);
-      return JSON.parse(decoded) as JwtPayload;
-    } catch {
+  getUser(): StoredUser | null {
+    const data = localStorage.getItem(this.userKey);
+    if (!data || !this.getToken()) {
+      localStorage.removeItem(this.userKey);
       return null;
     }
+    return JSON.parse(data) as StoredUser;
+  }
+
+  isLogged(): boolean {
+    return !!this.getToken();
+  }
+
+  hasRole(roles: Perfil[]): boolean {
+    const user = this.getUser();
+    if (!user) return false;
+    return roles.includes(user.perfil);
+  }
+
+  getPerfil(): Perfil | null {
+    return this.getUser()?.perfil ?? null;
+  }
+
+  // adicione após getPerfil()
+  perfil(): Perfil | null {
+    return this.getPerfil();
+  }
+
+  isLoggedIn(): boolean {
+    return this.isLogged();
   }
 }
