@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1777146280908,
-      "tag": "0000_foamy_viper",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1777402111278,
-      "tag": "0001_daffy_vector",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1777486109213,
-      "tag": "0002_material_bloodscream",
+      "when": 1777694301639,
+      "tag": "0000_spicy_glorian",
       "breakpoints": true
     }
   ]

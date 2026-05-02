@@ -1,16 +1,19 @@
-import jwt from 'jsonwebtoken'
-import { env } from '@/config/env'
+import jwt from "jsonwebtoken";
+import { env } from "@/config/env";
 
-const SECRET_KEY = env.JWT_SECRET
+const SECRET_KEY = env.JWT_SECRET;
 
-export function gerarToken(
-  id: string,
-  perfil: string,
-  nome: string,
-  matricula: string,
-  imageUrl: string | null
-) {
-  return jwt.sign({ id, perfil, nome, matricula, imageUrl }, SECRET_KEY, {
-    expiresIn: '8h',
-  })
+type TokenPayload = {
+  userId: string;
+  usuarioEmpresaId: string;
+  empresaId: string;
+  perfil: string;
+  nome: string;
+  imageUrl: string | null;
+};
+
+export function gerarToken(payload: TokenPayload) {
+  return jwt.sign(payload, SECRET_KEY, {
+    expiresIn: "8h",
+  });
 }

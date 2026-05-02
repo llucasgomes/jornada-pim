@@ -12,10 +12,11 @@ import {
   ApexAxisChartSeries,
 } from 'ng-apexcharts';
 import { CardDetails } from "./components/card-details/card-details";
+import { CardRanking } from "./components/card-ranking/card-ranking";
 
 @Component({
   selector: 'app-resumo-operacional',
-  imports: [FormsModule, DecimalPipe, NgApexchartsModule, CardDetails],
+  imports: [FormsModule, DecimalPipe, NgApexchartsModule, CardDetails, CardRanking],
   templateUrl: './resumo-operacional.html',
   styleUrl: './resumo-operacional.css',
 })

@@ -43,8 +43,8 @@ export function buildApp() {
   server.register(fastifySwagger, {
     openapi: {
       info: {
-        title: 'API - JornadaPIM',
-        version: '1.0.0',
+        title: "API - JornadaPIM",
+        version: "1.0.0",
         description: `
 ## Sobre o projeto
 
@@ -75,6 +75,7 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
 | \`colaborador\` | Registra ponto, consulta próprio histórico e banco de horas |
 | \`gestor\` | Acompanha equipe, visualiza dashboard, aprova ajustes |
 | \`rh\` | Acesso total, cadastra colaboradores, gera espelho mensal |
+| \`administrador\` | Acesso total, cadastra colaboradores, gera espelho mensal,empresas | 
 
 ---
 
@@ -89,27 +90,27 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
 
 ## Credenciais de teste
 
-| Matrícula | Senha | Perfil |
-|---|---|---|
-| PIM-0901 | 123456789 | gestor |
-| PIM-0902 | 123456789 | gestor |
-| PIM-0903 | 123456789 | rh |
-| PIM-0001 | 123456789 | colaborador |
+| CPF | Senha | Perfil | Setor |
+|----|----|----|----|
+| 123.456.789-01 | 123456789 | gestor | Setor A |
+| 123.456.789-02 | 123456789 | gestor | Setor B |
+| 123.456.789-03 | 123456789 | rh | Setor D |
+| 123.456.789-04 | 123456789 | colaborador | Setor C |
     `,
       },
       components: {
         securitySchemes: {
           bearerAuth: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT', // Especifica que é um JWT
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT", // Especifica que é um JWT
           },
         },
       },
       security: [{ bearerAuth: [] }], // Aplica o esquema de segurança globalmente
     },
     transform: jsonSchemaTransform,
-  })
+  });
 
   server.register(ScalarFastifyApiReference, {
     routePrefix: '/docs',

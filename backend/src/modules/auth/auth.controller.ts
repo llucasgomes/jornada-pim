@@ -6,7 +6,8 @@ import {
 } from '@/shared/errors/errorSchemas'
 import { authRequestSchema, authResponseSchema } from './auth.schema'
 import { authService } from './auth.service'
-import { userResponseDto } from '../user/dtos/user-response'
+import { userResponseDto } from '../user/user.dto'
+
 
 export default async function authController(server: FastifyInstance) {
   server.post(

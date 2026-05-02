@@ -1,24 +1,35 @@
-import { db } from '@/config/database'
-import { usuario } from '@/database/schemas/sqlite'
-import { desc } from 'drizzle-orm'
+import { db } from "@/config/database";
+import { empresa } from "@/database/schemas/sqlite";
+import { AppError } from "@/shared/errors/AppError";
+import { eq, sql } from "drizzle-orm";
 
-export async function gerarMatricula() {
-  const ultimo = await db
-    .select({ matricula: usuario.matricula })
-    .from(usuario)
-    .orderBy(desc(usuario.matricula))
-    .limit(1)
+export async function gerarMatricula(empresaId: string) {
+  const [empresaAtualizada] = await db
+    .update(empresa)
+    .set({
+      sequencialMatricula: sql`${empresa.sequencialMatricula} + 1`,
+    })
+    .where(eq(empresa.id, empresaId))
+    .returning({
+      sequencial: empresa.sequencialMatricula,
+      nome: empresa.nome,
+    });
 
-  let numero = 1
-
-  if (ultimo.length && ultimo[0].matricula) {
-    const partes = ultimo[0].matricula.split('-')
-    const parsed = Number(partes[1])
-
-    if (!isNaN(parsed)) {
-      numero = parsed + 1
-    }
+  if (!empresaAtualizada) {
+    throw new AppError("Empresa não encontrada", 404);
   }
 
-  return `PIM-${String(numero).padStart(4, '0')}`
+  const numero = empresaAtualizada.sequencial;
+  const sigla = gerarSiglaEmpresa(empresaAtualizada.nome);
+
+  return `${sigla}-${String(numero).padStart(4, "0")}`;
+}
+
+function gerarSiglaEmpresa(nome: string) {
+  return nome
+    .split(" ")
+    .filter((p) => p.length > 2)
+    .map((p) => p[0].toUpperCase())
+    .join("")
+    .slice(0, 4);
 }

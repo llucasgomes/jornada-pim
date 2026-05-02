@@ -49,35 +49,7 @@
       </div>
 
       <!-- 🧑‍💼 TOP ATRASOS -->
-      <div class="card">
-        <h3 class="text-sm text-slate-400 mb-4">Top Atrasos</h3>
-
-        <div class="flex flex-col gap-4">
-          @for (user of stats()?.topAtrasos || []; track user.nome) {
-            <div class="flex items-center gap-3">
-              <!-- FOTO -->
-              <img
-                [src]="user.imageUrl || 'https://i.pravatar.cc/40'"
-                alt="Foto do colaborador"
-                [attr.aria-label]="'Foto de ' + (user.nome || 'colaborador')"
-                [title]="user.nome"
-                class="w-10 h-10 rounded-full object-cover"
-              />
-
-              <!-- INFO -->
-              <div class="flex-1">
-                <div class="text-sm text-white font-medium">
-                  {{ user.nome }}
-                </div>
-                <div class="text-xs text-slate-500">{{ user.cargo }} • {{ user.setor }}</div>
-              </div>
-
-              <!-- ATRASO -->
-              <span class="text-red-400 text-sm font-mono"> {{ user.total }}m </span>
-            </div>
-          }
-        </div>
-      </div>
+      <app-card-ranking title="Top Atrasos" [fiveTopAtrasados]="stats()?.topAtrasos!" />
     </div>
 
     <!-- 🔹 SEGUNDA LINHA -->
@@ -111,42 +83,7 @@
       </div>
 
       <!-- 🚨 FALTOSOS -->
-      <div class="card">
-        <h3 class="text-sm font-bold text-slate-400 mb-4">Mais Faltosos</h3>
-
-        <div class="flex flex-col gap-3">
-          @for (user of stats()?.topFaltosos || []; track user.id) {
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                @if (user.imageUrl) {
-                  <img
-                    [src]="user.imageUrl"
-                    alt="Foto do colaborador"
-                    [attr.aria-label]="'Foto de ' + (user.nome || 'colaborador')"
-                    [title]="user.nome"
-                    class="w-8 h-8 rounded-full"
-                  />
-                } @else {
-                  <div
-                    class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs"
-                  >
-                    {{ user.nome[0] }}
-                  </div>
-                }
-
-                <div class="flex flex-col">
-                  <span class="text-sm text-slate-300">{{ user.nome }}</span>
-                  <span class="text-xs text-slate-500">
-                    {{ user.cargo || '—' }} • {{ user.setor || '—' }}
-                  </span>
-                </div>
-              </div>
-
-              <span class="text-red-400 font-mono"> {{ user.total }} faltas </span>
-            </div>
-          }
-        </div>
-      </div>
+      <app-card-ranking title="Mais Faltosos" [fiveTopAtrasados]="stats()?.topFaltosos || []" />
     </div>
   }
 </div>

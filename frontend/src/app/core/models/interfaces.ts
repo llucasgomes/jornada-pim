@@ -119,3 +119,4 @@ export interface DashboardStats {
     total: number;
   }[];
 }
+

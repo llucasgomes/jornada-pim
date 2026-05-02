@@ -5,9 +5,9 @@ import {
   notFoundErrorSchema,
 } from '@/shared/errors/errorSchemas'
 import { permission } from '@/shared/middlewares/permission'
-import { createUserDto } from './dtos/create-user.dto'
-import { userResponseDto } from './dtos/user-response'
+
 import { userService } from './user.service'
+import { createUserDto, userResponseDto } from './user.dto'
 
 export default function userController(_server: FastifyInstance) {
   _server.post(
