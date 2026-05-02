@@ -47,6 +47,23 @@ export interface User {
   updated_at: string;
 }
 
+export interface UsuarioEmpresa {
+  id: string;
+  usuarioId: string;
+  empresaId: string;
+  matricula: string;
+  cargo: string | null;
+  setor: string | null;
+  perfil: 'colaborador' | 'gestor' | 'rh' | 'administrador';
+  turno: '1 turno' | '2 turno' | '3 turno' | 'Comercial' | 'Especial' | null;
+  cargaHorariaDia: number | null;
+  horarioEntrada: string | null;
+  horarioSaida: string | null;
+  ativo: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
 export interface CreateUser {
   nome: string;
   senha: string;

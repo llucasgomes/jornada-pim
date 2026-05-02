@@ -1,0 +1,89 @@
+ <div class="w-full">
+      <div class="overflow-hidden rounded-md border">
+        <table z-table>
+          <thead z-table-header>
+            @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+              <tr z-table-row>
+                @for (header of headerGroup.headers; track header.id) {
+                  <th
+                    z-table-head
+                    [class.cursor-pointer]="header.column.getCanSort()"
+                    [class.select-none]="header.column.getCanSort()"
+                    (click)="header.column.getToggleSortingHandler()?.($event)"
+                  >
+                    @if (!header.isPlaceholder) {
+                      <div class="flex items-center gap-1">
+                        <ng-container
+                          *flexRender="
+                            header.column.columnDef.header;
+                            props: header.getContext();
+                            let h
+                          "
+                        >
+                          <span [innerHTML]="h"></span>
+                        </ng-container>
+                        @if (header.column.getCanSort()) {
+                          <span class="text-xs text-slate-400">
+                            {{ header.column.getIsSorted() === 'asc' ? '↑' : header.column.getIsSorted() === 'desc' ? '↓' : '↕' }}
+                          </span>
+                        }
+                      </div>
+                    }
+                  </th>
+                }
+              </tr>
+            }
+          </thead>
+          <tbody z-table-body>
+            @for (row of table.getRowModel().rows; track row.id) {
+              <tr z-table-row>
+                @for (cell of row.getVisibleCells(); track cell.id) {
+                  <td z-table-cell>
+                    <ng-container
+                      *flexRender="
+                        cell.column.columnDef.cell;
+                        props: cell.getContext();
+                        let c
+                      "
+                    >
+                      <div [innerHTML]="c"></div>
+                    </ng-container>
+                  </td>
+                }
+              </tr>
+            } @empty {
+              <tr z-table-row>
+                <td z-table-cell [attr.colspan]="columns().length" class="h-24 text-center text-slate-500">
+                  Nenhum resultado encontrado.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginação -->
+      @if (paginate()) {
+        <div class="flex items-center justify-between px-2 py-3 text-sm text-slate-400">
+          <span>
+            Página {{ table.getState().pagination.pageIndex + 1 }} de {{ table.getPageCount() }}
+          </span>
+          <div class="flex gap-2">
+            <button
+              class="rounded border px-2 py-1 disabled:opacity-40"
+              [disabled]="!table.getCanPreviousPage()"
+              (click)="table.previousPage()"
+            >
+              ← Anterior
+            </button>
+            <button
+              class="rounded border px-2 py-1 disabled:opacity-40"
+              [disabled]="!table.getCanNextPage()"
+              (click)="table.nextPage()"
+            >
+              Próxima →
+            </button>
+          </div>
+        </div>
+      }
+    </div>

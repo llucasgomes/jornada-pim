@@ -30,22 +30,22 @@ export class Gestor {
     {
       label: 'Equipe',
       icon: 'lucideUsers',
-      path: '/gestor/sectors',
+      path: '/gestor/equipe',
     },
     {
       label: 'Historico e RH',
       icon: 'lucideUsers',
-      path: '/gestor/sectors',
+      path: '/gestor/history-and-rh',
     },
     {
       label: 'Escalas e Setores',
       icon: 'lucideGalleryVertical',
-      path: '/gestor/sectors',
+      path: '/gestor/sectors-and-schedules',
     },
     {
       label: 'Relatorios PDF',
       icon: 'lucideFile',
-      path: '/supervisor/sectors',
+      path: '/gestor/reports',
     },
   ];
 }

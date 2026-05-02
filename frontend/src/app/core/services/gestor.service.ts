@@ -31,8 +31,11 @@ export class GestorService {
 
   listarColaboradoresPorSetor(empresaId: string, setor: string) {
     return this.http.post<UserForSetor[]>(
-      `${this.apiUrl}/${empresaId}/setor/${setor}/colaboradores`,
-      {},
+      `${this.apiUrl}/colaboradores`,
+      {
+        empresaId,
+        setor,
+      },
     );
   }
 
@@ -42,4 +45,5 @@ export class GestorService {
     if (mes) query += `&mes=${mes}`;
     return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal-setor${query}`);
   }
+
 }

@@ -41,6 +41,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
       },
+      {
+        path: 'equipe',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/gestor-equipe/gestor-equipe').then((c) => c.GestorEquipe),
+      },
     ],
   },
   {
@@ -62,7 +68,6 @@ export const routes: Routes = [
 
   // // 404
   // { path: '**', redirectTo: 'login' },
-
 
   // {
   //   path: '**',

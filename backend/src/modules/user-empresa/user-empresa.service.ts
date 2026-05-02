@@ -129,7 +129,7 @@ export const userEmpresaService = {
     return userEmpresaRepository.findByEmpresa(empresaId);
   },
   async listarPorEmpresaporSetor(req: FastifyRequest, reply: FastifyReply) {
-    const { empresaId, setor } = req.params as any;
+    const { empresaId, setor } = req.body as any;
 
     if (!empresaId) {
       throw new AppError("ID da empresa é obrigatório", 400);

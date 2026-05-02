@@ -37,14 +37,14 @@ export default function gestorController(_server: FastifyInstance) {
   );
 
   // Rota para listar colaboradores por setor
-  _server.get(
-    "/:empresaId/setor/:setor/colaboradores",
+  _server.post(
+    "/colaboradores",
     {
       // preHandler: permission(["colaborador", "gestor", "rh"]),
       schema: {
         summary: "Retorna colaboradores por setor",
         tags: ["Gestor"],
-        params: z4.object({
+        body: z4.object({
           empresaId: z4.string().uuid(),
           setor: z4.string().max(100),
         }),
