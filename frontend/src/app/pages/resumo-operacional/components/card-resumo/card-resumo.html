@@ -1,0 +1,26 @@
+<z-card class="col-span-2">
+        <h3 class="text-sm text-slate-400 mb-4">Resumo do Mês</h3>
+
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="text-slate-500">Dias processados</span>
+            <div class="text-white font-bold">
+              <!-- {{ stats()?.totalDiasProcessados }} -->
+            </div>
+          </div>
+
+          <div>
+            <span class="text-slate-500">Faltas</span>
+            <div class="text-red-400 font-bold">
+              <!-- {{ stats()?.totalFaltas }} -->
+            </div>
+          </div>
+
+          <div>
+            <span class="text-slate-500">Média extras</span>
+            <div class="text-amber-400 font-bold">
+              <!-- {{ stats()?.mediaExtras | number: '1.2-2' }}h -->
+            </div>
+          </div>
+        </div>
+      </z-card>

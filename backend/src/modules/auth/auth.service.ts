@@ -31,25 +31,10 @@ export const authService = {
     // ⚠️ regra atual: apenas 1 vínculo permitido
     const vinculo = vinculos[0];
 
-    // 🔑 4. token baseado no vínculo
-    const token = gerarToken({
-      userId: user.id,
-      usuarioEmpresaId: vinculo.id,
-      empresaId: vinculo.empresaId,
-      perfil: vinculo.perfil,
+    const userData = {
+      id: user.id,
       nome: user.nome,
-      imageUrl: user.imageUrl ?? null,
-    });
-
-    // 🎁 5. resposta
-    return reply.status(200).send({
-      message: "Login autenticado",
-      token,
-      user: {
-        id: user.id,
-        nome: user.nome,
-        imageUrl: user.imageUrl,
-      },
+      imageUrl: user.imageUrl,
       vinculo: {
         id: vinculo.id,
         empresaId: vinculo.empresaId,
@@ -57,22 +42,39 @@ export const authService = {
         cargo: vinculo.cargo,
         setor: vinculo.setor,
       },
+    };
+
+
+
+    // 🔑 4. token baseado no vínculo
+    const token = gerarToken(userData);
+
+    // 🎁 5. resposta
+    return reply.status(200).send({
+      message: "Login autenticado",
+      token
     });
   },
 
   async getMe(req: FastifyRequest, reply: FastifyReply) {
     const user = req.user as {
-      userId: string;
-      usuarioEmpresaId: string;
-      empresaId: string;
-      perfil: string;
+      id: string;
+      nome: string;
+      imageUrl: string | null;
+      vinculo: {
+        id: string;
+        empresaId: string;
+        perfil: string;
+        cargo: string;
+        setor: string;
+      };
     };
 
-    if (!user?.userId) {
+    if (!user?.id) {
       throw new AppError("Não autenticado", 401);
     }
 
-    const usuario = await userRepository.findById(user.userId);
+    const usuario = await userRepository.findById(user.id);
 
     if (!usuario) {
       throw new AppError("Usuário não encontrado", 404);
@@ -81,9 +83,9 @@ export const authService = {
     return reply.status(200).send({
       user: usuario,
       contexto: {
-        usuarioEmpresaId: user.usuarioEmpresaId,
-        empresaId: user.empresaId,
-        perfil: user.perfil,
+        usuarioEmpresaId: user.vinculo.id,
+        empresaId: user.vinculo.empresaId,
+        perfil: user.vinculo.perfil,
       },
     });
   },

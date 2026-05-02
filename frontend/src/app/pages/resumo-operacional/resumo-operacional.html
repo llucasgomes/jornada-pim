@@ -1,4 +1,4 @@
-<div class="max-w-300">
+<div class="w-full">
   <header class="mb-8">
     <h1 class="text-3xl font-bold text-white">Dashboard Gerencial</h1>
     <p class="text-slate-400 text-sm mt-1">Acompanhamento em tempo real da equipe</p>
@@ -13,7 +13,7 @@
     </div>
   } @else {
     <!-- 🔹 CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
       <!-- TOTAL -->
       <app-card-details [total]="stats()?.totalColaboradores || 0" title="Total de Colaboradores" />
 
@@ -21,69 +21,47 @@
       <app-card-details [total]="stats()?.presencaHoje || 0" title="Presentes Hoje" />
 
       <!-- EXTRAS -->
-      <app-card-details [total]="stats()?.totalHorasExtras || 0" title="Horas Extras (hs)" />
+      <app-card-details [total]="stats()?.totalHorasExtras || ''" title="Horas Extras (hs)" />
 
       <!-- ATRASOS -->
-      <app-card-details [total]="stats()?.totalAtrasos || 0" title="Atrasos (min)" />
+      <app-card-details [total]="stats()?.totalAtrasos || ''" title="Atrasos (min)" />
+
+       <app-card-resumo></app-card-resumo>
+
     </div>
 
     <!-- 🔹 LINHA PRINCIPAL -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
       <!-- 📊 GRÁFICO -->
-      <div class="card col-span-2">
-        <h3 class="text-sm text-slate-400 mb-4">Horas Extras por Dia</h3>
+<div class=" col-span-1">
+     <app-card-grafico-bar [historicoMeses]="stats()?.historicoMeses || []" />
 
-        <div class="h-75">
-          @if (stats()?.graficoExtras?.length) {
-            <apx-chart
-              [series]="chartOptions().series"
-              [chart]="chartOptions().chart"
-              [xaxis]="chartOptions().xaxis"
-              [stroke]="chartOptions().stroke"
-              [dataLabels]="chartOptions().dataLabels"
-            />
-          } @else {
-            <span class="text-slate-500">Sem dados</span>
-          }
-        </div>
-      </div>
+</div>
 
-      <!-- 🧑‍💼 TOP ATRASOS -->
-      <app-card-ranking title="Top Atrasos" [fiveTopAtrasados]="stats()?.topAtrasos!" />
+      <!--  RESUMO -->
+      <app-card-resumo></app-card-resumo>
     </div>
 
     <!-- 🔹 SEGUNDA LINHA -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-      <!-- 📊 RESUMO -->
-      <div class="card col-span-2">
-        <h3 class="text-sm text-slate-400 mb-4">Resumo do Mês</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+       <app-card-resumo></app-card-resumo>
+        <!--  TOP EXTRAS -->
+      <app-card-ranking
+        title="Top Horas Extras"
+        [fiveTopAtrasados]="stats()?.topExtras!"
+        tempo="hs"
+      />
+       <!--  TOP ATRASOS -->
+      <app-card-ranking title="Top Atrasos" [fiveTopAtrasados]="stats()?.topAtrasos!" tempo="min" />
 
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span class="text-slate-500">Dias processados</span>
-            <div class="text-white font-bold">
-              {{ stats()?.totalDiasProcessados }}
-            </div>
-          </div>
+      <!--  FALTOSOS -->
+      <app-card-ranking
+        title="Mais Faltosos"
+        [fiveTopAtrasados]="stats()?.topFaltosos || []"
+        tempo="dia"
+      />
 
-          <div>
-            <span class="text-slate-500">Faltas</span>
-            <div class="text-red-400 font-bold">
-              {{ stats()?.totalFaltas }}
-            </div>
-          </div>
 
-          <div>
-            <span class="text-slate-500">Média extras</span>
-            <div class="text-amber-400 font-bold">
-              {{ stats()?.mediaExtras | number: '1.2-2' }}h
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 🚨 FALTOSOS -->
-      <app-card-ranking title="Mais Faltosos" [fiveTopAtrasados]="stats()?.topFaltosos || []" />
     </div>
   }
 </div>

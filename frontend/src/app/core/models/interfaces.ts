@@ -15,15 +15,17 @@ export interface LoginResponse {
 }
 
 export interface LoginPayload {
-  matricula: string;
+  cpf: string;
   senha: string;
 }
 
 export interface JwtPayload {
-  id: string;
+  userId: string;
+  usuarioEmpresaId: string;
+  empresaId: string;
   perfil: string;
   nome: string;
-  matricula: string;
+  imageUrl?: string | null;
   iat: number;
   exp: number;
 }
@@ -47,7 +49,6 @@ export interface User {
 
 export interface CreateUser {
   nome: string;
-  // matricula: string;
   senha: string;
   perfil?: Perfil;
   cargo?: string;
@@ -89,8 +90,8 @@ export interface PontoHoje {
 }
 
 export interface DashboardStats {
-  totalHorasExtras: number;
-  totalAtrasos: number;
+  totalHorasExtras: string;
+  totalAtrasos: string;
   totalFaltas: number;
   totalColaboradores: number;
   totalDiasProcessados: number;
@@ -114,9 +115,26 @@ export interface DashboardStats {
     cargo?: string;
     setor?: string;
   }[];
+
+  topExtras: {
+    id: string;
+    nome: string;
+    total: number;
+    imageUrl?: string | null;
+    cargo?: string;
+    setor?: string;
+  }[];
+
   graficoExtras: {
     data: string;
     total: number;
+  }[];
+
+  historicoMeses: {
+    mes: string;
+    extras: number;
+    atrasos: number;
+    faltas: number;
   }[];
 }
 

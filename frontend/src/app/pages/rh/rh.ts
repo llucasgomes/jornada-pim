@@ -36,27 +36,27 @@ export class Rh {
     {
       label: 'Home',
       icon: 'lucideLayout',
-      path: '/gestor/',
+      path: '/rh/',
     },
     {
       label: 'Equipe',
       icon: 'lucideUsers',
-      path: '/gestor/sectors',
+      path: '/rh/sectors',
     },
     {
       label: 'Historico e RH',
       icon: 'lucideUsers',
-      path: '/gestor/sectors',
+      path: '/rh/sectors',
     },
     {
       label: 'Escalas e Setores',
       icon: 'lucideGalleryVertical',
-      path: '/gestor/sectors',
+      path: '/rh/sectors',
     },
     {
       label: 'Relatorios PDF',
       icon: 'lucideFile',
-      path: '/supervisor/sectors',
+      path: '/rh/sectors',
     },
   ];
 }

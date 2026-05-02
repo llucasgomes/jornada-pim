@@ -13,7 +13,7 @@
     @if (!sidebarCollapsed()) {
       <div>
         <span class="font-medium">{{ name }}</span>
-        <div class="text-xs">{{user.perfil.toUpperCase()}}</div>
+        <div class="text-xs">{{user.vinculo.perfil.toUpperCase()}} {{user.vinculo.setor?.toLocaleUpperCase()}}</div>
       </div>
 
       <ng-icon name="lucideChevronsUpDown" class="ml-auto" />

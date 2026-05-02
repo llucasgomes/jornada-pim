@@ -18,7 +18,7 @@ import { Router } from '@angular/router';
     ZardFormControlComponent,
     ZardInputDirective,
     ReactiveFormsModule,
-],
+  ],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -32,8 +32,13 @@ export class Login {
   private router = inject(Router);
   private ApiService = inject(Api);
 
+  private formatCPF(value: string): string {
+    const numbers = value.replace(/\D/g, '');
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+
   protected readonly loginForm = new FormGroup({
-    matricula: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    cpf: new FormControl('', [Validators.required, Validators.minLength(11)]),
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
   });
 
@@ -45,7 +50,7 @@ export class Login {
     this.errorMessage.set('');
 
     const credentials = {
-      matricula: this.loginForm.value.matricula?.toUpperCase() ?? '',
+      cpf: this.formatCPF(this.loginForm.value.cpf ?? ''),
       senha: this.loginForm.value.password ?? '',
     };
 
@@ -55,11 +60,10 @@ export class Login {
         // Verifica se tem token válido
         if (response.token) {
           this.auth.login(response.token);
-          const perfil = this.auth.getPerfil()
+          const perfil = this.auth.getPerfil();
 
           this.router.navigate([perfil]);
           this.isclicked.set(false);
-
         } else {
           this.isclicked.set(false);
           this.showError.set(true);

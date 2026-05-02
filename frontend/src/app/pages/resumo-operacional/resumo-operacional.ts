@@ -1,22 +1,17 @@
 import { DashboardStats } from '@/core/models/interfaces';
-import { PontoService } from '@/core/services/ponto.service';
-import { DecimalPipe } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  NgApexchartsModule,
-  ApexChart,
-  ApexXAxis,
-  ApexStroke,
-  ApexDataLabels,
-  ApexAxisChartSeries,
-} from 'ng-apexcharts';
+
 import { CardDetails } from "./components/card-details/card-details";
 import { CardRanking } from "./components/card-ranking/card-ranking";
+import { GestorService } from '@/core/services/gestor.service';
+import { AuthService } from '@/core/services/auth.service';
+import { CardResumo } from "./components/card-resumo/card-resumo";
+import { CardGraficoBar } from "./components/card-grafico-bar/card-grafico-bar";
 
 @Component({
   selector: 'app-resumo-operacional',
-  imports: [FormsModule, DecimalPipe, NgApexchartsModule, CardDetails, CardRanking],
+  imports: [FormsModule, CardDetails, CardRanking, CardResumo, CardGraficoBar],
   templateUrl: './resumo-operacional.html',
   styleUrl: './resumo-operacional.css',
 })
@@ -24,58 +19,25 @@ export class ResumoOperacional implements OnInit {
   stats = signal<DashboardStats | null>(null);
   loading = signal(true);
 
-  constructor(private pontoService: PontoService) {}
+  private gestorService = inject(GestorService);
+  private authService = inject(AuthService);
 
   ngOnInit() {
     this.loadStats();
   }
 
-  chartOptions = computed(() => {
-    const data = this.stats()?.graficoExtras || [];
 
-    return {
-      series: [
-        {
-          name: 'Horas Extras',
-          data: data.map((d) => Number(d.total.toFixed(2))),
-        },
-      ],
-      chart: {
-        type: 'area',
-        height: 300,
-        toolbar: { show: false },
-      },
-      xaxis: {
-        categories: data.map((d) =>
-          new Date(d.data).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-          }),
-        ),
-      },
-      stroke: {
-        curve: 'smooth',
-      },
-      dataLabels: {
-        enabled: false,
-      },
-    } as {
-      series: ApexAxisChartSeries;
-      chart: ApexChart;
-      xaxis: ApexXAxis;
-      stroke: ApexStroke;
-      dataLabels: ApexDataLabels;
-    };
-  });
 
   loadStats() {
     this.loading.set(true);
 
-    const today = new Date().toISOString().split('T')[0]; // 👉 "2026-04-28"
+    const user = this.authService.getUser()!;
+    const empresaId = user.vinculo.empresaId;
+    const setor = user.vinculo.setor ?? '';
+    const mes = new Date().toISOString().slice(0, 7); // "2026-05"
 
-    this.pontoService.getStats(today).subscribe({
+    this.gestorService.getStatsPorSetor(empresaId, setor, mes).subscribe({
       next: (data) => {
-        console.log('🔥 DADOS DO BACKEND:', data); // 👈 AQUI
         this.stats.set(data);
         this.loading.set(false);
       },

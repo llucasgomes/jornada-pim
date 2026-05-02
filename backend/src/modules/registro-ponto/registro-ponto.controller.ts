@@ -1,26 +1,25 @@
-import type { FastifyInstance } from 'fastify'
-import z4 from 'zod/v4'
-import { tipoBatidaEnumSchema } from '@/shared/schemas/enums'
-
-import { registroPontoService } from './registro-ponto.service'
-import { internalServerErrorSchema } from '@/shared/errors/errorSchemas'
-import { permission } from '@/shared/middlewares/permission'
+import type { FastifyInstance } from "fastify";
+import z4 from "zod/v4";
+import { tipoBatidaEnumSchema } from "@/shared/schemas/enums";
+import { registroPontoService } from "./registro-ponto.service";
+import { internalServerErrorSchema } from "@/shared/errors/errorSchemas";
+import { permission } from "@/shared/middlewares/permission";
 
 export async function registroPontoController(server: FastifyInstance) {
   // POST /ponto — registra próxima batida (colaborador autenticado)
   server.post(
-    '/',
+    "/",
     {
-      preHandler: permission(['colaborador', 'gestor', 'rh']),
+      preHandler: permission(["colaborador", "gestor", "rh"]),
       schema: {
-        summary: 'Registra a próxima batida do colaborador autenticado',
-        tags: ['Ponto'],
+        summary: "Registra a próxima batida do colaborador autenticado",
+        tags: ["Ponto"],
         response: {
           201: z4.object({
             id: z4.uuid(),
-            usuarioId: z4.uuid(),
+            usuarioEmpresaId: z4.uuid(), // corrigido: era usuarioId
             tipo: tipoBatidaEnumSchema,
-            timestamp: z4.coerce.date(),
+            timestamp: z4.string(),
             origem: z4.string(),
           }),
           400: z4.object({ statusCode: z4.literal(400), message: z4.string() }),
@@ -29,17 +28,17 @@ export async function registroPontoController(server: FastifyInstance) {
         },
       },
     },
-    registroPontoService.registrarBatida
-  )
+    registroPontoService.registrarBatida,
+  );
 
-  // GET /ponto/hoje — batidas e resumo do dia
+  // GET /ponto/hoje
   server.get(
-    '/hoje',
+    "/hoje",
     {
-      preHandler: permission(['colaborador', 'gestor', 'rh']),
+      preHandler: permission(["colaborador", "gestor", "rh"]),
       schema: {
-        summary: 'Retorna batidas e resumo do dia do colaborador autenticado',
-        tags: ['Ponto'],
+        summary: "Retorna batidas e resumo do dia do colaborador autenticado",
+        tags: ["Ponto"],
         response: {
           200: z4.object({
             batidas: z4.array(z4.any()),
@@ -50,17 +49,17 @@ export async function registroPontoController(server: FastifyInstance) {
         },
       },
     },
-    registroPontoService.buscarHoje
-  )
+    registroPontoService.buscarHoje,
+  );
 
   // GET /ponto/:usuario_id/historico?de=&ate=
   server.get(
-    '/:usuario_id/historico',
+    "/:usuario_id/historico",
     {
-      preHandler: permission(['colaborador', 'gestor', 'rh']),
+      preHandler: permission(["colaborador", "gestor", "rh"]),
       schema: {
-        summary: 'Retorna histórico de ponto por período',
-        tags: ['Ponto'],
+        summary: "Retorna histórico de ponto por período",
+        tags: ["Ponto"],
         params: z4.object({
           usuario_id: z4.string().uuid(),
         }),
@@ -80,21 +79,22 @@ export async function registroPontoController(server: FastifyInstance) {
         },
       },
     },
-    registroPontoService.buscarHistorico
-  )
+    registroPontoService.buscarHistorico,
+  );
 
   // GET /ponto/:usuario_id/relatorio-mensal?mes=&ano=
   server.get(
-    '/:usuario_id/relatorio-mensal',
+    "/:usuario_id/relatorio-mensal",
     {
-      preHandler: permission(['colaborador', 'gestor', 'rh']),
+      preHandler: permission(["colaborador", "gestor", "rh"]),
       schema: {
-        summary: 'Retorna relatório mensal consolidado',
-        tags: ['Ponto'],
+        summary: "Retorna relatório mensal consolidado",
+        tags: ["Ponto"],
         params: z4.object({
           usuario_id: z4.string().uuid(),
         }),
         querystring: z4.object({
+          // corrigido: era params
           mes: z4.string().optional(),
           ano: z4.string().optional(),
         }),
@@ -104,17 +104,17 @@ export async function registroPontoController(server: FastifyInstance) {
         },
       },
     },
-    registroPontoService.buscarRelatorioMensal
-  )
+    registroPontoService.buscarRelatorioMensal,
+  );
 
-  // DELETE /ponto/:id — remove batida (gestor/rh)
+  // DELETE /ponto/:id
   server.delete(
-    '/:id',
+    "/:id",
     {
-      preHandler: permission(['gestor', 'rh']),
+      preHandler: permission(["gestor", "rh"]),
       schema: {
-        summary: 'Remove uma batida de ponto',
-        tags: ['Ponto'],
+        summary: "Remove uma batida de ponto",
+        tags: ["Ponto"],
         params: z4.object({
           id: z4.uuid(),
         }),
@@ -125,16 +125,19 @@ export async function registroPontoController(server: FastifyInstance) {
         },
       },
     },
-    registroPontoService.deletarBatida
-  )
+    registroPontoService.deletarBatida,
+  );
 
+  // GET /ponto/resumo-mensal?mes=&data=
   server.get(
-    '/resumo-mensal',
+    "/resumo-mensal",
     {
+      preHandler: permission(["gestor", "rh", "administrador"]),
       schema: {
-        summary: 'Dashboard completo mensal',
-        tags: ['Dashboard'],
-        params: z4.object({
+        summary: "Dashboard completo mensal",
+        tags: ["Dashboard"],
+        querystring: z4.object({
+          // corrigido: era params
           data: z4.string().optional(),
           mes: z4.string().optional(),
         }),
@@ -155,7 +158,7 @@ export async function registroPontoController(server: FastifyInstance) {
                 setor: z4.string().nullable().optional(),
                 cargo: z4.string().nullable().optional(),
                 total: z4.number(),
-              })
+              }),
             ),
             topFaltosos: z4.array(
               z4.object({
@@ -165,19 +168,19 @@ export async function registroPontoController(server: FastifyInstance) {
                 setor: z4.string().nullable().optional(),
                 cargo: z4.string().nullable().optional(),
                 total: z4.number(),
-              })
+              }),
             ),
-
             graficoExtras: z4.array(
               z4.object({
                 data: z4.string(),
                 total: z4.number(),
-              })
+              }),
             ),
           }),
+          500: internalServerErrorSchema,
         },
       },
     },
-    registroPontoService.relatorioMensal
-  )
+    registroPontoService.relatorioMensal,
+  );
 }

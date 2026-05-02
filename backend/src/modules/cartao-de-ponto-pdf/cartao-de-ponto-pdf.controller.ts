@@ -3,17 +3,18 @@ import z4 from 'zod/v4'
 
 import { permission } from '@/shared/middlewares/permission'
 import { internalServerErrorSchema } from '@/shared/errors/errorSchemas'
-import { relatorioService } from './relatorio.service'
+import { cartaoDePontoPdfService } from './cartao-de-ponto-pdf.service';
 
-export default function relatorioController(server: FastifyInstance) {
+
+export default function cartaoDePontoPdfController(server: FastifyInstance) {
   // 🔹 RELATÓRIO INDIVIDUAL
   server.get(
-    '/:userId',
+    "/:userId",
     {
-      preHandler: permission(['gestor', 'rh']),
+      preHandler: permission(["gestor", "rh"]),
       schema: {
-        summary: 'Baixar relatório de ponto por usuário',
-        tags: ['Relatório'],
+        summary: "Baixar relatório de ponto por usuário",
+        tags: ["Relatório"],
         params: z4.object({
           userId: z4.string(),
         }),
@@ -27,32 +28,32 @@ export default function relatorioController(server: FastifyInstance) {
         },
       },
     },
-    relatorioService.pdf
-  )
+    cartaoDePontoPdfService.pdf,
+  );
 
   // 🔹 RELATÓRIO DE TODOS
   server.post(
-    '/allActives',
+    "/allActives",
     {
-      preHandler: permission(['gestor', 'rh']),
+      preHandler: permission(["gestor", "rh"]),
       schema: {
-        summary: 'Baixar relatório de todos os colaboradores',
-        tags: ['Relatório'],
+        summary: "Baixar relatório de todos os colaboradores",
+        tags: ["Relatório"],
         body: z4.object({
           mes: z4
             .string()
             .regex(
               /^\d{4}-\d{2}$/,
-              'Formato inválido. Use AAAA-MM (ex: 2026-04)'
+              "Formato inválido. Use AAAA-MM (ex: 2026-04)",
             )
             .describe(
-              'Mês de referência no formato AAAA-MM (ex: 2026-04). Se não informado, usa o mês atual.'
+              "Mês de referência no formato AAAA-MM (ex: 2026-04). Se não informado, usa o mês atual.",
             )
             .optional(),
           setor: z4
             .string()
             .describe(
-              'Filtrar por setor específico (ex: Produção). Se não informado, retorna todos os colaboradores.'
+              "Filtrar por setor específico (ex: Produção). Se não informado, retorna todos os colaboradores.",
             )
             .optional(),
         }),
@@ -66,6 +67,6 @@ export default function relatorioController(server: FastifyInstance) {
         },
       },
     },
-    relatorioService.pdfTodos
-  )
+    cartaoDePontoPdfService.pdfTodos,
+  );
 }

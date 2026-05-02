@@ -1,0 +1,22 @@
+<z-card>
+  <h3 class="text-sm text-slate-400 mb-4">Horas Extras por Dia</h3>
+
+ <div class="h-79">
+  @if (historicoMeses.length) {
+    <apx-chart
+     [series]="chartOptions().series!"
+        [chart]="chartOptions().chart!"
+        [colors]="chartOptions().colors!"
+        [theme]="chartOptions().theme!"
+        [grid]="chartOptions().grid!"
+        [xaxis]="chartOptions().xaxis!"
+        [yaxis]="chartOptions().yaxis!"
+        [plotOptions]="chartOptions().plotOptions!"
+        [dataLabels]="chartOptions().dataLabels!"
+
+    />
+  } @else {
+    <span class="text-slate-500">Sem dados</span>
+  }
+</div>
+</z-card>

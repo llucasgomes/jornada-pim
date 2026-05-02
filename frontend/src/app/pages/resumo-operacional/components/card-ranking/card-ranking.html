@@ -22,7 +22,13 @@
         </div>
 
         <!-- ATRASO -->
-        <span class="text-red-400 text-sm font-mono"> {{ user.total }}m </span>
+         @if(tempo === 'hs') {
+          <span class="text-red-400 text-sm font-mono"> {{ horasDecimalParaHHMM(user.total) }} </span>
+         } @else {
+           <span class="text-red-400 text-sm font-mono"> {{ minutosParaHHMM(user.total) }} </span>
+
+         }
+
       </div>
     }
   </div>

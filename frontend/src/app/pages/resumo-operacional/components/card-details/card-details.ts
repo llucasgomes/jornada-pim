@@ -9,5 +9,5 @@ import { ZardCardComponent } from "@/shared/components/card";
 })
 export class CardDetails {
   @Input() title!: string;
-  @Input() total!: number;
+  @Input() total:number | string | null = 0
 }

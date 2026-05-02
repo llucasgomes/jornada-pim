@@ -4,8 +4,9 @@ import { perfilEnumSchema, turnoEnumSchema } from "@/shared/schemas/enums";
 export const createUsuarioEmpresaDto = z4.object({
   cpf: z4.string(),
   nome: z4.string().optional(),
-
+  imageUrl: z4.string().optional(),
   empresaId: z4.string(),
+  password: z4.string(),
 
   cargo: z4.string().nullable().optional(),
   setor: z4.string().nullable().optional(),

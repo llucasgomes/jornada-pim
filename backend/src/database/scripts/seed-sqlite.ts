@@ -4,7 +4,6 @@ import { randomUUID } from "node:crypto";
 import { db } from "../../config/database";
 import type {
   Perfil,
-  StatusDia,
   TipoBatida,
 } from "../../database/schemas/sqlite";
 import {
@@ -190,48 +189,6 @@ function gerarCPF(): string {
   return [...numeros, digito1, digito2].join("");
 }
 
-function calcularResumo(
-  batidas: Batida[],
-  cargaMinutos: number,
-  entradaEsperada: string,
-  data: Date,
-) {
-  const get = (tipo: TipoBatida) =>
-    batidas.find((b) => b.tipo === tipo)?.timestamp;
-
-  const entradaStr = get("entrada");
-  const saidaStr = get("saida");
-
-  if (!entradaStr || !saidaStr) {
-    return {
-      horasTrabalhadas: 0,
-      horasEsperadas: cargaMinutos / 60,
-      horasExtras: 0,
-      atrasoMinutos: 0,
-      status: "falta" as StatusDia,
-    };
-  }
-
-  const entrada = new Date(entradaStr);
-  const saida = new Date(saidaStr);
-
-  const trabalhadoHoras = (saida.getTime() - entrada.getTime()) / 3600000;
-  const cargaHoras = cargaMinutos / 60;
-
-  const esperado = setTime(data, entradaEsperada);
-  const atraso = Math.max(
-    0,
-    Math.floor((entrada.getTime() - esperado.getTime()) / 60000),
-  );
-
-  return {
-    horasTrabalhadas: Number(trabalhadoHoras.toFixed(2)),
-    horasEsperadas: Number(cargaHoras.toFixed(2)),
-    horasExtras: Number(Math.max(0, trabalhadoHoras - cargaHoras).toFixed(2)),
-    atrasoMinutos: atraso,
-    status: "completo" as StatusDia,
-  };
-}
 
 // ─── Criação de usuário + vínculo ─────────────────────────────────────────────
 
@@ -273,45 +230,85 @@ async function gerarHistorico(
   usuarioEmpresaId: string,
   turnoConfig: TurnoConfig,
   hoje: Date,
+  mesesAtras: number = 3, // ← gera os últimos 3 meses + mês atual
 ) {
-  const dias = diasUteisDoMes(hoje.getFullYear(), hoje.getMonth() + 1);
-
   const todasBatidas: (typeof registroPonto.$inferInsert)[] = [];
   const todosResumos: (typeof resumoDiario.$inferInsert)[] = [];
 
-  for (const dia of dias) {
-    if (dia > hoje) continue;
+  for (let m = mesesAtras; m >= 0; m--) {
+    const refDate = new Date(hoje.getFullYear(), hoje.getMonth() - m, 1);
+    const ano = refDate.getFullYear();
+    const mes = refDate.getMonth() + 1;
+    const dias = diasUteisDoMes(ano, mes);
 
-    const entrada = setTime(dia, turnoConfig.entrada);
-    const saida = addMinutes(entrada, turnoConfig.carga);
+    for (const dia of dias) {
+      if (m === 0 && dia > hoje) continue; // mês atual: só até hoje
 
-    const batidas: Batida[] = [
-      { tipo: "entrada", timestamp: entrada.toISOString() },
-      { tipo: "saida", timestamp: saida.toISOString() },
-    ];
+      const falta = Math.random() < 0.15;
+      if (falta) {
+        todosResumos.push({
+          usuarioEmpresaId,
+          data: dia.toISOString().split("T")[0],
+          horasTrabalhadas: 0,
+          horasEsperadas: turnoConfig.carga / 60,
+          horasExtras: 0,
+          atrasoMinutos: 0,
+          status: "falta",
+        });
+        continue;
+      }
 
-    for (const b of batidas) {
-      todasBatidas.push({
-        id: randomUUID(),
+      const atrasoMin = faker.number.int({ min: -5, max: 30 });
+      const entrada = addMinutes(setTime(dia, turnoConfig.entrada), atrasoMin);
+      const saidaAlmoco = addMinutes(entrada, 240);
+      const retornoAlmoco = addMinutes(saidaAlmoco, 60);
+      const extrasMin = faker.number.int({ min: 0, max: 60 });
+      const saida = addMinutes(
+        retornoAlmoco,
+        turnoConfig.carga - 240 + extrasMin,
+      );
+
+      const batidas: Batida[] = [
+        { tipo: "entrada", timestamp: entrada.toISOString() },
+        { tipo: "saida_intervalo", timestamp: saidaAlmoco.toISOString() },
+        { tipo: "retorno_intervalo", timestamp: retornoAlmoco.toISOString() },
+        { tipo: "saida", timestamp: saida.toISOString() },
+      ];
+
+      for (const b of batidas) {
+        todasBatidas.push({
+          id: randomUUID(),
+          usuarioEmpresaId,
+          tipo: b.tipo,
+          timestamp: b.timestamp,
+          origem: "sistema",
+        });
+      }
+
+      const trabalhadoMs =
+        saida.getTime() -
+        retornoAlmoco.getTime() +
+        (saidaAlmoco.getTime() - entrada.getTime());
+      const trabalhadoHoras = trabalhadoMs / (1000 * 60 * 60);
+      const cargaHoras = turnoConfig.carga / 60;
+      const esperado = setTime(dia, turnoConfig.entrada);
+      const atraso = Math.max(
+        0,
+        Math.floor((entrada.getTime() - esperado.getTime()) / 60000),
+      );
+
+      todosResumos.push({
         usuarioEmpresaId,
-        tipo: b.tipo,
-        timestamp: b.timestamp,
-        origem: "sistema",
+        data: dia.toISOString().split("T")[0],
+        horasTrabalhadas: Number(trabalhadoHoras.toFixed(2)),
+        horasEsperadas: Number(cargaHoras.toFixed(2)),
+        horasExtras: Number(
+          Math.max(0, trabalhadoHoras - cargaHoras).toFixed(2),
+        ),
+        atrasoMinutos: atraso,
+        status: "completo",
       });
     }
-
-    const resumo = calcularResumo(
-      batidas,
-      turnoConfig.carga,
-      turnoConfig.entrada,
-      dia,
-    );
-
-    todosResumos.push({
-      usuarioEmpresaId,
-      data: dia.toISOString().split("T")[0],
-      ...resumo,
-    });
   }
 
   if (todasBatidas.length > 0)

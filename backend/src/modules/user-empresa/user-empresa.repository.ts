@@ -7,7 +7,6 @@ export const userEmpresaRepository = {
     const [result] = await db.insert(usuarioEmpresa).values(data).returning();
     return result;
   },
-
   async findActiveByUser(usuarioId: string) {
     return db
       .select()
@@ -19,7 +18,6 @@ export const userEmpresaRepository = {
         ),
       );
   },
-
   async findByEmpresa(empresaId: string) {
     return db
       .select()
@@ -37,20 +35,40 @@ export const userEmpresaRepository = {
         ),
       )
       .limit(1);
-
     return result ?? null;
   },
 
   async deactivate(id: string) {
     const [result] = await db
       .update(usuarioEmpresa)
-      .set({
-        ativo: false,
-        updatedAt: new Date().toISOString(),
-      })
+      .set({ ativo: false, updatedAt: new Date().toISOString() })
       .where(eq(usuarioEmpresa.id, id))
       .returning();
-
     return result;
+  },
+
+  async findUsersByEmpresaAndSetor(empresaId: string, setor: string) {
+    return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(
+        and(
+          eq(usuarioEmpresa.empresaId, empresaId),
+          eq(usuarioEmpresa.setor, setor),
+          eq(usuarioEmpresa.ativo, true),
+        ),
+      );
+  },
+
+  async findUsersByEmpresa(empresaId: string) {
+    return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(
+        and(
+          eq(usuarioEmpresa.empresaId, empresaId),
+          eq(usuarioEmpresa.ativo, true),
+        ),
+      );
   },
 };

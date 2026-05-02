@@ -2,13 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Perfil } from '../models/interfaces';
 
-
 export interface StoredUser {
   id: string;
   nome: string;
-  matricula: string;
-  perfil: Perfil;
-  imageUrl?: string | null;
+  imageUrl: string | null;
+  vinculo: {
+    id: string;
+    empresaId: string;
+    perfil: 'colaborador' | 'gestor' | 'rh' | 'administrador';
+    cargo: string | null;
+    setor: string | null;
+  };
 }
 
 @Injectable({
@@ -43,9 +47,8 @@ export class AuthService {
       const userData: StoredUser = {
         id: payload.id,
         nome: payload.nome,
-        matricula: payload.matricula,
-        perfil: payload.perfil as Perfil,
         imageUrl: payload.imageUrl,
+        vinculo: payload.vinculo,
       };
       localStorage.setItem(this.userKey, JSON.stringify(userData));
     }
@@ -77,14 +80,13 @@ export class AuthService {
   hasRole(roles: Perfil[]): boolean {
     const user = this.getUser();
     if (!user) return false;
-    return roles.includes(user.perfil);
+    return roles.includes(user.vinculo.perfil as Perfil); // corrigido: era user.perfil
   }
 
   getPerfil(): Perfil | null {
-    return this.getUser()?.perfil ?? null;
+    return (this.getUser()?.vinculo.perfil as Perfil) ?? null; // corrigido: era user.perfil
   }
 
-  // adicione após getPerfil()
   perfil(): Perfil | null {
     return this.getPerfil();
   }

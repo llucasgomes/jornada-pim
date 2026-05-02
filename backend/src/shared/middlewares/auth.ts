@@ -1,17 +1,19 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import z from 'zod'
 import { AppError } from '../errors/AppError'
-import { userResponseDto } from '@/modules/user/dtos/user-response'
+import { userResponseDto } from '@/modules/user/user.dto';
+
 
 // cria um schema parcial com Zod
 const userPartialSchema = userResponseDto.partial()
 
 interface UserPayload {
-  id?: string
-  perfil?: string
-  nome?: string
-  matricula?: string
-  imageUrl?: string
+  userId: string;
+  usuarioEmpresaId: string;
+  empresaId: string;
+  perfil: string;
+  nome: string;
+  imageUrl: string | null;
 }
 
 export const authMiddleware = async (

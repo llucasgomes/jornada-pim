@@ -9,13 +9,13 @@
 
         <form [formGroup]="loginForm" class="space-y-4 sm:space-y-6">
           <z-form-field>
-            <z-form-label [zRequired]="true">Matricula</z-form-label>
+            <z-form-label [zRequired]="true">C.P.F</z-form-label>
             <z-form-control>
               <input
                 z-input
-                type="matricula"
-                formControlName="matricula"
-                placeholder="PIM-0001"
+                type="cpf"
+                formControlName="cpf"
+                placeholder="000.000.000-00"
                 class="w-full"
               />
             </z-form-control>
