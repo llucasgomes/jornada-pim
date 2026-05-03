@@ -1,9 +1,11 @@
-import { internalServerErrorSchema } from "@/shared/errors/errorSchemas";
+import { internalServerErrorSchema, notFoundErrorSchema } from "@/shared/errors/errorSchemas";
 import { permission } from "@/shared/middlewares/permission";
 import { FastifyInstance } from "fastify";
 import z4 from "zod/v4";
 import { registroPontoService } from "../registro-ponto/registro-ponto.service";
 import { userEmpresaService } from "../user-empresa/user-empresa.service";
+import { userResponseDto } from "../user/user.dto";
+import { userService } from "../user/user.service";
 
 export default function gestorController(_server: FastifyInstance) {
   // Rota para obter histórico de ponto por período
@@ -210,4 +212,23 @@ export default function gestorController(_server: FastifyInstance) {
     },
     registroPontoService.relatorioMensalPorSetor,
   );
+   // Rota para obter usuario pelo usuarioId
+    _server.get(
+      '/colaborador/:userId',
+      {
+        schema: {
+          summary: 'Rota para obter um usuário pela ID',
+          tags: ['Gestor'],
+          params: z4.object({
+            userId: z4.string().uuid(),
+          }),
+          response: {
+            200: userResponseDto,
+            404: notFoundErrorSchema,
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      userService.findById
+    )
 }

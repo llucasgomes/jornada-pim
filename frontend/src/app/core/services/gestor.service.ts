@@ -20,23 +20,31 @@ interface UserForSetor {
   createdAt: string;
   updatedAt: string | null;
 }
-
+interface User {
+  id: string;
+  nome: string;
+  cpf: string;
+  imageUrl: string;
+  ativo: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class GestorService {
-  private http = inject(HttpClient)
+  private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/gestor`;
 
   listarColaboradoresPorSetor(empresaId: string, setor: string) {
-    return this.http.post<UserForSetor[]>(
-      `${this.apiUrl}/colaboradores`,
-      {
-        empresaId,
-        setor,
-      },
-    );
+    return this.http.post<UserForSetor[]>(`${this.apiUrl}/colaboradores`, {
+      empresaId,
+      setor,
+    });
+  }
+  getColaboradorPeloId(userId: string) {
+    return this.http.get<User>(`${this.apiUrl}/colaborador/${userId}`);
   }
 
   // resumo filtrado por setor
@@ -45,5 +53,4 @@ export class GestorService {
     if (mes) query += `&mes=${mes}`;
     return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal-setor${query}`);
   }
-
 }

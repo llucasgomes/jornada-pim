@@ -4,7 +4,7 @@
       <p class="text-muted-foreground text-sm mt-1">Acompanhamento em tempo real da equipe</p>
     </header>
 
-@if(false){
+@if(colaboradores().length > 0){
 <app-table [data]="colaboradores()" [columns]="columns" [paginate]="true" [pageSize]="5"></app-table>
 }
 @else{

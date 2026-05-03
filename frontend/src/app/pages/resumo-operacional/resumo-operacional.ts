@@ -8,10 +8,13 @@ import { GestorService } from '@/core/services/gestor.service';
 import { AuthService } from '@/core/services/auth.service';
 import { CardResumo } from "./components/card-resumo/card-resumo";
 import { CardGraficoBar } from "./components/card-grafico-bar/card-grafico-bar";
+import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
+import { Z_MODAL_DATA } from '@/shared/components/dialog/dialog.service';
+import { VisualizarColaborador } from '../gestor-equipe/components/visualizar-colaborador/visualizar-colaborador';
 
 @Component({
   selector: 'app-resumo-operacional',
-  imports: [FormsModule, CardDetails, CardRanking, CardResumo, CardGraficoBar],
+  imports: [FormsModule, CardDetails, CardRanking, CardResumo, CardGraficoBar, AppDialogComponent],
   templateUrl: './resumo-operacional.html',
   styleUrl: './resumo-operacional.css',
 })
@@ -22,11 +25,12 @@ export class ResumoOperacional implements OnInit {
   private gestorService = inject(GestorService);
   private authService = inject(AuthService);
 
+  // referência da classe para passar ao zContent
+  VisualizarColaborador = VisualizarColaborador;
+
   ngOnInit() {
     this.loadStats();
   }
-
-
 
   loadStats() {
     this.loading.set(true);

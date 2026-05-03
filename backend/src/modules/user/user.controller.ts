@@ -34,7 +34,7 @@ export default function userController(_server: FastifyInstance) {
         summary: 'Rota para obter todos os usuários',
         tags: ['Usuário'],
         response: {
-          200: z4.array(userResponseDto),
+         200: z4.array(userResponseDto),
           500: internalServerErrorSchema,
         },
       },
@@ -75,13 +75,13 @@ export default function userController(_server: FastifyInstance) {
   )
   // Rota para obter usuario pelo id (matricula)
   _server.get(
-    '/:matricula',
+    '/:id',
     {
       schema: {
         summary: 'Rota para obter um usuário por matrícula',
         tags: ['Usuário'],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          id: z4.string().uuid(),
         }),
         response: {
           200: userResponseDto,

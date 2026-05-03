@@ -20,8 +20,8 @@ export const userResponseDto = z4.object({
   cpf: z4.string(),
   imageUrl: z4.string().nullable().optional(),
   ativo: z4.coerce.boolean(),
-  created_at: z4.string(),
-  updated_at: z4.string(),
+  createdAt: z4.string(),
+  updatedAt: z4.string(),
 });
 
 export type UserResponseDtoType = z4.infer<typeof userResponseDto>;

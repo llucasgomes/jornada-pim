@@ -64,6 +64,11 @@ export interface UsuarioEmpresa {
   updatedAt: string | null;
 }
 
+export interface UsuarioEmpresaEnriquecido extends UsuarioEmpresa {
+  nome?: string;
+  foto?: string | null;
+}
+
 export interface CreateUser {
   nome: string;
   senha: string;

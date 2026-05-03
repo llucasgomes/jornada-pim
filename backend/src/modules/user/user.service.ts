@@ -42,9 +42,9 @@ export const userService = {
   },
 
   async findById(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string };
+    const { userId } = req.params as { userId: string };
 
-    const user = await userRepository.findById(id);
+    const user = await userRepository.findById(userId);
     if (!user) throw new AppError("Usuário não encontrado", 404);
 
     return reply.status(200).send(user);

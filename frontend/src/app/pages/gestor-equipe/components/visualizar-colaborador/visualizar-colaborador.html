@@ -1,0 +1,120 @@
+<div class="flex flex-col gap-4 w-full">
+
+  <!-- Cabeçalho hero -->
+  <div class="relative flex flex-col sm:flex-row items-center sm:items-end gap-3 rounded-xl bg-primary/10 px-4 sm:px-5 pt-6 sm:pt-8 pb-4 sm:pb-5 overflow-hidden text-center sm:text-left">
+
+    <!-- Detalhes geométricos -->
+    <div class="absolute top-0 right-0 size-24 sm:size-32 rounded-bl-full bg-primary/8 pointer-events-none"></div>
+    <div class="absolute top-3 right-10 size-8 sm:size-10 rounded-full bg-primary/10 pointer-events-none"></div>
+
+    <!-- Avatar -->
+    <div class="relative shrink-0">
+      <img
+        [src]="data.foto || ''"
+        [alt]="data.nome || 'Colaborador'"
+        class="size-16 rounded-2xl object-cover ring-2 ring-primary/30 bg-muted mx-auto sm:mx-0"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+      />
+      <div
+        class="size-16 rounded-2xl bg-primary/20 items-center justify-center mx-auto sm:mx-0"
+        style="display:none"
+      >
+        <span class="text-2xl font-bold text-primary">
+          {{ (data.nome || 'C')[0].toUpperCase() }}
+        </span>
+      </div>
+      <span
+        class="absolute -bottom-1 -right-1 size-4 rounded-full border-2 border-background"
+        [class]="data.ativo ? 'bg-green-500' : 'bg-red-400'"
+      ></span>
+    </div>
+
+    <!-- Identidade -->
+    <div class="flex-1 min-w-0 w-full">
+      <p class="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-0.5">
+        {{ data.matricula }}
+      </p>
+      <h3 class="text-base sm:text-lg font-bold text-foreground leading-tight break-words">
+        {{ data.nome || 'Colaborador' }}
+      </h3>
+      <div class="flex items-center justify-center sm:justify-start gap-2 mt-1.5 flex-wrap">
+        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary/15 text-primary capitalize">
+          {{ data.perfil }}
+        </span>
+        <span
+          class="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full"
+          [class]="data.ativo
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+            : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'"
+        >
+          {{ data.ativo ? 'Ativo' : 'Inativo' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lotação -->
+  <div class="flex flex-col gap-2">
+    <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Lotação</p>
+    <div class="grid grid-cols-2 gap-2">
+
+      <div class="flex flex-col gap-0.5 rounded-lg border border-border bg-card p-3">
+        <span class="text-xs text-muted-foreground">Cargo</span>
+        <span class="text-sm font-semibold text-foreground break-words">{{ data.cargo || '—' }}</span>
+      </div>
+
+      <div class="flex flex-col gap-0.5 rounded-lg border border-border bg-card p-3">
+        <span class="text-xs text-muted-foreground">Setor</span>
+        <span class="text-sm font-semibold text-foreground break-words">{{ data.setor || '—' }}</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Jornada -->
+  <div class="flex flex-col gap-2">
+    <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Jornada</p>
+    <div class="grid grid-cols-3 gap-2">
+
+      <div class="flex flex-col gap-0.5 rounded-lg border border-border bg-card p-2 sm:p-3">
+        <span class="text-xs text-muted-foreground">Turno</span>
+        <span class="text-xs sm:text-sm font-semibold text-foreground leading-tight">
+          {{ data.turno || '—' }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-0.5 rounded-lg border border-border bg-card p-2 sm:p-3">
+        <span class="text-xs text-muted-foreground">Entrada</span>
+        <span class="text-xs sm:text-sm font-semibold text-foreground tabular-nums">
+          {{ data.horarioEntrada || '—' }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-0.5 rounded-lg border border-border bg-card p-2 sm:p-3">
+        <span class="text-xs text-muted-foreground">Saída</span>
+        <span class="text-xs sm:text-sm font-semibold text-foreground tabular-nums">
+          {{ data.horarioSaida || '—' }}
+        </span>
+      </div>
+
+    </div>
+
+    @if (data.cargaHorariaDia) {
+      <div class="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+        <span class="text-xs text-muted-foreground">Carga horária diária</span>
+        <span class="text-sm font-bold text-primary tabular-nums">
+          {{ data.cargaHorariaDia }}h
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- Rodapé datas -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 text-xs text-muted-foreground border-t border-border pt-3">
+    <span>Cadastrado em {{ data.createdAt | date:'dd/MM/yyyy' }}</span>
+    @if (data.updatedAt) {
+      <span>Atualizado em {{ data.updatedAt | date:'dd/MM/yyyy' }}</span>
+    }
+  </div>
+
+</div>
