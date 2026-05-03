@@ -4,6 +4,9 @@ import { Table } from "@/shared/table/table";
 import { UsuarioEmpresa } from '@/core/models/interfaces';
 import { GestorService } from '@/core/services/gestor.service';
 import { AuthService } from '@/core/services/auth.service';
+import { ZardEmptyComponent } from "@/shared/components/empty";
+import { provideIcons } from '@ng-icons/core';
+import { lucideFolderCode, lucideUsers } from '@ng-icons/lucide';
 
 
 
@@ -55,9 +58,14 @@ const columns: ColumnDef<UsuarioEmpresa>[] = [
 
 @Component({
   selector: 'app-gestor-equipe',
-  imports: [Table],
+  imports: [Table, ZardEmptyComponent],
   templateUrl: './gestor-equipe.html',
   styleUrl: './gestor-equipe.css',
+  viewProviders: [
+    provideIcons({
+      lucideUsers,
+    }),
+  ],
 })
 export class GestorEquipe {
   private gestorService = inject(GestorService);
@@ -73,7 +81,7 @@ export class GestorEquipe {
     const setor = user.vinculo.setor ?? '';
 
     this.gestorService.listarColaboradoresPorSetor(empresaId, setor).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.colaboradores.set(data);
         this.loading.set(false);
       },
