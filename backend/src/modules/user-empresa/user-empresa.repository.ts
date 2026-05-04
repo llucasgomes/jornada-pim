@@ -38,11 +38,11 @@ export const userEmpresaRepository = {
     return result ?? null;
   },
 
-  async deactivate(id: string) {
+  async deactivate(usuarioEmpresaId: string) {
     const [result] = await db
       .update(usuarioEmpresa)
       .set({ ativo: false, updatedAt: new Date().toISOString() })
-      .where(eq(usuarioEmpresa.id, id))
+      .where(eq(usuarioEmpresa.id, usuarioEmpresaId))
       .returning();
     return result;
   },

@@ -41,12 +41,12 @@ export class Rh {
     {
       label: 'Equipe',
       icon: 'lucideUsers',
-      path: '/rh/sectors',
+      path: '/rh/equipe',
     },
     {
-      label: 'Historico e RH',
+      label: 'Colaboradores e RH',
       icon: 'lucideUsers',
-      path: '/rh/sectors',
+      path: '/rh/colaboradores',
     },
     {
       label: 'Escalas e Setores',

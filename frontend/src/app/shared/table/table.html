@@ -70,14 +70,14 @@
           </span>
           <div class="flex gap-2">
             <button
-              class="rounded border px-2 py-1 disabled:opacity-40"
+              class="rounded border px-2 py-1 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               [disabled]="!table.getCanPreviousPage()"
               (click)="table.previousPage()"
             >
               ← Anterior
             </button>
             <button
-              class="rounded border px-2 py-1 disabled:opacity-40"
+              class="rounded border px-2 py-1 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               [disabled]="!table.getCanNextPage()"
               (click)="table.nextPage()"
             >

@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, effect, input, signal } from '@angular/core';
 import {
   ColumnDef,
   createAngularTable,
@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
 } from '@tanstack/angular-table';
 
@@ -26,19 +27,40 @@ export class Table {
 
   sorting = signal<SortingState>([]);
 
+  // 1. Crie o sinal de paginação
+  pagination = signal<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10, // valor inicial
+  });
+
+  // 2. Opcional: Efeito para atualizar o pageSize se o input mudar
+  constructor() {
+    effect(
+      () => {
+        this.pagination.update((prev) => ({
+          ...prev,
+          pageSize: this.pageSize(),
+        }));
+      },
+      { allowSignalWrites: true },
+    );
+  }
+
   table = createAngularTable(() => ({
     data: this.data(),
     columns: this.columns(),
     state: {
       sorting: this.sorting(),
-      pagination: {
-        pageIndex: 0,
-        pageSize: this.pageSize(),
-      },
+      pagination: this.pagination(), // 3. Use o sinal aqui
     },
     onSortingChange: (updater) => {
       const next = typeof updater === 'function' ? updater(this.sorting()) : updater;
       this.sorting.set(next);
+    },
+    // 4. Adicione o handler de mudança de paginação
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater(this.pagination()) : updater;
+      this.pagination.set(next);
     },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),

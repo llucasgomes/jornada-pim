@@ -27,6 +27,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
       },
+      {
+        path:'equipe',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/rh-equipe/rh-equipe').then((c) => c.RhEquipe),
+      },
+      {
+        path:'colaboradores',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/rh-colaboradores/rh-colaboradores').then((c) => c.RhColaboradores),
+      }
     ],
   },
   {

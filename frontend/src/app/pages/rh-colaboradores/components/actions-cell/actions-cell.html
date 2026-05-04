@@ -1,0 +1,46 @@
+<div class="flex items-center gap-3">
+  <!-- Visualizar -->
+  <app-dialog
+    zTitle="Detalhes do colaborador"
+    zDescription="Informações do colaborador selecionado."
+    [zContent]="VisualizarColaborador"
+    [zData]="colaborador"
+    [zHideFooter]="true"
+    zWidth="480px"
+  >
+    <z-button class="cursor-pointer" zType="ghost" zSize="icon-sm">
+      <ng-icon name="lucideEye" class="size-4" />
+    </z-button>
+  </app-dialog>
+
+  <!-- Editar -->
+   <!-- <app-dialog
+   zTitle="Editar Colaborador"
+  zDescription="Altere as informações abaixo e clique em salvar."
+  [zContent]="EditarColaborador"
+  [zData]="colaborador"
+  zOkText="Salvar Alterações"
+  zCancelText="Cancelar"
+  [zOnOk]="onEditar"
+  >
+   <z-button class="cursor-pointer" zType="ghost" zSize="icon-sm">
+    <ng-icon name="lucidePencil" class="size-4" />
+  </z-button>
+  </app-dialog> -->
+
+
+  <z-button class="cursor-pointer" zType="ghost" zSize="icon-sm" (click)="onExcluir()">
+    <ng-icon name="lucideTrash2" class="size-4 text-destructive" />
+  </z-button>
+</div>
+
+<!-- <app-dialog
+    zTitle="Detalhes do colaborador"
+    zDescription="Informações do colaborador selecionado."
+    [zContent]="VisualizarColaborador" // componete que será renderizado dentro do dialog
+    [zData]="colaborador" // dados que serão passados para o componente, acessível via @Inject(Z_MODAL_DATA) no componente
+    zOkText="Fechar" // texto do botão de confirmação
+    zCancelText="" // texto do botão de cancelamento, se vazio o botão não é exibido
+    zWidth="480px" // largura do dialog, pode ser em px ou % (ex: '50%')
+    [zOnOk]="onEditar" // Passa a função onEditar para ser chamada quando o usuário clicar em "Salvar Alterações"
+  > -->

@@ -1,4 +1,3 @@
-
 import { AppError } from "@/shared/errors/AppError";
 import { gerarMatricula } from "@/shared/utils/gerar-matricula";
 
@@ -101,13 +100,13 @@ export const userEmpresaService = {
   },
 
   async desligar(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string };
+    const { usuarioEmpresaId } = req.body as { usuarioEmpresaId: string };
 
-    if (!id) {
+    if (!usuarioEmpresaId) {
       throw new AppError("ID do vínculo é obrigatório", 400);
     }
 
-    const vinculo = await userEmpresaRepository.deactivate(id);
+    const vinculo = await userEmpresaRepository.deactivate(usuarioEmpresaId);
 
     if (!vinculo) {
       throw new AppError("Vínculo não encontrado", 404);
@@ -120,13 +119,14 @@ export const userEmpresaService = {
   },
 
   async listarPorEmpresa(req: FastifyRequest, reply: FastifyReply) {
-    const { empresaId } = req.params as any;
+    const { empresaId } = req.body as any;
 
     if (!empresaId) {
       throw new AppError("ID da empresa é obrigatório", 400);
     }
+    const userEmpresa = await userEmpresaRepository.findByEmpresa(empresaId);
 
-    return userEmpresaRepository.findByEmpresa(empresaId);
+    return reply.status(200).send(userEmpresa);
   },
   async listarPorEmpresaporSetor(req: FastifyRequest, reply: FastifyReply) {
     const { empresaId, setor } = req.body as any;
@@ -148,43 +148,43 @@ export const userEmpresaService = {
       await userEmpresaRepository.findBatidasByUsuarioEmpresa(usuarioEmpresaId);
 
     // Agrupamento lógico
-  const historicoAgrupado = historico.reduce((acc: any[], curr) => {
-    const dataObj = new Date(curr.timestamp);
+    const historicoAgrupado = historico.reduce((acc: any[], curr) => {
+      const dataObj = new Date(curr.timestamp);
 
-    // Formata o mês (ex: "abril de 2026")
-    const mesAno = dataObj.toLocaleString("pt-BR", {
-      month: "long",
-      year: "numeric",
-    });
-    // Formata o dia (ex: "2026-04-30")
-    const diaChave = dataObj.toISOString().split("T")[0];
+      // Formata o mês (ex: "abril de 2026")
+      const mesAno = dataObj.toLocaleString("pt-BR", {
+        month: "long",
+        year: "numeric",
+      });
+      // Formata o dia (ex: "2026-04-30")
+      const diaChave = dataObj.toISOString().split("T")[0];
 
-    // Busca ou cria o mês no acumulador
-    let mesItem = acc.find((m) => m.mes === mesAno);
-    if (!mesItem) {
-      mesItem = { mes: mesAno, dias: [] };
-      acc.push(mesItem);
-    }
+      // Busca ou cria o mês no acumulador
+      let mesItem = acc.find((m) => m.mes === mesAno);
+      if (!mesItem) {
+        mesItem = { mes: mesAno, dias: [] };
+        acc.push(mesItem);
+      }
 
-    // Busca ou cria o dia dentro do mês
-    let diaItem = mesItem.dias.find((d: any) => d.data === diaChave);
-    if (!diaItem) {
-      diaItem = { data: diaChave, registros: [] };
-      mesItem.dias.push(diaItem);
-    }
+      // Busca ou cria o dia dentro do mês
+      let diaItem = mesItem.dias.find((d: any) => d.data === diaChave);
+      if (!diaItem) {
+        diaItem = { data: diaChave, registros: [] };
+        mesItem.dias.push(diaItem);
+      }
 
-    // Adiciona a batida
-    diaItem.registros.push(curr);
+      // Adiciona a batida
+      diaItem.registros.push(curr);
 
-    // Ordena as batidas do dia por horário (ascendente)
-    diaItem.registros.sort(
-      (a: any, b: any) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    );
+      // Ordena as batidas do dia por horário (ascendente)
+      diaItem.registros.sort(
+        (a: any, b: any) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      );
 
-    return acc;
-  }, []);
+      return acc;
+    }, []);
 
-  return historicoAgrupado;
+    return historicoAgrupado;
   },
 };

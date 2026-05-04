@@ -24,6 +24,7 @@ import dashboardRoutes from './modules/dashboard/dashboard.route'
 import relatorioRoutes from './modules/cartao-de-ponto-pdf/cartao-de-ponto-pdf.route'
 import setorRoutes from './modules/setores/setor.route'
 import gestorRoutes from './modules/routes/gestor.route'
+import rhRoutes from './modules/routes/rh.route'
 
 export function buildApp() {
   const server = fastify().withTypeProvider<ZodTypeProvider>()
@@ -133,6 +134,7 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
   server.register(setorRoutes)
 
   server.register(gestorRoutes);
+   server.register(rhRoutes);
 
   //handle errors Global
   // registrar o handler global
