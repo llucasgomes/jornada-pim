@@ -1,4 +1,4 @@
-import { usuarioEmpresa } from './../../../../../../../backend/src/database/schemas/sqlite/index';
+
 import { Component, inject, Input } from '@angular/core';
 import { ZardButtonComponent } from "@/shared/components/button";
 import { NgIcon, provideIcons } from "@ng-icons/core";
