@@ -46,3 +46,26 @@ export const usuarioEmpresaResponseDto = z4.object({
 export type UsuarioEmpresaResponseDto = z4.infer<
   typeof usuarioEmpresaResponseDto
 >;
+
+
+const registroPontoSchema = z4.object({
+  id: z4.string().uuid(),
+  usuarioEmpresaId: z4.string().uuid(),
+  tipo: z4.enum(["entrada", "saida_intervalo", "retorno_intervalo", "saida"]),
+  timestamp: z4.string().datetime(),
+  origem: z4.enum(["sistema", "ajuste"]),
+  justificativa: z4.string().nullable(),
+  registradoPor: z4.string().uuid().nullable(),
+});
+
+export const historicoAgrupadoSchema = z4.array(
+  z4.object({
+    mes: z4.string(), // Ex: "abril de 2026"
+    dias: z4.array(
+      z4.object({
+        data: z4.string(), // Formato "2026-04-30"
+        registros: z4.array(registroPontoSchema),
+      }),
+    ),
+  }),
+);

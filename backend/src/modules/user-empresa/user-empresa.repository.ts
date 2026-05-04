@@ -1,6 +1,6 @@
 import { db } from "@/config/database";
-import { usuarioEmpresa } from "@/database/schemas/sqlite";
-import { eq, and } from "drizzle-orm";
+import { registroPonto, usuarioEmpresa } from "@/database/schemas/sqlite";
+import { eq, and, desc } from "drizzle-orm";
 
 export const userEmpresaRepository = {
   async create(data: typeof usuarioEmpresa.$inferInsert) {
@@ -46,7 +46,6 @@ export const userEmpresaRepository = {
       .returning();
     return result;
   },
-
   async findUsersByEmpresaAndSetor(empresaId: string, setor: string) {
     return db
       .select()
@@ -59,7 +58,6 @@ export const userEmpresaRepository = {
         ),
       );
   },
-
   async findUsersByEmpresa(empresaId: string) {
     return db
       .select()
@@ -70,5 +68,19 @@ export const userEmpresaRepository = {
           eq(usuarioEmpresa.ativo, true),
         ),
       );
+  },
+  async findBatidasByUsuarioEmpresa(
+    usuarioEmpresaId: string,
+    dataInicio?: string,
+    dataFim?: string,
+  ) {
+    const query = db
+      .select()
+      .from(registroPonto)
+      .where(eq(registroPonto.usuarioEmpresaId, usuarioEmpresaId))
+      .orderBy(desc(registroPonto.timestamp)); // Mais recentes primeiro
+
+    // Opcional: Adicionar filtro por período se desejar
+    return query;
   },
 };

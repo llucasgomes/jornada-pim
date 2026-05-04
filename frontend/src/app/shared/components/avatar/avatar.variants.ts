@@ -10,6 +10,8 @@ export const avatarVariants = cva(
         md: 'size-12',
         lg: 'size-14',
         xl: 'size-16',
+        '2xl': 'size-20',
+        '3xl': 'size-24',
       },
       zShape: {
         circle: 'rounded-full',
@@ -32,6 +34,8 @@ export const imageVariants = cva('relative object-cover object-center size-full 
       md: 'size-12',
       lg: 'size-14',
       xl: 'size-16',
+      '2xl': 'size-20',
+      '3xl': 'size-24',
     },
     zShape: {
       circle: 'rounded-full',

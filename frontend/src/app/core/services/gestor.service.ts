@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
-import { DashboardStats } from '../models/interfaces';
+import { DashboardStats, HistoricoAgrupado } from '../models/interfaces';
 
 interface UserForSetor {
   id: string;
@@ -52,5 +52,10 @@ export class GestorService {
     let query = `?empresaId=${empresaId}&setor=${encodeURIComponent(setor)}`;
     if (mes) query += `&mes=${mes}`;
     return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal-setor${query}`);
+  }
+  getHistoricoDoColaboradorNaEmpresa(usuarioEmpresa: string) {
+    return this.http.get<HistoricoAgrupado[]>(
+      `${this.apiUrl}/colaborador/${usuarioEmpresa}/historico`,
+    );
   }
 }

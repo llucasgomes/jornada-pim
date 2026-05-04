@@ -137,4 +137,54 @@ export const userEmpresaService = {
 
     return userEmpresaRepository.findUsersByEmpresaAndSetor(empresaId, setor);
   },
+  async buscarHistoricoBatidas(req: FastifyRequest, reply: FastifyReply) {
+    const { usuarioEmpresaId } = req.params as { usuarioEmpresaId: string };
+
+    if (!usuarioEmpresaId) {
+      throw new AppError("ID do vínculo do colaborador é obrigatório", 400);
+    }
+
+    const historico =
+      await userEmpresaRepository.findBatidasByUsuarioEmpresa(usuarioEmpresaId);
+
+    // Agrupamento lógico
+  const historicoAgrupado = historico.reduce((acc: any[], curr) => {
+    const dataObj = new Date(curr.timestamp);
+
+    // Formata o mês (ex: "abril de 2026")
+    const mesAno = dataObj.toLocaleString("pt-BR", {
+      month: "long",
+      year: "numeric",
+    });
+    // Formata o dia (ex: "2026-04-30")
+    const diaChave = dataObj.toISOString().split("T")[0];
+
+    // Busca ou cria o mês no acumulador
+    let mesItem = acc.find((m) => m.mes === mesAno);
+    if (!mesItem) {
+      mesItem = { mes: mesAno, dias: [] };
+      acc.push(mesItem);
+    }
+
+    // Busca ou cria o dia dentro do mês
+    let diaItem = mesItem.dias.find((d: any) => d.data === diaChave);
+    if (!diaItem) {
+      diaItem = { data: diaChave, registros: [] };
+      mesItem.dias.push(diaItem);
+    }
+
+    // Adiciona a batida
+    diaItem.registros.push(curr);
+
+    // Ordena as batidas do dia por horário (ascendente)
+    diaItem.registros.sort(
+      (a: any, b: any) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
+
+    return acc;
+  }, []);
+
+  return historicoAgrupado;
+  },
 };

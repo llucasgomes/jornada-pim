@@ -14,18 +14,7 @@
   } @else {
     <!-- 🔹 CARDS -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-     <!-- exemplo de uso do dialog — passe um dado real aqui -->
-    <app-dialog
-      zTitle="Detalhes do colaborador"
-      zDescription="Informações do colaborador selecionado."
-      [zContent]="VisualizarColaborador"
-      [zData]="stats()?.topExtras?.[0]"
-      zOkText="Fechar"
-      zCancelText=""
-      zWidth="480px"
-    >
-      <button z-button zType="outline">Ver colaborador</button>
-    </app-dialog>
+
       <!-- TOTAL -->
       <app-card-details [total]="stats()?.totalColaboradores || 0" title="Total de Colaboradores" />
 

@@ -1,9 +1,6 @@
-import { ColaboradoreComHistorico, UsuarioEmpresaEnriquecido } from '@/core/models/interfaces';
-import { Z_MODAL_DATA } from '@/shared/components/dialog';
-import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { ZardAvatarComponent } from "@/shared/components/avatar";
-import { ZardBadgeComponent } from '@/shared/components/badge';
+import { HistoricoAgrupado, UsuarioEmpresaEnriquecido } from '@/core/models/interfaces';
+import { ZardAvatarComponent } from '@/shared/components/avatar';
+import { Component, Input, OnInit } from '@angular/core';
 
 
 interface StatusConfig {
@@ -13,15 +10,19 @@ interface StatusConfig {
 }
 
 
+
 @Component({
-  selector: 'app-visualizar-colaborador',
-  imports: [DatePipe, CommonModule, ZardAvatarComponent, ZardBadgeComponent],
-  templateUrl: './visualizar-colaborador.html',
-  styleUrl: './visualizar-colaborador.css',
+  selector: 'app-foto-cell',
+  imports: [ZardAvatarComponent],
+  templateUrl: './foto-cell.html',
+  styleUrl: './foto-cell.css',
 })
-export class VisualizarColaborador implements OnInit {
+export class FotoCell implements OnInit {
   statusPresenca: 'fora' | 'dentro' | 'intervalo' = 'fora';
-  data: ColaboradoreComHistorico = inject(Z_MODAL_DATA);
+  @Input() colaborador!: {
+    foto: string | null;
+    historico: HistoricoAgrupado[];
+  };
 
   ngOnInit() {
     this.calcularStatusAtual();
@@ -31,7 +32,7 @@ export class VisualizarColaborador implements OnInit {
     const hojeIso = new Date().toISOString().split('T')[0];
 
     // 1. Encontrar o mês atual no histórico
-    const mesAtual = this.data.historico.find((h) => {
+    const mesAtual = this.colaborador.historico.find((h) => {
       const dataRef = new Date(h.dias[0]?.data);
       return (
         dataRef.getMonth() === new Date().getMonth() &&

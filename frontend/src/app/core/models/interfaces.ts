@@ -160,3 +160,15 @@ export interface DashboardStats {
   }[];
 }
 
+export interface HistoricoAgrupado {
+  mes: string;
+  dias: {
+    data: string;
+    registros: any[];
+  }[];
+}
+
+export interface ColaboradoreComHistorico extends UsuarioEmpresaEnriquecido {
+  historico: HistoricoAgrupado[];
+}
+

@@ -6,6 +6,7 @@ import { registroPontoService } from "../registro-ponto/registro-ponto.service";
 import { userEmpresaService } from "../user-empresa/user-empresa.service";
 import { userResponseDto } from "../user/user.dto";
 import { userService } from "../user/user.service";
+import { historicoAgrupadoSchema } from "../user-empresa/user-empresa.dto";
 
 export default function gestorController(_server: FastifyInstance) {
   // Rota para obter histórico de ponto por período
@@ -231,4 +232,21 @@ export default function gestorController(_server: FastifyInstance) {
       },
       userService.findById
     )
+    // Rota para obter o histórico de batidas de um colaborador
+    _server.get(
+      "/colaborador/:usuarioEmpresaId/historico",
+      {
+        schema: {
+          summary: "Retorna o histórico de batidas de um colaborador",
+          tags: ["Gestor"],
+          params: z4.object({
+            usuarioEmpresaId: z4.string().uuid(),
+          }),
+          response: {
+            200: historicoAgrupadoSchema,
+          },
+        },
+      },
+      userEmpresaService.buscarHistoricoBatidas,
+    );
 }

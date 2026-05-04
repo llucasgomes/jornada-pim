@@ -32,20 +32,20 @@ export class Gestor {
       icon: 'lucideUsers',
       path: '/gestor/equipe',
     },
-    {
-      label: 'Historico e RH',
-      icon: 'lucideUsers',
-      path: '/gestor/history-and-rh',
-    },
-    {
-      label: 'Escalas e Setores',
-      icon: 'lucideGalleryVertical',
-      path: '/gestor/sectors-and-schedules',
-    },
-    {
-      label: 'Relatorios PDF',
-      icon: 'lucideFile',
-      path: '/gestor/reports',
-    },
+    // {
+    //   label: 'Historico e RH',
+    //   icon: 'lucideUsers',
+    //   path: '/gestor/history-and-rh',
+    // },
+    // {
+    //   label: 'Escalas e Setores',
+    //   icon: 'lucideGalleryVertical',
+    //   path: '/gestor/sectors-and-schedules',
+    // },
+    // {
+    //   label: 'Relatorios PDF',
+    //   icon: 'lucideFile',
+    //   path: '/gestor/reports',
+    // },
   ];
 }
