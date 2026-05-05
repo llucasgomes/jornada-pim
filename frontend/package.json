@@ -20,6 +20,7 @@
     "@angular/router": "^21.2.0",
     "@ng-icons/core": "^33.2.2",
     "@ng-icons/lucide": "^33.2.2",
+    "@tanstack/angular-query-experimental": "5.75.5",
     "@tanstack/angular-table": "^8.21.4",
     "apexcharts": "^5.10.6",
     "class-variance-authority": "^0.7.1",

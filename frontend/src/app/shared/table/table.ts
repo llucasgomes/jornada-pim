@@ -35,6 +35,7 @@ export class Table {
 
   // 2. Opcional: Efeito para atualizar o pageSize se o input mudar
   constructor() {
+    // Sincroniza o pageSize apenas se o input mudar externamente
     effect(
       () => {
         this.pagination.update((prev) => ({
@@ -49,6 +50,7 @@ export class Table {
   table = createAngularTable(() => ({
     data: this.data(),
     columns: this.columns(),
+    autoResetPageIndex: false, // Impede que a tabela volte para a página 1 sempre que 'data' muda
     state: {
       sorting: this.sorting(),
       pagination: this.pagination(), // 3. Use o sinal aqui
