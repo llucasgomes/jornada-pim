@@ -10,6 +10,8 @@ import { lucideUsers } from '@ng-icons/lucide';
 import { forkJoin, map, switchMap } from 'rxjs';
 import { ActionsCell } from './components/actions-cell/actions-cell';
 import { FotoCell } from '@/shared/table/components/foto-cell/foto-cell';
+import { useColaboradoresQuery } from '@/core/queries/gestor.queries';
+import { ZardLoaderComponent } from '@/shared/components/loader';
 
 const columns: ColumnDef<ColaboradoreComHistorico>[] = [
   {
@@ -85,7 +87,7 @@ const columns: ColumnDef<ColaboradoreComHistorico>[] = [
 
 @Component({
   selector: 'app-gestor-equipe',
-  imports: [Table, ZardEmptyComponent],
+  imports: [Table, ZardEmptyComponent,ZardLoaderComponent],
   templateUrl: './gestor-equipe.html',
   styleUrl: './gestor-equipe.css',
   viewProviders: [
@@ -103,48 +105,9 @@ export class GestorEquipe {
   colaboradores = signal<ColaboradoreComHistorico[]>([]);
   loading = signal(true);
 
-  ngOnInit() {
-    const user = this.authService.getUser()!;
-    const empresaId = user.vinculo.empresaId;
-    const setor = user.vinculo.setor ?? '';
+  private user = this.authService.getUser()!;
+  private empresaId = this.user.vinculo.empresaId;
+  private setor = this.user.vinculo.setor ?? '';
 
-   this.gestorService
-     .listarColaboradoresPorSetor(empresaId, setor)
-     .pipe(
-       switchMap((data) => {
-         // Filtra para não aparecer o próprio gestor na lista
-         const semMim = data.filter((c) => c.id !== this.myId);
-
-         if (semMim.length === 0) return [[]];
-
-         return forkJoin(
-           semMim.map((c) =>
-             // Fazemos o forkJoin de duas chamadas para cada colaborador
-             forkJoin({
-               usuario: this.gestorService.getColaboradorPeloId(c.usuarioId),
-               historico: this.gestorService.getHistoricoDoColaboradorNaEmpresa(c.id), // c.id é o usuarioEmpresaId
-             }).pipe(
-               map(
-                 ({ usuario, historico }) =>
-                   ({
-                     ...c,
-                     nome: usuario.nome,
-                     foto: usuario.imageUrl ?? null,
-                     historico: historico, // Adiciona o histórico agrupado aqui
-                   }) as ColaboradoreComHistorico,
-               ),
-             ),
-           ),
-         );
-       }),
-     )
-     .subscribe({
-       next: (data) => {
-         console.log('Colaboradores enriquecidos:', data);
-         this.colaboradores.set(data as ColaboradoreComHistorico[]);
-         this.loading.set(false);
-       },
-       error: () => this.loading.set(false),
-     });
-  }
+ colaboradoresQuery = useColaboradoresQuery(this.empresaId,this.setor);
 }

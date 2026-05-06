@@ -43,7 +43,7 @@ export class RhService {
       setor,
     });
   }
-//  Rota para listar colaboradores da mesa empresa
+  //  Rota para listar colaboradores da mesa empresa
   listarColaboradores(empresaId: string) {
     return this.http.post<UserForSetor[]>(`${this.apiUrl}/colaboradores`, {
       empresaId,
@@ -70,5 +70,22 @@ export class RhService {
     return this.http.get<HistoricoAgrupado[]>(
       `${this.apiUrl}/colaborador/${usuarioEmpresa}/historico`,
     );
+  }
+
+  atualizarVinculo(
+    usuarioEmpresaId: string,
+    dados: Partial<{
+      nome: string;
+      foto:string | null
+      perfil: string;
+      cargo: string;
+      setor: string;
+      turno: string;
+      horarioEntrada: string;
+      horarioSaida: string;
+      cargaHorariaDia: number;
+    }>,
+  ) {
+    return this.http.put(`${this.apiUrl}/colaborador/${usuarioEmpresaId}`, dados);
   }
 }

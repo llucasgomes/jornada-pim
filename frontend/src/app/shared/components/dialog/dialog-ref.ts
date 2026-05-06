@@ -71,14 +71,21 @@ export class ZardDialogRef<T = any, R = any, U = any> {
     }, 150);
   }
 
-  private trigger(action: eTriggerAction) {
+  private async trigger(action: eTriggerAction) {
     const trigger = { ok: this.config.zOnOk, cancel: this.config.zOnCancel }[action];
 
     if (trigger instanceof EventEmitter) {
       trigger.emit(this.getContentComponent());
     } else if (typeof trigger === 'function') {
-      const result = trigger(this.getContentComponent()) as R;
-      this.closeWithResult(result);
+      const result = trigger(this.getContentComponent());
+
+      // ← aguarda se for Promise antes de fechar
+      if (result instanceof Promise) {
+        await result;
+        this.close();
+      } else {
+        this.closeWithResult(result as R);
+      }
     } else {
       this.close();
     }

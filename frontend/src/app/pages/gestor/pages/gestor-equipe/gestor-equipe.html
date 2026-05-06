@@ -1,0 +1,25 @@
+<div class="w-full">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-foreground">Lista de Equipe</h1>
+    <p class="text-muted-foreground text-sm mt-1">Acompanhamento em tempo real da equipe</p>
+  </header>
+
+  @if (colaboradoresQuery.isPending()) {
+    <z-loader />
+  } @else if (colaboradoresQuery.isError()) {
+    <div class="text-destructive py-4 text-center">Erro ao carregar colaboradores.</div>
+  } @else if (colaboradoresQuery.data()?.length) {
+    <app-table
+      [data]="colaboradoresQuery.data()!"
+      [columns]="columns"
+      [paginate]="true"
+      [pageSize]="10"
+    />
+  } @else {
+    <z-empty
+      zIcon="lucideUsers"
+      zTitle="Nenhum colaborador encontrado"
+      zDescription="Não há colaboradores cadastrados. Adicione um novo colaborador para começar."
+    />
+  }
+</div>

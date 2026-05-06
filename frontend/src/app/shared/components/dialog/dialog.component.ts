@@ -13,7 +13,7 @@ import {
   computed,
   ElementRef,
   type EmbeddedViewRef,
-  type EventEmitter,
+  EventEmitter,
   inject,
   output,
   type TemplateRef,
@@ -31,7 +31,9 @@ import type { ZardDialogRef } from './dialog-ref';
 import { dialogVariants } from './dialog.variants';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
-export type OnClickCallback<T> = (instance: T) => false | void | object;
+
+
+export type OnClickCallback<T> = (instance: T) => false | void | object | Promise<void>;
 export class ZardDialogOptions<T, U> {
   zCancelIcon?: string;
   zCancelText?: string | null;
@@ -74,10 +76,14 @@ export class ZardDialogOptions<T, U> {
     @if (config.zTitle || config.zDescription) {
       <header class="flex flex-col space-y-1.5 text-center sm:text-left">
         @if (config.zTitle) {
-          <h4 data-testid="z-title" class="text-lg leading-none font-semibold tracking-tight">{{ config.zTitle }}</h4>
+          <h4 data-testid="z-title" class="text-lg leading-none font-semibold tracking-tight">
+            {{ config.zTitle }}
+          </h4>
 
           @if (config.zDescription) {
-            <p data-testid="z-description" class="text-muted-foreground text-sm">{{ config.zDescription }}</p>
+            <p data-testid="z-description" class="text-muted-foreground text-sm">
+              {{ config.zDescription }}
+            </p>
           }
         }
       </header>
@@ -94,7 +100,13 @@ export class ZardDialogOptions<T, U> {
     @if (!config.zHideFooter) {
       <footer class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-0 sm:space-x-2">
         @if (config.zCancelText !== null) {
-          <button type="button" data-testid="z-cancel-button" z-button zType="outline" (click)="onCloseClick()">
+          <button
+            type="button"
+            data-testid="z-cancel-button"
+            z-button
+            zType="outline"
+            (click)="onCloseClick()"
+          >
             @if (config.zCancelIcon) {
               <ng-icon [svg]="config.zCancelIcon" class="size-4!" />
             }
@@ -160,7 +172,9 @@ export class ZardDialogComponent<T, U> extends BasePortalOutlet {
   private readonly host = inject(ElementRef<HTMLElement>);
   protected readonly config = inject(ZardDialogOptions<T, U>);
 
-  protected readonly classes = computed(() => mergeClasses(dialogVariants(), this.config.zCustomClasses));
+  protected readonly classes = computed(() =>
+    mergeClasses(dialogVariants(), this.config.zCustomClasses),
+  );
   dialogRef?: ZardDialogRef<T>;
 
   protected readonly isStringContent = typeof this.config.zContent === 'string';
@@ -193,7 +207,25 @@ export class ZardDialogComponent<T, U> extends BasePortalOutlet {
     return this.portalOutlet()?.attachTemplatePortal(portal);
   }
 
-  onOkClick() {
+  async onOkClick() {
+    const callback = this.config.zOnOk;
+
+    const portalOutlet = this.portalOutlet();
+    const attachedRef = portalOutlet?.attachedRef;
+    const instance =
+      attachedRef && 'instance' in attachedRef ? (attachedRef as ComponentRef<T>).instance : null;
+
+    if (callback && !(callback instanceof EventEmitter)) {
+      // é uma função callback
+      const result = (callback as OnClickCallback<T>)(instance as T);
+
+      if (result instanceof Promise) {
+        await result;
+      }
+    } else if (callback instanceof EventEmitter) {
+      callback.emit(instance as T);
+    }
+
     this.okTriggered.emit();
   }
 

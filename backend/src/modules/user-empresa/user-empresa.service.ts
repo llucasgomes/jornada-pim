@@ -9,6 +9,9 @@ import { FastifyRequest } from "fastify/types/request";
 import { createUsuarioEmpresaDto } from "./user-empresa.dto";
 import { empresaRepository } from "../empresa/empresa.repository";
 
+
+
+
 export const userEmpresaService = {
   async contratar(req: FastifyRequest, reply: FastifyReply) {
     const data = createUsuarioEmpresaDto.parse(req.body);
@@ -186,5 +189,77 @@ export const userEmpresaService = {
     }, []);
 
     return historicoAgrupado;
+  },
+  async atualizarVinculo(req: FastifyRequest, reply: FastifyReply) {
+    const { usuarioEmpresaId } = req.params as { usuarioEmpresaId: string };
+
+      if (!usuarioEmpresaId) {
+        throw new AppError("ID do vínculo é obrigatório", 400);
+      }
+    
+    // 1. Busque o resultado e armazene na variável 'vinculo' primeiro
+    const usuarioEmpresaVinculo = await userEmpresaRepository.findUserEmpresById(usuarioEmpresaId);
+      
+    // 2. Verifique se o vínculo realmente existe ANTES de tentar ler o usuarioId
+    if (!usuarioEmpresaVinculo) {
+      throw new AppError("Vínculo não encontrado no sistema", 404);
+    }
+
+    // 3. Pegue o ID de forma segura (Ajuste 'usuarioId' se o Drizzle retornar 'usuario_id')
+    
+
+    // LOG DE SEGURANÇA: Se este log imprimir undefined, o problema está no mapeamento do seu Schema
+    console.log("ID recuperado do banco:", usuarioEmpresaVinculo[0].id);
+
+
+    
+    const {nome,imageUrl,...rest} = req.body as {
+      nome?: string;
+      imageUrl?: string;
+      cargo?: string;
+      setor?: string;
+      perfil?: string;
+      turno?: string;
+      horarioEntrada?: string;
+      horarioSaida?: string;
+      cargaHorariaDia?: string;
+    }; 
+
+    if (nome ){
+      await userRepository.update(usuarioEmpresaVinculo[0].usuarioId, { nome });
+    }
+       if (imageUrl) {
+         await userRepository.update(usuarioEmpresaVinculo[0].usuarioId, {
+           imageUrl,
+         });
+       }
+    
+
+  
+
+    // 1. Validar carga horária se ela estiver presente no update
+    if (rest.cargaHorariaDia && Number(rest.cargaHorariaDia) < 240) {
+      throw new AppError("Carga horária inválida (mínimo 240min)", 400);
+    }
+
+    // 2. Preparar objeto de atualização (garantindo tipos)
+    const updateData: any = { ...rest };
+    if (rest.cargaHorariaDia)
+      updateData.cargaHorariaDia = Number(rest.cargaHorariaDia);
+
+    // 3. Persistir no banco
+    const vinculo = await userEmpresaRepository.update(
+      usuarioEmpresaId,
+      updateData,
+    );
+
+    if (!vinculo) {
+      throw new AppError("Vínculo não encontrado", 404);
+    }
+
+    return reply.status(200).send({
+      message: "Vínculo atualizado com sucesso",
+      // data: vinculo,
+    });
   },
 };

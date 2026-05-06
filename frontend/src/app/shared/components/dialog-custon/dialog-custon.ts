@@ -29,6 +29,7 @@ export class AppDialogComponent<T = any, U = any> {
 
   // callbacks
   zOnOk = input<(instance: T) => void>(() => {});
+  zLoading = input<boolean>(false);
   zOnCancel = input<(instance: T) => void>(() => {});
 
   // evento para o pai saber que abriu
@@ -48,6 +49,7 @@ export class AppDialogComponent<T = any, U = any> {
       zWidth: this.zWidth(),
       zOnOk: this.zOnOk(),
       zOnCancel: this.zOnCancel(),
+
     });
   }
 }

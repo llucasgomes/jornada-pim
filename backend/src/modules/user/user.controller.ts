@@ -95,13 +95,13 @@ export default function userController(_server: FastifyInstance) {
 
   //Rota para atualizar usuario pelo id (matricula)
   _server.put(
-    '/:matricula',
+    '/:id',
     {
       schema: {
         summary: 'Rota para atualizar um usuário por matrícula',
         tags: ['Usuário'],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          id: z4.string().min(1, 'O ID do usuario é obrigatorio'),
         }),
         body: createUserDto.partial(),
         response: {

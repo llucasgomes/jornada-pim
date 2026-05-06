@@ -28,17 +28,18 @@ export const routes: Routes = [
           import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
       },
       {
-        path:'equipe',
+        path: 'equipe',
         pathMatch: 'full',
-        loadComponent: () =>
-          import('./pages/rh-equipe/rh-equipe').then((c) => c.RhEquipe),
+        loadComponent: () => import('./pages/rh/pages/equipe/rh-equipe').then((c) => c.RhEquipe),
       },
       {
-        path:'colaboradores',
+        path: 'colaboradores',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/rh-colaboradores/rh-colaboradores').then((c) => c.RhColaboradores),
-      }
+          import('./pages/rh/pages/colaboradores/rh-colaboradores').then(
+            (c) => c.RhColaboradores,
+          ),
+      },
     ],
   },
   {
@@ -57,7 +58,7 @@ export const routes: Routes = [
         path: 'equipe',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/gestor-equipe/gestor-equipe').then((c) => c.GestorEquipe),
+          import('./pages/gestor/pages/gestor-equipe/gestor-equipe').then((c) => c.GestorEquipe),
       },
     ],
   },

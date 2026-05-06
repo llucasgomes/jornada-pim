@@ -1,9 +1,6 @@
 <div class="space-y-1">
   <div
-    class="relative w-36 h-36 rounded-lg overflow-hidden border border-dashed border-slate-600 cursor-pointer transition-all"
-    [class.border-solid]="previewUrl()"
-    [class.border-slate-500]="isDragging()"
-    [class.bg-slate-700]="isDragging()"
+    class="relative w-24 h-24 cursor-pointer"
     (dragover)="onDragOver($event)"
     (dragleave)="onDragLeave()"
     (drop)="onDrop($event)"
@@ -17,33 +14,43 @@
       (change)="onFileSelected($event)"
     />
 
-    <!-- Estado vazio -->
-    @if (!previewUrl()) {
-      <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
-        <ng-icon name="lucideUpload" class="text-slate-500 size-5" />
-        <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500 text-center">
-          Click to upload or drag & drop
-        </p>
-      </div>
+   <!-- Avatar sempre visível -->
+@if (previewUrl()) {
+  <!-- blob URL: usa img direto sem NgOptimizedImage -->
+  <div class="size-24 rounded-md overflow-hidden">
+    <img
+      [src]="previewUrl()"
+      alt="Foto do colaborador"
+      class="w-full h-full object-cover rounded-md"
+    />
+  </div>
+} @else {
+  <!-- sem foto: usa z-avatar com imagem default -->
+  <z-avatar
+    zSize="3xl"
+    zShape="rounded"
+    zSrc="/assets/images/avatar_image.jpg"
+    zAlt="Foto do colaborador"
+  />
+}
 
-    <!-- Preview da imagem -->
-    } @else {
-      <img
-        [src]="previewUrl()"
-        alt="Foto do colaborador"
-        class="absolute inset-0 w-full h-full object-cover"
-      />
-      <!-- Overlay de troca ao hover -->
-      <div class="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 z-20"
-           (click)="fileInput.click()">
-        <ng-icon name="lucideCamera" class="text-white size-5" />
-        <p class="text-[11px] text-white font-medium">Trocar foto</p>
-      </div>
-      <!-- Botão remover -->
+    <!-- Overlay de troca ao hover -->
+    <div
+      class="absolute inset-0 rounded-md bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 z-20"
+      (click)="fileInput.click()"
+    >
+      <ng-icon name="lucideCamera" class="text-white size-5" />
+      <p class="text-[11px] text-white font-medium text-center leading-tight">
+        {{ previewUrl() ? 'Trocar' : 'Adicionar' }}
+      </p>
+    </div>
+
+    <!-- Botão remover (só aparece se tiver foto) -->
+    @if (previewUrl()) {
       <button
         type="button"
         title="Remover foto"
-        class="absolute top-1.5 right-1.5 z-30 bg-black/60 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center transition-colors"
+        class="absolute -top-1.5 -right-1.5 z-30 bg-black/60 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center transition-colors"
         (click)="removeFile(); $event.stopPropagation()"
       >
         <ng-icon name="lucideX" class="size-3" />
@@ -51,30 +58,3 @@
     }
   </div>
 </div>
-
-
-
-
-
-
-<!-- <div  class="space-y-1.5">
-    <label class="text-[11px] font-bold uppercase tracking-widest text-slate-500 ml-1">
-     <input type="file" (change)="onFileSelected($event)" hidden />
-   </label>
-</div> -->
-
-
-
-   <!-- <button (click)="onUpload()" class="upload-button" [disabled]="!selectedFile()">
-     Upload
-   </button> -->
-    <!-- @if (selectedFile(); as file) {
-     <div class="file-info">
-       Selected: {{ file.name }}
-     </div>
-   } -->
-
-
-                  <!-- <label ">Matrícula *</label> -->
-                  <!-- <input class="input" [(ngModel)]="form.matricula" name="matricula" required placeholder="PIM-0000" [disabled]="!!editingUser()" /> -->
-

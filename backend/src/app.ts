@@ -33,8 +33,10 @@ export function buildApp() {
   server.setValidatorCompiler(validatorCompiler)
 
   server.register(fasttifyCors, {
-    origin: '*', // Permitir todas as origens (ajuste conforme necessário)
-  })
+    origin: "*", // Permitir todas as origens (ajuste conforme necessário)
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // ADICIONE 'PATCH' AQUI
+    allowedHeaders: ["Content-Type", "Authorization"], // Garante que headers comuns sejam aceitos
+  });
 
   server.register(fastifyMultipart)
 

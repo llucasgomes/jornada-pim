@@ -2,10 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, inject, signal, ViewChild, Output, EventEmitter } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCamera, lucideUpload, lucideX } from '@ng-icons/lucide';
+import { ZardAvatarComponent } from "../avatar";
 
 @Component({
   selector: 'app-upload-image',
-  imports: [NgIcon],
+  imports: [NgIcon, ZardAvatarComponent],
   templateUrl: './upload-image.html',
   styleUrl: './upload-image.css',
   viewProviders: [provideIcons({ lucideUpload, lucideCamera, lucideX })],
@@ -27,6 +28,8 @@ export class UploadImage {
       this.setFile(input.files[0]);
     }
   }
+
+
 
   onDragOver(event: DragEvent) {
     event.preventDefault();

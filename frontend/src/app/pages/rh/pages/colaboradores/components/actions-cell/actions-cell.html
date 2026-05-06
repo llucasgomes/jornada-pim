@@ -4,6 +4,7 @@
     zTitle="Detalhes do colaborador"
     zDescription="Informações do colaborador selecionado."
     [zContent]="VisualizarColaborador"
+
     [zData]="colaborador"
     [zHideFooter]="true"
     zWidth="480px"
@@ -14,7 +15,7 @@
   </app-dialog>
 
   <!-- Editar -->
-   <!-- <app-dialog
+   <app-dialog
    zTitle="Editar Colaborador"
   zDescription="Altere as informações abaixo e clique em salvar."
   [zContent]="EditarColaborador"
@@ -23,10 +24,16 @@
   zCancelText="Cancelar"
   [zOnOk]="onEditar"
   >
-   <z-button class="cursor-pointer" zType="ghost" zSize="icon-sm">
+   <z-button
+   class="cursor-pointer"
+   zType="ghost"
+   [zLoading]="atualizarMutation.isPending()"
+  [zDisabled]="atualizarMutation.isPending()"
+   zSize="icon-sm"
+   >
     <ng-icon name="lucidePencil" class="size-4" />
   </z-button>
-  </app-dialog> -->
+  </app-dialog>
 
 
   <z-button class="cursor-pointer" zType="ghost" zSize="icon-sm" (click)="onExcluir()">

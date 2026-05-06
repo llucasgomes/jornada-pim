@@ -46,6 +46,12 @@ export const userEmpresaRepository = {
       .returning();
     return result;
   },
+  async findUserEmpresById(usuarioEmpresaId: string){
+ return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(eq(usuarioEmpresa.id, usuarioEmpresaId));
+  },
   async findUsersByEmpresaAndSetor(empresaId: string, setor: string) {
     return db
       .select()
@@ -82,5 +88,21 @@ export const userEmpresaRepository = {
 
     // Opcional: Adicionar filtro por período se desejar
     return query;
+  },
+  async update(
+    usuarioEmpresaId: string,
+    data: Partial<typeof usuarioEmpresa.$inferInsert>,
+  ) {
+
+   
+    const [result] = await db
+      .update(usuarioEmpresa)
+      .set({
+        ...data,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(usuarioEmpresa.id, usuarioEmpresaId))
+      .returning();
+    return result;
   },
 };

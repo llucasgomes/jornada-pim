@@ -1,5 +1,5 @@
-export type Perfil = 'colaborador' | 'gestor' | 'rh';
-export type Turno = 'manha' | 'tarde' | 'noite' | 'administrativo';
+export type Perfil = 'colaborador' | 'gestor' | 'rh' | 'administrador';
+export type Turno =   "1 turno"|  "2 turno"|  "3 turno"|  "Comercial"|  "Especial";
 export type TipoBatida = 'entrada' | 'saida_almoco' | 'retorno_almoco' | 'saida';
 export type OrigemBatida = 'sistema' | 'ajuste';
 export type StatusDia = 'completo' | 'incompleto' | 'falta' | 'afastamento';

@@ -9,7 +9,7 @@ export default function uploadController(_server: FastifyInstance) {
   _server.post(
     '/',
     {
-      preHandler: permission(['colaborador', 'gestor', 'rh']),
+      // preHandler: permission(['colaborador', 'gestor', 'rh']),
       schema: {
         summary: 'Upload de imagem',
         tags: ['Upload'],

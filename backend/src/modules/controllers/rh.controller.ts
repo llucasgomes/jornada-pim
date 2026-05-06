@@ -286,4 +286,41 @@ export default function rhController(_server: FastifyInstance) {
      },
      userEmpresaService.desligar,
    );
+
+   _server.put(
+     "/colaborador/:usuarioEmpresaId",
+     {
+       schema: {
+         summary: "Atualiza campos específicos do vínculo do colaborador",
+         tags: ["RH"],
+         params: z4.object({
+           usuarioEmpresaId: z4.string().uuid(),
+         }),
+         body: z4.object({
+           nome: z4.string().optional(),
+           imageUrl: z4.string().optional(),
+           perfil: z4
+             .enum(["colaborador", "gestor", "rh", "administrador"])
+             .optional(),
+           cargo: z4.string().optional(),
+           setor: z4.string().optional(),
+           turno: z4
+             .enum(["1 turno", "2 turno", "3 turno", "Comercial", "Especial"])
+             .optional(),
+           horarioEntrada: z4.string().optional(),
+           horarioSaida: z4.string().optional(),
+           cargaHorariaDia: z4.union([z4.number(), z4.string()]).optional(),
+         }),
+         response: {
+           200: z4.object({
+             message: z4.string(),
+            //  data: z4.any(),
+           }),
+           404: notFoundErrorSchema,
+           500: internalServerErrorSchema,
+         },
+       },
+     },
+     userEmpresaService.atualizarVinculo,
+   );
 }
