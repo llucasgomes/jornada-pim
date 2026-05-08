@@ -109,20 +109,35 @@ export const resumoDiario = sqliteTable("resumo_diario", {
   status: text("status").$type<StatusDia>().notNull().default("incompleto"),
 });
 
-export const setor = sqliteTable("setor", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  nome: text("nome").notNull().unique(),
-  descricao: text("descricao"),
-  ativo: integer("ativo", { mode: "boolean" }).notNull().default(true),
-  createdAt: text("created_at")
-    .notNull()
-    .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
-  updatedAt: text("updated_at")
-    .notNull()
-    .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
-});
+export const setor = sqliteTable(
+  "setor",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+
+    empresaId: text("empresa_id")
+      .notNull()
+      .references(() => empresa.id),
+
+    nome: text("nome").notNull(),
+
+    descricao: text("descricao"),
+    ativo: integer("ativo", { mode: "boolean" }).notNull().default(true),
+
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+  },
+  (table) => [
+    // 🔥 Isso garante que a Empresa A não tenha dois setores "TI",
+    // mas permite que a Empresa A e a Empresa B tenham, cada uma, um setor "TI".
+    uniqueIndex("uq_setor_nome_empresa").on(table.nome, table.empresaId),
+  ],
+);
 
 export const empresa = sqliteTable("empresa", {
   id: text("id")

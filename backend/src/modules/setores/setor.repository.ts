@@ -1,53 +1,39 @@
-import { db } from '@/config/database'
-import { setor } from '@/database/schemas/sqlite'
-import { eq } from 'drizzle-orm'
 
-export const setorRepository = {
-  async findAll() {
-    return db.select().from(setor).where(eq(setor.ativo, true))
+import { db } from "@/config/database";
+import { setor } from "@/database/schemas/sqlite";
+import { eq, and } from "drizzle-orm";
+
+export const SetorRepository = {
+  async create(data: typeof setor.$inferInsert) {
+    return await db.insert(setor).values(data).returning();
+  },
+
+  async findAllByEmpresa(empresaId: string) {
+    return await db.select().from(setor).where(eq(setor.empresaId, empresaId));
   },
 
   async findById(id: string) {
-    const result = await db
-      .select()
-      .from(setor)
-      .where(eq(setor.id, id))
-      .limit(1)
-    return result[0] ?? null
+    const result = await db.select().from(setor).where(eq(setor.id, id));
+    return result[0] || null;
   },
 
-  async findByNome(nome: string) {
-    const result = await db
-      .select()
-      .from(setor)
-      .where(eq(setor.nome, nome))
-      .limit(1)
-    return result[0] ?? null
-  },
-
-  async create(data: { nome: string; descricao?: string }) {
-    const [result] = await db.insert(setor).values(data).returning()
-    return result
-  },
-
-  async update(
-    id: string,
-    data: { nome?: string; descricao?: string; ativo?: boolean }
-  ) {
-    const result = await db
+  async update(id: string, data: Partial<typeof setor.$inferInsert>) {
+    return await db
       .update(setor)
       .set({ ...data, updatedAt: new Date().toISOString() })
       .where(eq(setor.id, id))
-      .returning()
-    return result[0] ?? null
+      .returning();
   },
 
   async delete(id: string) {
-    const result = await db
-      .update(setor)
-      .set({ ativo: false, updatedAt: new Date().toISOString() })
-      .where(eq(setor.id, id))
-      .returning()
-    return result[0] ?? null
+    return await db.delete(setor).where(eq(setor.id, id)).returning();
   },
+
+  async findByNameInEmpresa(nome: string, empresaId: string) {
+    const result = await db
+      .select()
+      .from(setor)
+      .where(and(eq(setor.nome, nome), eq(setor.empresaId, empresaId)));
+    return result[0] || null;
+  }
 }

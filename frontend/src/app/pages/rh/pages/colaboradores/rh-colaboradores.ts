@@ -13,20 +13,40 @@ import { FotoCell } from './components/foto-cell/foto-cell';
 import { injectMutation, injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { useColaboradoresQuery, useDesligarColaboradorMutation } from '@/core/queries/rh.queries';
 import { ZardLoaderComponent } from "@/shared/components/loader";
+import { ButtonLogout } from "@/shared/components/button-logout/button-logout";
+import { CriarColaborador } from './components/criar-colaborador/criar-colaborador';
+import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
+import { ZardButtonComponent } from "@/shared/components/button";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucidePlusCircle } from '@ng-icons/lucide';
 
 
 
 @Component({
   selector: 'app-rh-colaboradores',
-  imports: [Table, ZardEmptyComponent, ZardLoaderComponent],
+  imports: [
+    Table,
+    ZardEmptyComponent,
+    ZardLoaderComponent,
+    AppDialogComponent,
+    ZardButtonComponent,
+    NgIcon,
+  ],
   templateUrl: './rh-colaboradores.html',
   styleUrl: './rh-colaboradores.css',
+  viewProviders: [
+    provideIcons({
+     lucidePlusCircle
+    }),
+  ],
 })
 export class RhColaboradores {
   private authService = inject(AuthService);
 
   private user = this.authService.getUser()!;
   private empresaId = this.user.vinculo.empresaId;
+
+  CriarColaborador = CriarColaborador;
 
   // Apenas solicita a query centralizada
   colaboradoresQuery = useColaboradoresQuery(this.empresaId);
@@ -106,5 +126,4 @@ export class RhColaboradores {
         }),
     },
   ];
-
 }

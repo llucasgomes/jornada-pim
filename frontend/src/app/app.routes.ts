@@ -36,9 +36,13 @@ export const routes: Routes = [
         path: 'colaboradores',
         pathMatch: 'full',
         loadComponent: () =>
-          import('./pages/rh/pages/colaboradores/rh-colaboradores').then(
-            (c) => c.RhColaboradores,
-          ),
+          import('./pages/rh/pages/colaboradores/rh-colaboradores').then((c) => c.RhColaboradores),
+      },
+      {
+        path: 'setor',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./pages/rh/pages/setor/setor').then((c) => c.Setor),
       },
     ],
   },

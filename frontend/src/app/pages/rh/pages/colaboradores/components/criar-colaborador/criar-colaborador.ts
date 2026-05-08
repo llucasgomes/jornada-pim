@@ -1,14 +1,19 @@
 import { ColaboradoreComHistorico } from '@/core/models/interfaces';
 import { Z_MODAL_DATA } from '@/shared/components/dialog';
 import { UploadImage } from '@/shared/components/upload-image/upload-image';
-import { ChangeDetectionStrategy, Component, computed, inject, signal, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { ZardInputDirective } from '@/shared/components/input';
 import { ZardSelectImports } from '@/shared/components/select/select.imports';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { form, FormField, required, schema, submit } from '@angular/forms/signals';
 import { ZardDividerComponent } from '@/shared/components/divider';
-import { useListarSetoresDaEmpresaQuery } from '@/core/queries/rh.queries';
-import { AuthService } from '@/core/services/auth.service';
 
 type PerfilType = 'colaborador' | 'gestor' | 'rh' | 'administrador';
 type TurnoType = '1 turno' | '2 turno' | '3 turno' | 'Comercial' | 'Especial';
@@ -26,7 +31,7 @@ interface ColaboradorFormModel {
 }
 
 @Component({
-  selector: 'app-editar-colaborador',
+  selector: 'app-criar-colaborador',
   imports: [
     UploadImage,
     ZardInputDirective,
@@ -36,21 +41,15 @@ interface ColaboradorFormModel {
     ZardDividerComponent,
     DecimalPipe,
   ],
-  templateUrl: './editar-colaborador.html',
-  styleUrl: './editar-colaborador.css',
+  templateUrl: './criar-colaborador.html',
+  styleUrl: './criar-colaborador.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditarColaborador {
+export class CriarColaborador {
   @ViewChild('uploadImage') uploadImage!: UploadImage;
-  private authService = inject(AuthService);
-
-  private user = this.authService.getUser()!;
-  private empresaId = this.user.vinculo.empresaId;
 
   colaborador: ColaboradoreComHistorico = inject(Z_MODAL_DATA);
   arquivoSelecionado = signal<File | null>(null);
-
-  setores = useListarSetoresDaEmpresaQuery(this.empresaId);
 
   readonly turnos: TurnoType[] = ['1 turno', '2 turno', '3 turno', 'Comercial', 'Especial'];
   readonly perfis: PerfilType[] = ['colaborador', 'gestor', 'rh', 'administrador'];

@@ -1,64 +1,90 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
-import { setorRepository } from './setor.repository'
-import { AppError } from '@/shared/errors/AppError'
+import { FastifyReply, FastifyRequest } from "fastify";
+
+import { AppError } from "@/shared/errors/AppError";
+import { SetorRepository } from "./setor.repository";
 
 export const setorService = {
   async listar(req: FastifyRequest, reply: FastifyReply) {
-    const setores = await setorRepository.findAll()
-    return reply.status(200).send(setores)
+    // Como o setor depende de empresa, geralmente filtramos por empresaId via query ou params
+    const { empresaId } = req.query as { empresaId: string };
+
+    if (!empresaId) throw new AppError("O ID da empresa é obrigatório", 400);
+
+    const setores = await SetorRepository.findAllByEmpresa(empresaId);
+    return reply.status(200).send(setores);
   },
 
   async buscarPorId(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string }
+    const { id } = req.params as { id: string };
 
-    const setorEncontrado = await setorRepository.findById(id)
-    if (!setorEncontrado) throw new AppError('Setor não encontrado', 404)
+    const setorEncontrado = await SetorRepository.findById(id);
+    if (!setorEncontrado) throw new AppError("Setor não encontrado", 404);
 
-    return reply.status(200).send(setorEncontrado)
+    return reply.status(200).send(setorEncontrado);
   },
 
   async criar(req: FastifyRequest, reply: FastifyReply) {
-    const { nome, descricao } = req.body as {
-      nome: string
-      descricao?: string
-    }
+    const { nome, descricao, empresaId } = req.body as {
+      nome: string;
+      descricao?: string;
+      empresaId: string;
+    };
 
-    const jaExiste = await setorRepository.findByNome(nome)
-    if (jaExiste) throw new AppError('Já existe um setor com esse nome', 409)
+    if (!empresaId) throw new AppError("empresaId é obrigatório", 400);
 
-    const novoSetor = await setorRepository.create({ nome, descricao })
-    return reply.status(201).send(novoSetor)
+    // Verifica unicidade do nome DENTRO da mesma empresa (conforme seu uniqueIndex)
+    const jaExiste = await SetorRepository.findByNameInEmpresa(nome, empresaId);
+    if (jaExiste)
+      throw new AppError("Já existe um setor com esse nome nesta empresa", 409);
+
+    const novoSetor = await SetorRepository.create({
+      nome,
+      descricao,
+      empresaId,
+    });
+
+    return reply.status(201).send(novoSetor);
   },
 
   async atualizar(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string }
+    const { id } = req.params as { id: string };
     const body = req.body as {
-      nome?: string
-      descricao?: string
-      ativo?: boolean
-    }
+      nome?: string;
+      descricao?: string;
+      ativo?: boolean;
+    };
 
-    const setorEncontrado = await setorRepository.findById(id)
-    if (!setorEncontrado) throw new AppError('Setor não encontrado', 404)
+    const setorEncontrado = await SetorRepository.findById(id);
+    if (!setorEncontrado) throw new AppError("Setor não encontrado", 404);
 
+    // Se estiver mudando o nome, verifica se o novo nome já existe na mesma empresa
     if (body.nome && body.nome !== setorEncontrado.nome) {
-      const nomeEmUso = await setorRepository.findByNome(body.nome)
-      if (nomeEmUso) throw new AppError('Já existe um setor com esse nome', 409)
+      const nomeEmUso = await SetorRepository.findByNameInEmpresa(
+        body.nome,
+        setorEncontrado.empresaId,
+      );
+      if (nomeEmUso)
+        throw new AppError(
+          "Já existe um setor com esse nome nesta empresa",
+          409,
+        );
     }
 
-    const atualizado = await setorRepository.update(id, body)
-    return reply.status(200).send(atualizado)
+    const atualizado = await SetorRepository.update(id, body);
+    return reply.status(200).send(atualizado);
   },
 
   async deletar(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string }
+    const { id } = req.params as { id: string };
 
-    const setorEncontrado = await setorRepository.findById(id)
-    if (!setorEncontrado) throw new AppError('Setor não encontrado', 404)
+    const setorEncontrado = await SetorRepository.findById(id);
+    if (!setorEncontrado) throw new AppError("Setor não encontrado", 404);
 
-    const deletado = await setorRepository.delete(id)
-    return reply
-      .status(200)
-      .send({ message: 'Setor desativado com sucesso', setor: deletado })
+    const deletado = await SetorRepository.delete(id);
+
+    return reply.status(200).send({
+      message: "Setor removido com sucesso",
+      setor: deletado,
+    });
   },
-}
+};

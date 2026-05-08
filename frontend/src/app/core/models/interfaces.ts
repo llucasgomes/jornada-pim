@@ -64,6 +64,16 @@ export interface UsuarioEmpresa {
   updatedAt: string | null;
 }
 
+export interface SetorEmpresa {
+  id: string;
+  empresaId: string;
+  nome: string;
+  descricao: null;
+  ativo: true;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UsuarioEmpresaEnriquecido extends UsuarioEmpresa {
   nome?: string;
   foto?: string | null;

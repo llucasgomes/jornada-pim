@@ -1,0 +1,40 @@
+<div class="">
+  <header class="mb-8 flex">
+    <div class="flex-1">
+      <h1 class="text-3xl font-bold text-foreground">Lista de Setores da Empresa</h1>
+    </div>
+
+    <!-- <app-dialog
+      zTitle="Detalhes do colaborador"
+      zDescription="Informações do colaborador selecionado."
+      [zContent]="CriarColaborador"
+      [zData]="CriarColaborador"
+      [zHideFooter]="true"
+      zWidth="480px"
+    >
+  </app-dialog> -->
+  <z-button class="cursor-pointer flex gap-3 w-auto" zType="secondary" zSize="lg">
+    <ng-icon name="lucidePlusCircle" class="size-4" />
+    <span>Novo Setor</span>
+  </z-button>
+  </header>
+
+   @if (setoresQuery.isPending()) {
+    <z-loader />
+  } @else if (setoresQuery.isError()) {
+    <div class="text-destructive py-4 text-center">Erro ao carregar setores.</div>
+  } @else if (setoresQuery.data()?.length) {
+    <app-table
+      [data]="setoresQuery.data()!"
+      [columns]="columns"
+      [paginate]="true"
+      [pageSize]="10"
+    />
+  } @else {
+    <z-empty
+      zIcon="lucideUsers"
+      zTitle="Nenhum setor encontrado"
+      zDescription="Não há setores cadastrados. Adicione um novo setores para começar."
+    />
+  }
+</div>

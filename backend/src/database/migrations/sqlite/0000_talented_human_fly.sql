@@ -39,14 +39,16 @@ CREATE TABLE `resumo_diario` (
 --> statement-breakpoint
 CREATE TABLE `setor` (
 	`id` text PRIMARY KEY NOT NULL,
+	`empresa_id` text NOT NULL,
 	`nome` text NOT NULL,
 	`descricao` text,
 	`ativo` integer DEFAULT true NOT NULL,
 	`created_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
-	`updated_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL
+	`updated_at` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	FOREIGN KEY (`empresa_id`) REFERENCES `empresa`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `setor_nome_unique` ON `setor` (`nome`);--> statement-breakpoint
+CREATE UNIQUE INDEX `uq_setor_nome_empresa` ON `setor` (`nome`,`empresa_id`);--> statement-breakpoint
 CREATE TABLE `usuario` (
 	`id` text PRIMARY KEY NOT NULL,
 	`nome` text NOT NULL,

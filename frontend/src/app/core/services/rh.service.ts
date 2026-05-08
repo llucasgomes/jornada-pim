@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
-import { DashboardStats, HistoricoAgrupado } from '../models/interfaces';
+import { DashboardStats, HistoricoAgrupado, SetorEmpresa } from '../models/interfaces';
 
 interface UserForSetor {
   id: string;
@@ -76,7 +76,7 @@ export class RhService {
     usuarioEmpresaId: string,
     dados: Partial<{
       nome: string;
-      foto:string | null
+      foto: string | null;
       perfil: string;
       cargo: string;
       setor: string;
@@ -87,5 +87,12 @@ export class RhService {
     }>,
   ) {
     return this.http.put(`${this.apiUrl}/colaborador/${usuarioEmpresaId}`, dados);
+  }
+
+  listarSetores(empresaId: string) {
+
+     let query = `?empresaId=${empresaId}`;
+
+      return this.http.get<SetorEmpresa[]>(`${this.apiUrl}/all-setor${query}`);
   }
 }

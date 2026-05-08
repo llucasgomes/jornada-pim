@@ -76,4 +76,17 @@ export  function useAtualizarColaboradorMutation(empresaId: string) {
  }));
 }
 
+export function useListarSetoresDaEmpresaQuery(empresaId:string){
+  const rhService = inject(RhService);
+
+
+  return injectQuery(() => ({
+    queryKey: ['setores', empresaId],
+    queryFn: async () => {
+      const setores = await lastValueFrom(rhService.listarSetores(empresaId));
+      return setores;
+    },
+  }));
+}
+
 

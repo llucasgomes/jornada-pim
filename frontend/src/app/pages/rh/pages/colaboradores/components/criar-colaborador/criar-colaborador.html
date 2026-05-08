@@ -48,11 +48,7 @@
 
       <div class="flex flex-col gap-1">
         <label class="text-xs text-muted-foreground">Setor</label>
-         <z-select zPlaceholder="Selecione o turno" [formField]="colaboradorForm.setor">
-        @for (s of setores.data(); track s) {
-          <z-select-item [zValue]="s.nome">{{ s.nome }}</z-select-item>
-        }
-      </z-select>
+        <input z-input placeholder="Setor" [formField]="colaboradorForm.setor" />
         @for (error of colaboradorForm.setor().errors(); track error) {
           <span class="text-xs text-destructive">{{ error.message }}</span>
         }

@@ -1,7 +1,26 @@
-<div class="w-full">
-  <header class="mb-8">
-    <h1 class="text-3xl font-bold text-foreground">Lista de Colaboradores da Empresa</h1>
+<div class="">
+  <header class="mb-8  flex">
+   <div class="flex-1">
+     <h1 class="text-3xl font-bold text-foreground">Lista de Colaboradores da Empresa</h1>
     <p class="text-muted-foreground text-sm mt-1">Acompanhamento em tempo real da equipe</p>
+   </div>
+
+    <app-dialog
+    zTitle="Detalhes do colaborador"
+    zDescription="Informações do colaborador selecionado."
+    [zContent]="CriarColaborador"
+
+    [zData]="CriarColaborador"
+    [zHideFooter]="true"
+    zWidth="480px"
+  >
+      <z-button class="cursor-pointer flex gap-3 w-auto" zType="secondary" zSize="lg">
+      <ng-icon name="lucidePlusCircle" class="size-4" />
+      <span>Novo Colaborador</span>
+    </z-button>
+  </app-dialog>
+
+
   </header>
 
   @if (colaboradoresQuery.isPending()) {

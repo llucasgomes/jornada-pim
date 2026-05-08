@@ -49,9 +49,9 @@ export class Rh {
       path: '/rh/colaboradores',
     },
     {
-      label: 'Escalas e Setores',
+      label: 'Setores',
       icon: 'lucideGalleryVertical',
-      path: '/rh/sectors',
+      path: '/rh/setor',
     },
     {
       label: 'Relatorios PDF',

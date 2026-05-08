@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1746f7ac-ffbe-4b9c-8988-2a960dbe94e8",
+  "id": "5e58dc0e-bc2a-4e1c-9e7b-8bdf972640e9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "empresa": {
@@ -285,6 +285,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "empresa_id": {
+          "name": "empresa_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "nome": {
           "name": "nome",
           "type": "text",
@@ -325,15 +332,30 @@
         }
       },
       "indexes": {
-        "setor_nome_unique": {
-          "name": "setor_nome_unique",
+        "uq_setor_nome_empresa": {
+          "name": "uq_setor_nome_empresa",
           "columns": [
-            "nome"
+            "nome",
+            "empresa_id"
           ],
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "setor_empresa_id_empresa_id_fk": {
+          "name": "setor_empresa_id_empresa_id_fk",
+          "tableFrom": "setor",
+          "tableTo": "empresa",
+          "columnsFrom": [
+            "empresa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
