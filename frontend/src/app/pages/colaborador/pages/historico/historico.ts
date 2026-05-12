@@ -3,10 +3,12 @@ import { AuthService } from '@/core/services/auth.service';
 import { PontoService } from '@/core/services/ponto.service';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ZardCardComponent } from "@/shared/components/card";
+import { ZardButtonComponent } from "@/shared/components/button";
 
 @Component({
   selector: 'app-historico',
-  imports: [FormsModule],
+  imports: [FormsModule, ZardCardComponent, ZardButtonComponent],
   templateUrl: './historico.html',
   styleUrl: './historico.css',
 })

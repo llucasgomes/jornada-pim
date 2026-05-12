@@ -41,11 +41,11 @@ export const routes: Routes = [
       {
         path: 'setor',
         pathMatch: 'full',
-        loadComponent: () =>
-          import('./pages/rh/pages/setor/setor').then((c) => c.Setor),
+        loadComponent: () => import('./pages/rh/pages/setor/setor').then((c) => c.Setor),
       },
     ],
   },
+  // // GESTOR
   {
     path: 'gestor',
     canActivate: [authGuard, RoleGuard],
@@ -66,6 +66,7 @@ export const routes: Routes = [
       },
     ],
   },
+  // // COLABORADOR
   {
     path: 'colaborador',
     canActivate: [authGuard, RoleGuard],
@@ -75,8 +76,12 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        loadComponent: () =>
-          import('./pages/resumo-operacional/resumo-operacional').then((c) => c.ResumoOperacional),
+        loadComponent: () => import('./pages/colaborador/pages/ponto/ponto').then((c) => c.Ponto),
+      },
+      {
+        path: 'historico',
+        pathMatch: 'full',
+        loadComponent: () => import('./pages/colaborador/pages/historico/historico').then((c) => c.Historico),
       },
     ],
   },
@@ -84,12 +89,12 @@ export const routes: Routes = [
   // { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   // // 404
-  // { path: '**', redirectTo: 'login' },
+  { path: '**', redirectTo: 'login' },
 
-  // {
-  //   path: '**',
-  //   redirectTo: 'login',
-  // },
+  {
+    path: '**',
+    redirectTo: 'login',
+  },
 
   // ACESSO NEGADO
   // {

@@ -2,10 +2,13 @@ import { PontoHoje, TipoBatida } from '@/core/models/interfaces';
 import { AuthService } from '@/core/services/auth.service';
 import { PontoService } from '@/core/services/ponto.service';
 import { Component, computed, OnInit, signal } from '@angular/core';
+import { ZardCardComponent } from "@/shared/components/card";
+import { ZardButtonComponent } from "@/shared/components/button";
+import { ZardBadgeComponent } from "@/shared/components/badge";
 
 @Component({
   selector: 'app-ponto',
-  imports: [],
+  imports: [ZardCardComponent, ZardButtonComponent, ZardBadgeComponent],
   templateUrl: './ponto.html',
   styleUrl: './ponto.css',
 })

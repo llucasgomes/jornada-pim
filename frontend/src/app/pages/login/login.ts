@@ -7,6 +7,7 @@ import { ZardInputDirective } from '@/shared/components/input';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-login',
@@ -64,6 +65,8 @@ export class Login {
           const perfil = this.auth.getPerfil();
 
           this.router.navigate([perfil]);
+          toast.success("Login efetuado com sucesso")
+
           this.isclicked.set(false);
         } else {
           this.isclicked.set(false);
@@ -77,12 +80,19 @@ export class Login {
         if (error.status === 401) {
           this.showError.set(true);
           this.errorMessage.set('Matricula ou senha incorretos');
+          toast.error('Matricula ou senha incorretos', {});
+
         } else if (error.status === 0) {
           this.showError.set(true);
-          this.errorMessage.set('Erro de conexão. Verifique se o servidor está rodando.');
+           toast.error('Erro de conexão. Verifique se o servidor está rodando.', {
+             description: 'Verifique sua conexão e tente novamente.',
+           });
+
+
         } else {
           this.showError.set(true);
           this.errorMessage.set(error.error?.message || 'Erro ao fazer login');
+           toast.error('Erro ao fazer login', {});
         }
       },
     });

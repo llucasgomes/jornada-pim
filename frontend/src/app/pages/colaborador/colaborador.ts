@@ -33,12 +33,12 @@ export class Colaborador {
     {
       label: 'Meu Ponto',
       icon: 'lucideFolder',
-      path: '/supervisor/dashboard',
+      path: '/colaborador/',
     },
     {
       label: 'Histórico',
       icon: 'lucideFolder',
-      path: '/supervisor/sectors',
+      path: '/colaborador/historico',
     },
   ];
 }
