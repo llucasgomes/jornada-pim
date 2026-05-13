@@ -1,5 +1,5 @@
 import { db } from "@/config/database";
-import { empresa } from "@/database/schemas/sqlite";
+import { empresa } from "@/database/schemas";
 import { desc, eq } from "drizzle-orm";
 
 // colunas seguras (padrão do projeto)

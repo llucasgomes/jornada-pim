@@ -11,7 +11,7 @@ import { useListarSetoresDaEmpresaQuery } from '@/core/queries/rh.queries';
 import { AuthService } from '@/core/services/auth.service';
 
 type PerfilType = 'colaborador' | 'gestor' | 'rh' | 'administrador';
-type TurnoType = '1 turno' | '2 turno' | '3 turno' | 'Comercial' | 'Especial';
+type TurnoType = 'manha' | 'tarde' | 'noite' | 'administrativo';
 
 interface ColaboradorFormModel {
   imageUrl: File | null | string;
@@ -26,7 +26,7 @@ interface ColaboradorFormModel {
 }
 
 @Component({
-  selector: 'app-editar-colaborador',
+  selector: 'app-rh-colaboradores-editar-colaborador',
   imports: [
     UploadImage,
     ZardInputDirective,
@@ -40,7 +40,7 @@ interface ColaboradorFormModel {
   styleUrl: './editar-colaborador.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditarColaborador {
+export class RHColaboradoresEditarColaborador {
   @ViewChild('uploadImage') uploadImage!: UploadImage;
   private authService = inject(AuthService);
 
@@ -52,7 +52,7 @@ export class EditarColaborador {
 
   setores = useListarSetoresDaEmpresaQuery(this.empresaId);
 
-  readonly turnos: TurnoType[] = ['1 turno', '2 turno', '3 turno', 'Comercial', 'Especial'];
+  readonly turnos: TurnoType[] = ['manha', 'tarde', 'noite', 'administrativo'];
   readonly perfis: PerfilType[] = ['colaborador', 'gestor', 'rh', 'administrador'];
 
   // 1. Signal com estado inicial
@@ -65,7 +65,7 @@ export class EditarColaborador {
     turno: (this.colaborador.turno ?? '') as TurnoType,
     horarioEntrada: this.colaborador.horarioEntrada ?? '',
     horarioSaida: this.colaborador.horarioSaida ?? '',
-    cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 480,
+    cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 8.0,
   });
 
   // 2. Signal Form com schema de validação
@@ -113,7 +113,7 @@ export class EditarColaborador {
       turno: (this.colaborador.turno ?? '') as TurnoType,
       horarioEntrada: this.colaborador.horarioEntrada ?? '',
       horarioSaida: this.colaborador.horarioSaida ?? '',
-      cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 480,
+      cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 8.0,
     };
 
     const diff: Partial<typeof atual> = {};
@@ -161,6 +161,6 @@ export class EditarColaborador {
   }
 
   get cargaEmHoras(): number {
-    return Number(this.colaboradorForm.cargaHorariaDia().value()) / 60;
+    return Number(this.colaboradorForm.cargaHorariaDia().value());
   }
 }

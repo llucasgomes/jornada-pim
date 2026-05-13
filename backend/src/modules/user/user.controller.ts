@@ -143,4 +143,29 @@ export default function userController(_server: FastifyInstance) {
     },
     userService.delete
   )
+
+  // ROTAS MIGRADAS DOS CONTROLLERS ANTIGOS (GESTOR / RH)
+  const prefixes = ["/gestor", "/rh"];
+
+  for (const prefix of prefixes) {
+    // Rota para obter usuario pelo userId
+    _server.get(
+      `${prefix}/colaborador/:userId`,
+      {
+        schema: {
+          summary: `Rota para obter um usuário pela ID (${prefix})`,
+          tags: ["Usuário"],
+          params: z4.object({
+            userId: z4.string().uuid(),
+          }),
+          response: {
+            200: userResponseDto,
+            404: notFoundErrorSchema,
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      userService.findById
+    );
+  }
 }

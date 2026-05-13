@@ -36,6 +36,15 @@ export const globalErrorHandler = (
     })
   }
 
+  // Outros erros nativos do Fastify que possuem statusCode configurado (como o 429 - Rate Limit)
+  if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+    return reply.status(error.statusCode).send({
+      statusCode: error.statusCode,
+      error: getErrorName(error.statusCode),
+      message: error.message,
+    })
+  }
+
   // Fallback para erros não tratados (previne o request de ficar pendurado)
   console.error('Unhandled Error:', error)
   return reply.status(500).send({
@@ -53,6 +62,7 @@ const getErrorName = (statusCode: number): string => {
     403: 'Forbidden',
     404: 'Not Found',
     409: 'Conflict',
+    429: 'Too Many Requests',
     500: 'Internal Server Error',
   }
 

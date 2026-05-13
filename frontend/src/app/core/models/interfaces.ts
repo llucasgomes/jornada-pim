@@ -1,5 +1,5 @@
 export type Perfil = 'colaborador' | 'gestor' | 'rh' | 'administrador';
-export type Turno =   "1 turno"|  "2 turno"|  "3 turno"|  "Comercial"|  "Especial";
+export type Turno = 'manha' | 'tarde' | 'noite' | 'administrativo';
 export type TipoBatida = 'entrada' | 'saida_almoco' | 'retorno_almoco' | 'saida';
 export type OrigemBatida = 'sistema' | 'ajuste';
 export type StatusDia = 'completo' | 'incompleto' | 'falta' | 'afastamento';
@@ -55,7 +55,7 @@ export interface UsuarioEmpresa {
   cargo: string | null;
   setor: string | null;
   perfil: 'colaborador' | 'gestor' | 'rh' | 'administrador';
-  turno: '1 turno' | '2 turno' | '3 turno' | 'Comercial' | 'Especial' | null;
+  turno: 'manha' | 'tarde' | 'noite' | 'administrativo' | null;
   cargaHorariaDia: number | null;
   horarioEntrada: string | null;
   horarioSaida: string | null;

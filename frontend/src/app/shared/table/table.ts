@@ -42,8 +42,7 @@ export class Table {
           ...prev,
           pageSize: this.pageSize(),
         }));
-      },
-      { allowSignalWrites: true },
+      }
     );
   }
 

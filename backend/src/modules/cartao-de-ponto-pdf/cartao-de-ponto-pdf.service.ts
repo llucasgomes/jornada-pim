@@ -5,7 +5,7 @@ import {
   registroPonto,
   resumoDiario,
   usuarioEmpresa,
-} from "@/database/schemas/sqlite";
+} from "@/database/schemas";
 import { and, asc, eq, like } from "drizzle-orm";
 import {
   gerarHtmlRelatorio,

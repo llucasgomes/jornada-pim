@@ -1,5 +1,5 @@
 import { db } from "@/config/database";
-import { usuario, usuarioEmpresa } from "@/database/schemas/sqlite";
+import { usuario, usuarioEmpresa } from "@/database/schemas";
 import { and, eq } from "drizzle-orm";
 
 export const cartaoDePontoPdfRepository = {

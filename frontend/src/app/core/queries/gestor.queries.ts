@@ -16,7 +16,7 @@ export function useColaboradoresQuery(empresaId: string, setor?: string) {
       const enriquecidosPromises = colaboradores.map(async (c) => {
         const detalhes = await lastValueFrom(
           forkJoin({
-            usuario: gestorService.getColaboradorPeloId(c.usuarioId),
+            usuario: gestorService.getColaboradorPeloId(c.id),
             historico: gestorService.getHistoricoDoColaboradorNaEmpresa(c.id),
           }),
         );

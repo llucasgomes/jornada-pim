@@ -1,20 +1,20 @@
 import { Component, inject } from '@angular/core';
-import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
 import { ZardButtonComponent } from "@/shared/components/button";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePlusCircle } from '@ng-icons/lucide';
 import { AuthService } from '@/core/services/auth.service';
-import { useListarSetoresDaEmpresaQuery } from '@/core/queries/rh.queries';
+import { useListarSetoresDaEmpresaQuery, useCriarSetorMutation } from '@/core/queries/rh.queries';
 import { ColumnDef, FlexRenderComponent } from '@tanstack/angular-table';
 import { SetorEmpresa } from '@/core/models/interfaces';
 import { ZardLoaderComponent } from "@/shared/components/loader";
 import { Table } from "@/shared/table/table";
 import { ZardEmptyComponent } from "@/shared/components/empty";
 import { ActionsCell } from './components/actions-cell/actions-cell';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-setor',
-  imports: [AppDialogComponent, ZardButtonComponent, NgIcon, ZardLoaderComponent, Table, ZardEmptyComponent],
+  imports: [ZardButtonComponent, NgIcon, ZardLoaderComponent, Table, ZardEmptyComponent, FormsModule],
   templateUrl: './setor.html',
   styleUrl: './setor.css',
   viewProviders: [
@@ -29,7 +29,13 @@ export class Setor {
   private user = this.authService.getUser()!;
   private empresaId = this.user.vinculo.empresaId;
 
-  setoresQuery = useListarSetoresDaEmpresaQuery(this.empresaId)
+  setoresQuery = useListarSetoresDaEmpresaQuery(this.empresaId);
+  criarSetorMutation = useCriarSetorMutation(this.empresaId);
+
+  // Formulário de novo setor
+  novoSetorNome = '';
+  novoSetorDescricao = '';
+  showFormCriar = false;
 
   columns: ColumnDef<SetorEmpresa>[] = [
       {
@@ -40,16 +46,42 @@ export class Setor {
       {
         accessorKey: 'descricao',
         header: 'Descrição',
-        cell: (info) => info.getValue<string>(),
+        cell: (info) => info.getValue<string>() ?? '—',
       },
-
+      {
+        accessorKey: 'ativo',
+        header: 'Status',
+        cell: (info) => info.getValue<boolean>() ? '✅ Ativo' : '❌ Inativo',
+      },
       {
         id: 'acoes',
-        header: '', // sem título, ou coloque 'Ações'
+        header: '',
         cell: (info) =>
           new FlexRenderComponent(ActionsCell, {
             colaborador: info.row.original,
           }),
       },
     ];
+
+  toggleFormCriar() {
+    this.showFormCriar = !this.showFormCriar;
+    if (!this.showFormCriar) {
+      this.novoSetorNome = '';
+      this.novoSetorDescricao = '';
+    }
+  }
+
+  criarSetor() {
+    if (!this.novoSetorNome.trim()) return;
+
+    this.criarSetorMutation.mutate({
+      nome: this.novoSetorNome.trim(),
+      descricao: this.novoSetorDescricao.trim() || undefined,
+      empresaId: this.empresaId,
+    });
+
+    this.novoSetorNome = '';
+    this.novoSetorDescricao = '';
+    this.showFormCriar = false;
+  }
 }

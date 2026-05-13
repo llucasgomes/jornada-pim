@@ -1,8 +1,15 @@
 import { faker } from '@faker-js/faker/locale/pt_BR'
 import bcrypt from 'bcryptjs'
 
-import { registro_ponto, resumo_diario, usuario } from '../../database/schemas'
+import {
+  empresa,
+  registroPonto,
+  resumoDiario,
+  usuario,
+  usuarioEmpresa,
+} from '../../database/schemas'
 import { db } from '../../config/database'
+import { calcularResumo } from '../../modules/registro-ponto/registro-ponto.utils'
 
 faker.seed(42)
 
@@ -19,14 +26,19 @@ const CARGOS = [
 ]
 
 const TURNOS = [
-  { turno: 'manha', entrada: '07:00', saida: '16:00', carga: 480 },
-  { turno: 'tarde', entrada: '15:00', saida: '23:00', carga: 480 },
-  { turno: 'noite', entrada: '23:00', saida: '07:00', carga: 480 },
-  { turno: 'administrativo', entrada: '08:00', saida: '17:00', carga: 480 },
-] as const
+  { turno: 'manha' as const, entrada: '07:00', saida: '16:00', carga: 8.0 },
+  { turno: 'tarde' as const, entrada: '15:00', saida: '23:00', carga: 8.0 },
+  { turno: 'noite' as const, entrada: '23:00', saida: '07:00', carga: 8.0 },
+  { turno: 'administrativo' as const, entrada: '08:00', saida: '17:00', carga: 8.0 },
+]
 
 function matricula(index: number) {
   return `PIM-${String(index).padStart(4, '0')}`
+}
+
+function gerarCPF(): string {
+  const n = () => Math.floor(Math.random() * 10)
+  return `${n()}${n()}${n()}.${n()}${n()}${n()}.${n()}${n()}${n()}-${n()}${n()}`
 }
 
 function addMinutes(base: Date, minutes: number) {
@@ -50,93 +62,69 @@ function diasUteisDoMes(ano: number, mes: number): Date[] {
   return dias
 }
 
-function calcularResumo(
-  batidas: { tipo: string; timestamp: Date }[],
-  cargaMinutos: number,
-  entradaEsperada: string,
-  data: Date
-) {
-  const get = (tipo: string) => batidas.find(b => b.tipo === tipo)?.timestamp
 
-  const entrada = get('entrada')
-  const saida_almoco = get('saida_almoco')
-  const retorno_almoco = get('retorno_almoco')
-  const saida = get('saida')
-
-  if (!entrada) {
-    return {
-      horas_trabalhadas: '0',
-      horas_esperadas: (cargaMinutos / 60).toFixed(2),
-      horas_extras: '0',
-      atraso_minutos: 0,
-      status: 'falta' as const,
-    }
-  }
-
-  let trabalhadoMs = 0
-  if (saida) {
-    trabalhadoMs = saida.getTime() - entrada.getTime()
-    if (saida_almoco && retorno_almoco) {
-      trabalhadoMs -= retorno_almoco.getTime() - saida_almoco.getTime()
-    }
-  }
-
-  const trabalhadoHoras = trabalhadoMs / (1000 * 60 * 60)
-  const cargaHoras = cargaMinutos / 60
-  const completo = !!(entrada && saida_almoco && retorno_almoco && saida)
-  const extras = completo ? Math.max(0, trabalhadoHoras - cargaHoras) : 0
-  const esperado = setTime(data, entradaEsperada)
-  const atraso = Math.max(
-    0,
-    Math.floor((entrada.getTime() - esperado.getTime()) / 60000)
-  )
-
-  return {
-    horas_trabalhadas: trabalhadoHoras.toFixed(2),
-    horas_esperadas: cargaHoras.toFixed(2),
-    horas_extras: extras.toFixed(2),
-    atraso_minutos: atraso,
-    status: (completo ? 'completo' : 'incompleto') as any,
-  }
-}
 
 async function seed() {
   const SENHA_HASH = await bcrypt.hash('123456789', 10)
 
   console.log('Limpando tabelas...')
-  await db.delete(resumo_diario)
-  await db.delete(registro_ponto)
+  await db.delete(resumoDiario)
+  await db.delete(registroPonto)
+  await db.delete(usuarioEmpresa)
   await db.delete(usuario)
+  await db.delete(empresa)
+
+  // ── 0. Empresa ─────────────────────────────────────────────────────────────
+  console.log('Criando empresa...')
+  const [empresaCriada] = await db
+    .insert(empresa)
+    .values({
+      nome: 'Grupo Comercial CII',
+      cnpj: '12.345.678/0001-99',
+      razaoSocial: 'CII Indústria e Comércio Ltda',
+      email: 'contato@grupocii.com.br',
+      telefone: '(92) 3000-0000',
+      sequencialMatricula: 23,
+    })
+    .returning({ id: empresa.id })
+
+  const empresaId = empresaCriada.id
 
   // ── 1. Gestores e RH ──────────────────────────────────────────────────────
   console.log('Criando gestores e RH...')
 
-  await db.insert(usuario).values([
-    {
-      nome: 'Juliana Rocha Tavares',
-      matricula: matricula(901),
-      senha: SENHA_HASH,
-      perfil: 'gestor',
-    },
-    {
-      nome: 'Marcelo Andrade Pinto',
-      matricula: matricula(902),
-      senha: SENHA_HASH,
-      perfil: 'gestor',
-    },
-    {
-      nome: 'Ana Paula Meireles',
-      matricula: matricula(903),
-      senha: SENHA_HASH,
-      perfil: 'rh',
-    },
-  ])
+  const adminUsers = [
+    { nome: 'Juliana Rocha Tavares', cpf: '123.456.789-01', perfil: 'gestor' as const, mat: matricula(901), setor: 'Produção', cargo: 'Gerente de Operações' },
+    { nome: 'Marcelo Andrade Pinto', cpf: '123.456.789-02', perfil: 'gestor' as const, mat: matricula(902), setor: 'Montagem', cargo: 'Gerente de Operações' },
+    { nome: 'Ana Paula Meireles', cpf: '123.456.789-03', perfil: 'rh' as const, mat: matricula(903), setor: 'RH', cargo: 'Analista de RH' },
+    { nome: 'Carlos Silva', cpf: '123.456.789-04', perfil: 'colaborador' as const, mat: matricula(904), setor: 'Administrativo', cargo: 'Auxiliar Administrativo' },
+  ]
+
+  for (const u of adminUsers) {
+    const [created] = await db
+      .insert(usuario)
+      .values({ nome: u.nome, cpf: u.cpf, senha: SENHA_HASH })
+      .returning({ id: usuario.id })
+
+    await db.insert(usuarioEmpresa).values({
+      usuarioId: created.id,
+      empresaId,
+      matricula: u.mat,
+      perfil: u.perfil,
+      cargo: u.cargo,
+      setor: u.setor,
+      turno: 'administrativo',
+      cargaHorariaDia: 8.0,
+      horarioEntrada: '08:00',
+      horarioSaida: '17:00',
+    })
+  }
 
   // ── 2. Colaboradores ──────────────────────────────────────────────────────
   console.log('Criando 20 colaboradores...')
 
   const colaboradoresCriados: Array<{
-    usuario_id: string
+    vinculoId: string
     turnoConfig: (typeof TURNOS)[number]
   }> = []
 
@@ -147,19 +135,28 @@ async function seed() {
       .insert(usuario)
       .values({
         nome: faker.person.fullName(),
-        matricula: matricula(i + 1),
+        cpf: gerarCPF(),
         senha: SENHA_HASH,
+      })
+      .returning({ id: usuario.id })
+
+    const [vinculo] = await db
+      .insert(usuarioEmpresa)
+      .values({
+        usuarioId: novoUsuario.id,
+        empresaId,
+        matricula: matricula(i + 1),
         perfil: 'colaborador',
         cargo: faker.helpers.arrayElement(CARGOS),
         setor: faker.helpers.arrayElement(SETORES),
         turno: turnoConfig.turno,
-        carga_horaria_dia: turnoConfig.carga,
-        horario_entrada: turnoConfig.entrada,
-        horario_saida: turnoConfig.saida,
+        cargaHorariaDia: turnoConfig.carga,
+        horarioEntrada: turnoConfig.entrada,
+        horarioSaida: turnoConfig.saida,
       })
-      .returning({ id: usuario.id })
+      .returning({ id: usuarioEmpresa.id })
 
-    colaboradoresCriados.push({ usuario_id: novoUsuario.id, turnoConfig })
+    colaboradoresCriados.push({ vinculoId: vinculo.id, turnoConfig })
   }
 
   // ── 3. Histórico — últimos 2 meses ────────────────────────────────────────
@@ -171,7 +168,7 @@ async function seed() {
     { ano: hoje.getFullYear(), mes: hoje.getMonth() + 1 },
   ]
 
-  for (const { usuario_id, turnoConfig } of colaboradoresCriados) {
+  for (const { vinculoId, turnoConfig } of colaboradoresCriados) {
     for (const { ano, mes } of meses) {
       const dias = diasUteisDoMes(ano, mes)
 
@@ -179,13 +176,13 @@ async function seed() {
         if (dia > hoje) continue
 
         if (faker.datatype.boolean({ probability: 0.1 })) {
-          await db.insert(resumo_diario).values({
-            usuario_id,
+          await db.insert(resumoDiario).values({
+            usuarioEmpresaId: vinculoId,
             data: dia.toISOString().split('T')[0],
-            horas_trabalhadas: '0',
-            horas_esperadas: (turnoConfig.carga / 60).toFixed(2),
-            horas_extras: '0',
-            atraso_minutos: 0,
+            horasTrabalhadas: 0,
+            horasEsperadas: turnoConfig.carga,
+            horasExtras: 0,
+            atrasoMinutos: 0,
             status: 'falta',
           })
           continue
@@ -196,12 +193,12 @@ async function seed() {
           : 0
 
         const entrada = addMinutes(setTime(dia, turnoConfig.entrada), atrasoMin)
-        const inicioAlmoco = addMinutes(
+        const inicioIntervalo = addMinutes(
           entrada,
           faker.number.int({ min: 230, max: 250 })
         )
-        const fimAlmoco = addMinutes(
-          inicioAlmoco,
+        const fimIntervalo = addMinutes(
+          inicioIntervalo,
           faker.number.int({ min: 55, max: 65 })
         )
 
@@ -209,21 +206,21 @@ async function seed() {
           ? faker.number.int({ min: 30, max: 90 })
           : 0
 
-        const saida = addMinutes(fimAlmoco, turnoConfig.carga - 240 + extraMin)
+        const saida = addMinutes(fimIntervalo, turnoConfig.carga - 240 + extraMin)
         const incompleto = faker.datatype.boolean({ probability: 0.05 })
 
         const batidas = [
           { tipo: 'entrada', timestamp: entrada },
-          { tipo: 'saida_almoco', timestamp: inicioAlmoco },
-          { tipo: 'retorno_almoco', timestamp: fimAlmoco },
+          { tipo: 'saida_almoco', timestamp: inicioIntervalo },
+          { tipo: 'retorno_almoco', timestamp: fimIntervalo },
           ...(!incompleto ? [{ tipo: 'saida', timestamp: saida }] : []),
         ]
 
-        await db.insert(registro_ponto).values(
+        await db.insert(registroPonto).values(
           batidas.map(b => ({
-            usuario_id,
+            usuarioEmpresaId: vinculoId,
             tipo: b.tipo as any,
-            timestamp: b.timestamp,
+            timestamp: b.timestamp.toISOString(),
             origem: 'sistema' as const,
           }))
         )
@@ -235,8 +232,8 @@ async function seed() {
           dia
         )
 
-        await db.insert(resumo_diario).values({
-          usuario_id,
+        await db.insert(resumoDiario).values({
+          usuarioEmpresaId: vinculoId,
           data: dia.toISOString().split('T')[0],
           ...resumo,
         })

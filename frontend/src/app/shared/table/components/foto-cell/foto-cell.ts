@@ -55,10 +55,10 @@ export class FotoCell implements OnInit {
 
     switch (ultimaBatida.tipo) {
       case 'entrada':
-      case 'retorno_intervalo':
+      case 'retorno_almoco':
         this.statusPresenca = 'dentro';
         break;
-      case 'saida_intervalo':
+      case 'saida_almoco':
         this.statusPresenca = 'intervalo';
         break;
       case 'saida':

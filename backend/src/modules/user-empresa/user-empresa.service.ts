@@ -90,9 +90,9 @@ export const userEmpresaService = {
       setor: data.setor,
       perfil: data.perfil,
       turno: data.turno,
-      cargaHorariaDia: data.cargaHorariaDia,
-      horarioEntrada: data.horarioEntrada,
-      horarioSaida: data.horarioSaida,
+      cargaHorariaDia: data.cargaHorariaDia ?? 480, // Default 8h
+      horarioEntrada: data.horarioEntrada ?? "08:00:00",
+      horarioSaida: data.horarioSaida ?? "17:00:00",
     });
 
     // ✅ resposta HTTP correta
@@ -139,6 +139,46 @@ export const userEmpresaService = {
     }
 
     return userEmpresaRepository.findUsersByEmpresaAndSetor(empresaId, setor);
+  },
+  async buscarPorId(req: FastifyRequest, reply: FastifyReply) {
+    const { usuarioEmpresaId } = req.params as { usuarioEmpresaId: string };
+    
+    if (!usuarioEmpresaId) {
+      throw new AppError("ID do vínculo é obrigatório", 400);
+    }
+
+    const vinculos = await userEmpresaRepository.findUserEmpresById(usuarioEmpresaId);
+    
+    if (!vinculos || vinculos.length === 0) {
+      throw new AppError("Colaborador não encontrado", 404);
+    }
+
+    const vinculo = vinculos[0];
+    const usuario = await userRepository.findById(vinculo.usuarioId);
+
+    if (!usuario) {
+      throw new AppError("Usuário associado não encontrado", 404);
+    }
+
+    return reply.status(200).send({
+      id: vinculo.id,
+      usuarioId: usuario.id,
+      empresaId: vinculo.empresaId,
+      matricula: vinculo.matricula,
+      nome: usuario.nome,
+      cpf: usuario.cpf,
+      imageUrl: usuario.imageUrl,
+      cargo: vinculo.cargo,
+      setor: vinculo.setor,
+      perfil: vinculo.perfil,
+      turno: vinculo.turno,
+      cargaHorariaDia: vinculo.cargaHorariaDia,
+      horarioEntrada: vinculo.horarioEntrada,
+      horarioSaida: vinculo.horarioSaida,
+      ativo: vinculo.ativo,
+      createdAt: vinculo.createdAt,
+      updatedAt: vinculo.updatedAt,
+    });
   },
   async buscarHistoricoBatidas(req: FastifyRequest, reply: FastifyReply) {
     const { usuarioEmpresaId } = req.params as { usuarioEmpresaId: string };
@@ -188,7 +228,7 @@ export const userEmpresaService = {
       return acc;
     }, []);
 
-    return historicoAgrupado;
+    return reply.status(200).send(historicoAgrupado);
   },
   async atualizarVinculo(req: FastifyRequest, reply: FastifyReply) {
     const { usuarioEmpresaId } = req.params as { usuarioEmpresaId: string };
@@ -201,18 +241,15 @@ export const userEmpresaService = {
     const usuarioEmpresaVinculo = await userEmpresaRepository.findUserEmpresById(usuarioEmpresaId);
       
     // 2. Verifique se o vínculo realmente existe ANTES de tentar ler o usuarioId
-    if (!usuarioEmpresaVinculo) {
+    if (!usuarioEmpresaVinculo || usuarioEmpresaVinculo.length === 0) {
       throw new AppError("Vínculo não encontrado no sistema", 404);
     }
 
-    // 3. Pegue o ID de forma segura (Ajuste 'usuarioId' se o Drizzle retornar 'usuario_id')
-    
+    const vinculoExistente = usuarioEmpresaVinculo[0];
 
     // LOG DE SEGURANÇA: Se este log imprimir undefined, o problema está no mapeamento do seu Schema
-    console.log("ID recuperado do banco:", usuarioEmpresaVinculo[0].id);
+    console.log("ID recuperado do banco:", vinculoExistente.id);
 
-
-    
     const {nome,imageUrl,...rest} = req.body as {
       nome?: string;
       imageUrl?: string;
@@ -225,14 +262,14 @@ export const userEmpresaService = {
       cargaHorariaDia?: string;
     }; 
 
-    if (nome ){
-      await userRepository.update(usuarioEmpresaVinculo[0].usuarioId, { nome });
+    if (nome) {
+      await userRepository.update(vinculoExistente.usuarioId, { nome });
     }
-       if (imageUrl) {
-         await userRepository.update(usuarioEmpresaVinculo[0].usuarioId, {
-           imageUrl,
-         });
-       }
+    if (imageUrl) {
+      await userRepository.update(vinculoExistente.usuarioId, {
+        imageUrl,
+      });
+    }
     
 
   

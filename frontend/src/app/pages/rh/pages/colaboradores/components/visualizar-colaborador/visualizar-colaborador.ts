@@ -14,12 +14,12 @@ interface StatusConfig {
 
 
 @Component({
-  selector: 'app-visualizar-colaborador',
+  selector: 'app-rh-colaboradores-visualizar-colaborador',
   imports: [DatePipe, CommonModule, ZardAvatarComponent, ZardBadgeComponent],
   templateUrl: './visualizar-colaborador.html',
   styleUrl: './visualizar-colaborador.css',
 })
-export class VisualizarColaborador implements OnInit {
+export class RHColaboradoresVisualizarColaborador implements OnInit {
   statusPresenca: 'fora' | 'dentro' | 'intervalo' = 'fora';
   data: ColaboradoreComHistorico = inject(Z_MODAL_DATA);
 
@@ -54,10 +54,10 @@ export class VisualizarColaborador implements OnInit {
 
     switch (ultimaBatida.tipo) {
       case 'entrada':
-      case 'retorno_intervalo':
+      case 'retorno_almoco':
         this.statusPresenca = 'dentro';
         break;
-      case 'saida_intervalo':
+      case 'saida_almoco':
         this.statusPresenca = 'intervalo';
         break;
       case 'saida':

@@ -3,6 +3,7 @@
 import fasttifyCors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
 import fastifyMultipart from '@fastify/multipart'
+import fastifyRateLimit from '@fastify/rate-limit'
 import fastifySwagger from '@fastify/swagger'
 import ScalarFastifyApiReference from '@scalar/fastify-api-reference'
 import fastify from 'fastify'
@@ -23,8 +24,7 @@ import registroPontoRoutes from './modules/registro-ponto/registro-ponto.route'
 import dashboardRoutes from './modules/dashboard/dashboard.route'
 import relatorioRoutes from './modules/cartao-de-ponto-pdf/cartao-de-ponto-pdf.route'
 import setorRoutes from './modules/setores/setor.route'
-import gestorRoutes from './modules/routes/gestor.route'
-import rhRoutes from './modules/routes/rh.route'
+import userEmpresaRoutes from './modules/user-empresa/user-empresa.route'
 
 export function buildApp() {
   const server = fastify().withTypeProvider<ZodTypeProvider>()
@@ -39,6 +39,12 @@ export function buildApp() {
   });
 
   server.register(fastifyMultipart)
+
+  // Rate limit global — 100 req/min por IP
+  server.register(fastifyRateLimit, {
+    max: 1000,
+    timeWindow: '1 minute',
+  })
 
   server.register(fastifyJwt, {
     secret: env.JWT_SECRET,
@@ -127,7 +133,7 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
     return { message: 'servidor ok' }
   })
 
-  server.register(authRoutes)
+  server.register(authRoutes) // Login: rate limit extra de 5 tentativas/15min aplicado na rota
   server.register(userRoutes)
   server.register(uploadRoutes)
   server.register(registroPontoRoutes)
@@ -135,8 +141,7 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
   server.register(relatorioRoutes)
   server.register(setorRoutes)
 
-  server.register(gestorRoutes);
-   server.register(rhRoutes);
+  server.register(userEmpresaRoutes)
 
   //handle errors Global
   // registrar o handler global

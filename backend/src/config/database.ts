@@ -1,6 +1,7 @@
-import { drizzle } from 'drizzle-orm/libsql'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
 import { env } from './env'
-import { createClient } from '@libsql/client'
 
-const client = createClient({ url: env.SQLITE_URL })
-export const db = drizzle(client)
+// Disable prefetch as it is not supported for "Transaction" pool mode
+const queryClient = postgres(env.POSTGRES_URL)
+export const db = drizzle(queryClient)

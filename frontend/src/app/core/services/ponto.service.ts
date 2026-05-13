@@ -40,6 +40,12 @@ export class PontoService {
   }
 
   getStats(date: string): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal?date=${date}`);
+    return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal?data=${date}`);
+  }
+
+  getResumoMensal(mes?: string): Observable<DashboardStats> {
+    let url = `${this.apiUrl}/resumo-mensal`;
+    if (mes) url += `?mes=${mes}`;
+    return this.http.get<DashboardStats>(url);
   }
 }

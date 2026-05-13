@@ -51,11 +51,46 @@ export class GestorService {
   getStatsPorSetor(empresaId: string, setor: string, mes?: string): Observable<DashboardStats> {
     let query = `?empresaId=${empresaId}&setor=${encodeURIComponent(setor)}`;
     if (mes) query += `&mes=${mes}`;
-    return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal-setor${query}`);
+    return this.http.get<DashboardStats>(`${environment.apiUrl}/ponto/gestor/resumo-mensal-setor${query}`);
   }
   getHistoricoDoColaboradorNaEmpresa(usuarioEmpresa: string) {
     return this.http.get<HistoricoAgrupado[]>(
       `${this.apiUrl}/colaborador/${usuarioEmpresa}/historico`,
     );
+  }
+
+  listarColaboradores(empresaId: string) {
+    return this.http.post<UserForSetor[]>(`${this.apiUrl}/colaboradores`, {
+      empresaId,
+    });
+  }
+
+  desligarColaborador(usuarioEmpresaId: string) {
+    return this.http.post(`${this.apiUrl}/desligar-colaborador`, {
+      usuarioEmpresaId,
+    });
+  }
+
+  atualizarVinculo(
+    usuarioEmpresaId: string,
+    dados: Partial<{
+      nome: string;
+      imageUrl: string | null;
+      perfil: string;
+      cargo: string;
+      setor: string;
+      turno: string;
+      horarioEntrada: string;
+      horarioSaida: string;
+      cargaHorariaDia: number;
+    }>,
+  ) {
+    return this.http.put(`${this.apiUrl}/colaborador/${usuarioEmpresaId}`, dados);
+  }
+
+  getResumoMensal(mes?: string): Observable<DashboardStats> {
+    let url = `${environment.apiUrl}/ponto/gestor/resumo-mensal`;
+    if (mes) url += `?mes=${mes}`;
+    return this.http.get<DashboardStats>(url);
   }
 }

@@ -137,7 +137,7 @@ export async function registroPontoController(server: FastifyInstance) {
         summary: "Dashboard completo mensal",
         tags: ["Dashboard"],
         querystring: z4.object({
-          // corrigido: era params
+          empresaId: z4.string().uuid(),
           data: z4.string().optional(),
           mes: z4.string().optional(),
         }),
@@ -183,4 +183,189 @@ export async function registroPontoController(server: FastifyInstance) {
     },
     registroPontoService.relatorioMensal,
   );
+
+  // ROTAS MIGRADAS DOS CONTROLLERS ANTIGOS (GESTOR / RH)
+  const prefixes = ["/gestor", "/rh"];
+
+  for (const prefix of prefixes) {
+    // GET /prefix/:usuario_id/historico
+    server.get(
+      `${prefix}/:usuario_id/historico`,
+      {
+        schema: {
+          summary: `Retorna histórico de ponto por período (${prefix})`,
+          tags: ["Ponto"],
+          params: z4.object({
+            usuario_id: z4.string().uuid(),
+          }),
+          querystring: z4.object({
+            de: z4
+              .string()
+              .regex(/^\d{4}-\d{2}-\d{2}$/)
+              .optional(),
+            ate: z4
+              .string()
+              .regex(/^\d{4}-\d{2}-\d{2}$/)
+              .optional(),
+          }),
+          response: {
+            200: z4.array(z4.any()),
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      registroPontoService.buscarHistorico
+    );
+
+    // GET /prefix/:usuario_id/relatorio-mensal
+    server.get(
+      `${prefix}/:usuario_id/relatorio-mensal`,
+      {
+        schema: {
+          summary: `Retorna relatório mensal consolidado (${prefix})`,
+          tags: ["Ponto"],
+          params: z4.object({
+            usuario_id: z4.string().uuid(),
+          }),
+          querystring: z4.object({
+            mes: z4.string().optional(),
+            ano: z4.string().optional(),
+          }),
+          response: {
+            200: z4.array(z4.any()),
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      registroPontoService.buscarRelatorioMensal
+    );
+
+    // GET /prefix/resumo-mensal
+    server.get(
+      `${prefix}/resumo-mensal`,
+      {
+        schema: {
+          summary: `Retorna resumo mensal para Painel de Dashboard (${prefix})`,
+          tags: ["Ponto"],
+          querystring: z4.object({
+            empresaId: z4.string().uuid(),
+            data: z4.string().optional(),
+            mes: z4.string().optional(),
+          }),
+          response: {
+            200: z4.object({
+              totalHorasExtras: z4.number(),
+              totalAtrasos: z4.number(),
+              totalFaltas: z4.number(),
+              totalColaboradores: z4.number(),
+              totalDiasProcessados: z4.number(),
+              presencaHoje: z4.number(),
+              mediaExtras: z4.number(),
+              topAtrasos: z4.array(
+                z4.object({
+                  id: z4.string(),
+                  nome: z4.string(),
+                  imageUrl: z4.string().nullable().optional(),
+                  setor: z4.string().nullable().optional(),
+                  cargo: z4.string().nullable().optional(),
+                  total: z4.number(),
+                })
+              ),
+              topFaltosos: z4.array(
+                z4.object({
+                  id: z4.string(),
+                  nome: z4.string(),
+                  imageUrl: z4.string().nullable().optional(),
+                  setor: z4.string().nullable().optional(),
+                  cargo: z4.string().nullable().optional(),
+                  total: z4.number(),
+                })
+              ),
+              graficoExtras: z4.array(
+                z4.object({
+                  data: z4.string(),
+                  total: z4.number(),
+                })
+              ),
+            }),
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      registroPontoService.relatorioMensal
+    );
+
+    // GET /prefix/resumo-mensal-setor
+    server.get(
+      `${prefix}/resumo-mensal-setor`,
+      {
+        schema: {
+          summary: `Retorna resumo mensal para Painel de Dashboard por setor (${prefix})`,
+          tags: ["Ponto"],
+          querystring: z4.object({
+            setor: z4.string(),
+            empresaId: z4.string().uuid(),
+            mes: z4.string().optional(),
+          }),
+          response: {
+            200: z4.object({
+              totalHorasExtras: z4.string(),
+              totalAtrasos: z4.string(),
+              totalFaltas: z4.number(),
+              totalColaboradores: z4.number(),
+              totalDiasProcessados: z4.number(),
+              presencaHoje: z4.number(),
+              mediaExtras: z4.number(),
+              topAtrasos: z4.array(
+                z4.object({
+                  id: z4.string(),
+                  nome: z4.string(),
+                  imageUrl: z4.string().nullable().optional(),
+                  setor: z4.string().nullable().optional(),
+                  cargo: z4.string().nullable().optional(),
+                  total: z4.number(),
+                })
+              ),
+              topExtras: z4.array(
+                z4.object({
+                  id: z4.string(),
+                  nome: z4.string(),
+                  imageUrl: z4.string().nullable().optional(),
+                  setor: z4.string().nullable().optional(),
+                  cargo: z4.string().nullable().optional(),
+                  total: z4.number(),
+                })
+              ),
+              topFaltosos: z4.array(
+                z4.object({
+                  id: z4.string(),
+                  nome: z4.string(),
+                  imageUrl: z4.string().nullable().optional(),
+                  setor: z4.string().nullable().optional(),
+                  cargo: z4.string().nullable().optional(),
+                  total: z4.number(),
+                })
+              ),
+              graficoExtras: z4.array(
+                z4.object({
+                  data: z4.string(),
+                  total: z4.number(),
+                })
+              ),
+              historicoMeses: z4.array(
+                z4.object({
+                  mes: z4.string(),
+                  extras: z4.number(),
+                  atrasos: z4.number(),
+                  faltas: z4.number(),
+                })
+              ).optional(),
+            }),
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      registroPontoService.relatorioMensalPorSetor
+    );
+  }
 }

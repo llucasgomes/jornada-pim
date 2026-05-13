@@ -18,7 +18,8 @@ import { CriarColaborador } from './components/criar-colaborador/criar-colaborad
 import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
 import { ZardButtonComponent } from "@/shared/components/button";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucidePlusCircle } from '@ng-icons/lucide';
+import { lucidePlusCircle, lucideFileText } from '@ng-icons/lucide';
+import { RelatorioService } from '@/core/services/relatorio.service';
 
 
 
@@ -36,12 +37,14 @@ import { lucidePlusCircle } from '@ng-icons/lucide';
   styleUrl: './rh-colaboradores.css',
   viewProviders: [
     provideIcons({
-     lucidePlusCircle
+     lucidePlusCircle,
+     lucideFileText
     }),
   ],
 })
 export class RhColaboradores {
   private authService = inject(AuthService);
+  private relatorioService = inject(RelatorioService);
 
   private user = this.authService.getUser()!;
   private empresaId = this.user.vinculo.empresaId;
@@ -51,6 +54,21 @@ export class RhColaboradores {
   // Apenas solicita a query centralizada
   colaboradoresQuery = useColaboradoresQuery(this.empresaId);
   desligarMutation = useDesligarColaboradorMutation(this.empresaId);
+
+  isGerandoPdfTodos = false;
+
+  onGerarPdfTodos() {
+    this.isGerandoPdfTodos = true;
+    this.relatorioService.downloadRelatorioTodos().subscribe({
+      next: () => {
+        this.isGerandoPdfTodos = false;
+      },
+      error: (err) => {
+        console.error('Erro ao gerar PDFs', err);
+        this.isGerandoPdfTodos = false;
+      }
+    });
+  }
 
   columns: ColumnDef<ColaboradoreComHistorico>[] = [
     {

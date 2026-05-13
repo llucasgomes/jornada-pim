@@ -36,6 +36,18 @@
   </app-dialog>
 
 
+  <z-button 
+    class="cursor-pointer" 
+    zType="ghost" 
+    zSize="icon-sm" 
+    [zLoading]="isGerandoPdf"
+    [zDisabled]="isGerandoPdf"
+    (click)="onGerarPdf()"
+    title="Gerar Cartão de Ponto"
+  >
+    <ng-icon name="lucideFileText" class="size-4" />
+  </z-button>
+
   <z-button class="cursor-pointer" zType="ghost" zSize="icon-sm" (click)="onExcluir()">
     <ng-icon name="lucideTrash2" class="size-4 text-destructive" />
   </z-button>

@@ -16,7 +16,7 @@ import { form, FormField, required, schema, submit } from '@angular/forms/signal
 import { ZardDividerComponent } from '@/shared/components/divider';
 
 type PerfilType = 'colaborador' | 'gestor' | 'rh' | 'administrador';
-type TurnoType = '1 turno' | '2 turno' | '3 turno' | 'Comercial' | 'Especial';
+type TurnoType = 'manha' | 'tarde' | 'noite' | 'administrativo';
 
 interface ColaboradorFormModel {
   imageUrl: File | null | string;
@@ -51,7 +51,7 @@ export class CriarColaborador {
   colaborador: ColaboradoreComHistorico = inject(Z_MODAL_DATA);
   arquivoSelecionado = signal<File | null>(null);
 
-  readonly turnos: TurnoType[] = ['1 turno', '2 turno', '3 turno', 'Comercial', 'Especial'];
+  readonly turnos: TurnoType[] = ['manha', 'tarde', 'noite', 'administrativo'];
   readonly perfis: PerfilType[] = ['colaborador', 'gestor', 'rh', 'administrador'];
 
   // 1. Signal com estado inicial
@@ -64,7 +64,7 @@ export class CriarColaborador {
     turno: (this.colaborador.turno ?? '') as TurnoType,
     horarioEntrada: this.colaborador.horarioEntrada ?? '',
     horarioSaida: this.colaborador.horarioSaida ?? '',
-    cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 480,
+    cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 8.0,
   });
 
   // 2. Signal Form com schema de validação
@@ -112,7 +112,7 @@ export class CriarColaborador {
       turno: (this.colaborador.turno ?? '') as TurnoType,
       horarioEntrada: this.colaborador.horarioEntrada ?? '',
       horarioSaida: this.colaborador.horarioSaida ?? '',
-      cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 480,
+      cargaHorariaDia: String(this.colaborador.cargaHorariaDia) ?? 8.0,
     };
 
     const diff: Partial<typeof atual> = {};
@@ -160,6 +160,6 @@ export class CriarColaborador {
   }
 
   get cargaEmHoras(): number {
-    return Number(this.colaboradorForm.cargaHorariaDia().value()) / 60;
+    return Number(this.colaboradorForm.cargaHorariaDia().value());
   }
 }

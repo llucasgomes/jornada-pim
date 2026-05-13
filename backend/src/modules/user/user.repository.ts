@@ -1,5 +1,5 @@
 import { db } from "@/config/database";
-import { usuario } from "@/database/schemas/sqlite";
+import { usuario } from "@/database/schemas";
 import { eq } from "drizzle-orm";
 import { CreateUserDtoType } from "./user.dto";
 

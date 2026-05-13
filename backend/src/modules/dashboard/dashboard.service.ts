@@ -4,7 +4,7 @@ import {
   usuario,
   resumoDiario,
   registroPonto,
-} from "@/database/schemas/sqlite";
+} from "@/database/schemas";
 
 export const dashboardService = {
   async getStats() {

@@ -4,10 +4,10 @@ import {
   resumoDiario,
   usuario,
   usuarioEmpresa,
-} from "@/database/schemas/sqlite";
+} from "@/database/schemas";
 import { AppError } from "@/shared/errors/AppError";
 import { registroPontoRepository } from "./registro-ponto.repository";
-import { and, desc, eq, gte, like, lte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, like, lte, sql } from "drizzle-orm";
 import { userEmpresaRepository } from "../user-empresa/user-empresa.repository";
 import { calcularResumo } from "./registro-ponto.utils";
 import {
@@ -17,8 +17,8 @@ import {
 
 const SEQUENCIA = [
   "entrada",
-  "saida_intervalo",
-  "retorno_intervalo",
+  "saida_almoco",
+  "retorno_almoco",
   "saida",
 ] as const;
 
@@ -142,43 +142,51 @@ export const registroPontoService = {
     return reply.status(200).send(resumos);
   },
   async relatorioMensal(req: FastifyRequest, reply: FastifyReply) {
-    const { data, mes } = req.query as { data?: string; mes?: string };
+    const { data, mes, empresaId } = req.query as { data?: string; mes?: string; empresaId: string };
+
+    if (!empresaId) throw new AppError('Parâmetro "empresaId" é obrigatório', 400);
 
     const mesFinal =
       mes ??
       (data ? data.slice(0, 7) : null) ??
       new Date().toISOString().slice(0, 7);
 
-    const filtroMes = like(resumoDiario.data, `${mesFinal}%`);
+    // Filter for the month and specific company
+    const idsEmpresa = db.select({ id: usuarioEmpresa.id }).from(usuarioEmpresa).where(eq(usuarioEmpresa.empresaId, empresaId));
+    const filtroEstatistica = and(
+      like(sql`${resumoDiario.data}::text`, `${mesFinal}%`),
+      inArray(resumoDiario.usuarioEmpresaId, idsEmpresa)
+    );
 
     const [extras] = await db
       .select({
         total: sql<number>`COALESCE(SUM(${resumoDiario.horasExtras}), 0)`,
       })
       .from(resumoDiario)
-      .where(filtroMes);
+      .where(filtroEstatistica);
 
     const [atrasos] = await db
       .select({
         total: sql<number>`COALESCE(SUM(${resumoDiario.atrasoMinutos}), 0)`,
       })
       .from(resumoDiario)
-      .where(filtroMes);
+      .where(filtroEstatistica);
 
     const [faltas] = await db
       .select({ total: sql<number>`COUNT(*)` })
       .from(resumoDiario)
-      .where(and(filtroMes, eq(resumoDiario.status, "falta")));
+      .where(and(filtroEstatistica, eq(resumoDiario.status, "falta")));
 
     const [users] = await db
       .select({ total: sql<number>`COUNT(*)` })
-      .from(usuario)
-      .where(eq(usuario.ativo, true));
+      .from(usuarioEmpresa)
+      .innerJoin(usuario, eq(usuario.id, usuarioEmpresa.usuarioId))
+      .where(and(eq(usuario.ativo, true), eq(usuarioEmpresa.empresaId, empresaId)));
 
     const [dias] = await db
       .select({ total: sql<number>`COUNT(DISTINCT ${resumoDiario.data})` })
       .from(resumoDiario)
-      .where(filtroMes);
+      .where(filtroEstatistica);
 
     const hoje = new Date().toISOString().slice(0, 10);
 
@@ -191,11 +199,12 @@ export const registroPontoService = {
         and(
           eq(resumoDiario.data, hoje),
           sql`${resumoDiario.status} != 'falta'`,
+          inArray(resumoDiario.usuarioEmpresaId, idsEmpresa)
         ),
       );
 
     // top 5 atrasos — join com usuarioEmpresa → usuario
-    const topAtrasos = await db
+    const topAtrasosRaw = await db
       .select({
         id: usuario.id,
         nome: usuario.nome,
@@ -210,12 +219,12 @@ export const registroPontoService = {
         eq(usuarioEmpresa.id, resumoDiario.usuarioEmpresaId),
       )
       .innerJoin(usuario, eq(usuario.id, usuarioEmpresa.usuarioId))
-      .where(filtroMes)
-      .groupBy(usuario.id)
+      .where(filtroEstatistica)
+      .groupBy(usuario.id, usuarioEmpresa.setor, usuarioEmpresa.cargo)
       .orderBy(desc(sql`SUM(${resumoDiario.atrasoMinutos})`))
       .limit(5);
 
-    const topFaltosos = await db
+    const topFaltososRaw = await db
       .select({
         id: usuario.id,
         nome: usuario.nome,
@@ -230,33 +239,48 @@ export const registroPontoService = {
         eq(usuarioEmpresa.id, resumoDiario.usuarioEmpresaId),
       )
       .innerJoin(usuario, eq(usuario.id, usuarioEmpresa.usuarioId))
-      .where(and(filtroMes, eq(resumoDiario.status, "falta")))
-      .groupBy(usuario.id)
+      .where(and(filtroEstatistica, eq(resumoDiario.status, "falta")))
+      .groupBy(usuario.id, usuarioEmpresa.setor, usuarioEmpresa.cargo)
       .orderBy(desc(sql`COUNT(*)`))
       .limit(5);
 
-    const graficoExtras = await db
+    const topAtrasos = topAtrasosRaw.map(t => ({ ...t, total: Number(t.total ?? 0) }));
+    const topFaltosos = topFaltososRaw.map(t => ({ ...t, total: Number(t.total ?? 0) }));
+
+    const graficoExtrasRaw = await db
       .select({
         data: resumoDiario.data,
         total: sql<number>`SUM(${resumoDiario.horasExtras})`,
       })
       .from(resumoDiario)
-      .where(filtroMes)
+      .where(filtroEstatistica)
       .groupBy(resumoDiario.data)
       .orderBy(resumoDiario.data);
 
-    return reply.status(200).send({
-      totalHorasExtras: extras?.total ?? 0,
-      totalAtrasos: atrasos?.total ?? 0,
-      totalFaltas: faltas?.total ?? 0,
-      totalColaboradores: users?.total ?? 0,
-      totalDiasProcessados: dias?.total ?? 0,
-      presencaHoje: presencaHoje?.total ?? 0,
-      mediaExtras: users?.total > 0 ? (extras?.total ?? 0) / users.total : 0,
+    const graficoExtras = graficoExtrasRaw.map(t => ({ ...t, total: Number(t.total ?? 0) }));
+
+    const totalHorasExtras = Number(extras?.total ?? 0);
+    const totalAtrasos = Number(atrasos?.total ?? 0);
+    const totalFaltas = Number(faltas?.total ?? 0);
+    const totalColaboradores = Number(users?.total ?? 0);
+    const totalDiasProcessados = Number(dias?.total ?? 0);
+    const presencaHojeNum = Number(presencaHoje?.total ?? 0);
+
+    const payload = {
+      totalHorasExtras,
+      totalAtrasos,
+      totalFaltas,
+      totalColaboradores,
+      totalDiasProcessados,
+      presencaHoje: presencaHojeNum,
+      mediaExtras: totalColaboradores > 0 ? totalHorasExtras / totalColaboradores : 0,
       topAtrasos,
       topFaltosos,
       graficoExtras,
-    });
+    };
+    console.log("PAYLOAD RELATORIO MENSAL:", JSON.stringify(payload, null, 2));
+
+    return reply.status(200).send(payload);
   },
   async relatorioMensalPorSetor(req: FastifyRequest, reply: FastifyReply) {
     const { data, mes, setor, empresaId } = req.query as {
@@ -276,7 +300,7 @@ export const registroPontoService = {
       (data ? data.slice(0, 7) : null) ??
       new Date().toISOString().slice(0, 7);
 
-    const filtroMes = like(resumoDiario.data, `${mesFinal}%`);
+    const filtroMes = like(sql`${resumoDiario.data}::text`, `${mesFinal}%`);
 
     // filtro base agora inclui empresaId
     const filtroMesSetor = and(
@@ -350,7 +374,7 @@ export const registroPontoService = {
         const mes = ref.getMonth() + 1;
         const mesStr = `${ano}-${String(mes).padStart(2, "0")}`;
         const filtro = and(
-          like(resumoDiario.data, `${mesStr}%`),
+          like(sql`${resumoDiario.data}::text`, `${mesStr}%`),
           eq(usuarioEmpresa.setor, setor),
           eq(usuarioEmpresa.empresaId, empresaId),
         );
@@ -366,7 +390,7 @@ export const registroPontoService = {
               eq(usuarioEmpresa.id, resumoDiario.usuarioEmpresaId),
             )
             .where(filtro)
-            .then(([r]) => r?.total ?? 0),
+            .then(([r]) => Number(r?.total ?? 0)),
 
           db
             .select({
@@ -378,7 +402,7 @@ export const registroPontoService = {
               eq(usuarioEmpresa.id, resumoDiario.usuarioEmpresaId),
             )
             .where(filtro)
-            .then(([r]) => r?.total ?? 0),
+            .then(([r]) => Number(r?.total ?? 0)),
 
           db
             .select({ total: sql<number>`COUNT(*)` })
@@ -388,7 +412,7 @@ export const registroPontoService = {
               eq(usuarioEmpresa.id, resumoDiario.usuarioEmpresaId),
             )
             .where(and(filtro, eq(resumoDiario.status, "falta")))
-            .then(([r]) => r?.total ?? 0),
+            .then(([r]) => Number(r?.total ?? 0)),
         ]).then(([extras, atrasos, faltas]) => ({
           mes: mesStr,
           extras,
@@ -416,7 +440,7 @@ export const registroPontoService = {
         ),
       );
 
-    const topExtras = await db
+    const topExtrasRaw = await db
       .select({
         id: usuario.id,
         nome: usuario.nome,
@@ -432,11 +456,11 @@ export const registroPontoService = {
       )
       .innerJoin(usuario, eq(usuario.id, usuarioEmpresa.usuarioId))
       .where(filtroMesSetor)
-      .groupBy(usuario.id)
+      .groupBy(usuario.id, usuarioEmpresa.setor, usuarioEmpresa.cargo)
       .orderBy(desc(sql`SUM(${resumoDiario.horasExtras})`))
       .limit(5);
 
-    const topAtrasos = await db
+    const topAtrasosRaw = await db
       .select({
         id: usuario.id,
         nome: usuario.nome,
@@ -452,11 +476,11 @@ export const registroPontoService = {
       )
       .innerJoin(usuario, eq(usuario.id, usuarioEmpresa.usuarioId))
       .where(filtroMesSetor)
-      .groupBy(usuario.id)
+      .groupBy(usuario.id, usuarioEmpresa.setor, usuarioEmpresa.cargo)
       .orderBy(desc(sql`SUM(${resumoDiario.atrasoMinutos})`))
       .limit(5);
 
-    const topFaltosos = await db
+    const topFaltososRaw = await db
       .select({
         id: usuario.id,
         nome: usuario.nome,
@@ -472,11 +496,15 @@ export const registroPontoService = {
       )
       .innerJoin(usuario, eq(usuario.id, usuarioEmpresa.usuarioId))
       .where(and(filtroMesSetor, eq(resumoDiario.status, "falta")))
-      .groupBy(usuario.id)
+      .groupBy(usuario.id, usuarioEmpresa.setor, usuarioEmpresa.cargo)
       .orderBy(desc(sql`COUNT(*)`))
       .limit(5);
 
-    const graficoExtras = await db
+    const topExtras = topExtrasRaw.map(t => ({ ...t, total: Number(t.total ?? 0) }));
+    const topAtrasos = topAtrasosRaw.map(t => ({ ...t, total: Number(t.total ?? 0) }));
+    const topFaltosos = topFaltososRaw.map(t => ({ ...t, total: Number(t.total ?? 0) }));
+
+    const graficoExtrasRaw = await db
       .select({
         data: resumoDiario.data,
         total: sql<number>`SUM(${resumoDiario.horasExtras})`,
@@ -490,16 +518,21 @@ export const registroPontoService = {
       .groupBy(resumoDiario.data)
       .orderBy(resumoDiario.data);
 
+    const graficoExtras = graficoExtrasRaw.map(g => ({
+      ...g,
+      total: Number(g.total ?? 0)
+    }));
+
     return reply.status(200).send({
       setor,
       totalHorasExtras: horasDecimalParaHHMM(extras?.total ?? 0),
       topExtras: topExtras ?? [],
       totalAtrasos: minutosParaHHMM(atrasos?.total ?? 0),
-      totalFaltas: faltas?.total ?? 0,
-      totalColaboradores: users?.total ?? 0,
-      totalDiasProcessados: dias?.total ?? 0,
-      presencaHoje: presencaHoje?.total ?? 0,
-      mediaExtras: users?.total > 0 ? (extras?.total ?? 0) / users.total : 0,
+      totalFaltas: Number(faltas?.total ?? 0),
+      totalColaboradores: Number(users?.total ?? 0),
+      totalDiasProcessados: Number(dias?.total ?? 0),
+      presencaHoje: Number(presencaHoje?.total ?? 0),
+      mediaExtras: Number(users?.total ?? 0) > 0 ? (Number(extras?.total ?? 0) / Number(users?.total ?? 1)) : 0,
       topAtrasos,
       topFaltosos,
       graficoExtras,
@@ -520,7 +553,7 @@ async function upsertResumoDiario(
 
   const resumo = calcularResumo(
     batidas.map((b) => ({ tipo: b.tipo, timestamp: new Date(b.timestamp) })),
-    vinculo.cargaHorariaDia ?? 480,
+    vinculo.cargaHorariaDia ?? 8.0,
     vinculo.horarioEntrada ?? "08:00",
     new Date(data),
   );

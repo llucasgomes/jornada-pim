@@ -115,4 +115,112 @@ export default function setorController(server: FastifyInstance) {
     },
     setorService.deletar
   )
+
+  // ROTAS MIGRADAS DO CONTROLLER ANTIGO (RH)
+  const prefix = "/rh";
+
+  // GET /rh/all-setor
+  server.get(
+    `${prefix}/all-setor`,
+    {
+      schema: {
+        summary: `Listar todos os setores (${prefix})`,
+        tags: ["Setor"],
+        querystring: z4.object({
+          empresaId: z4.string().describe("ID da empresa para filtrar setores"),
+        }),
+        response: {
+          200: z4.array(setorSchema),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    setorService.listar
+  );
+
+  // GET /rh/setores/:id
+  server.get(
+    `${prefix}/setores/:id`,
+    {
+      preHandler: permission(["gestor", "rh"]),
+      schema: {
+        summary: `Buscar setor por ID (${prefix})`,
+        tags: ["Setor"],
+        params: z4.object({ id: z4.string() }),
+        response: {
+          200: setorSchema,
+          404: z4.object({ message: z4.string() }),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    setorService.buscarPorId
+  );
+
+  // POST /rh/setore/register
+  server.post(
+    `${prefix}/setore/register`,
+    {
+      preHandler: permission(["gestor", "rh"]),
+      schema: {
+        summary: `Criar novo setor (${prefix})`,
+        tags: ["Setor"],
+        body: z4.object({
+          nome: z4.string().min(1, "Nome é obrigatório"),
+          descricao: z4.string().optional(),
+          empresaId: z4.string().min(1, "empresaId é obrigatório"), // Adicionado
+        }),
+        response: {
+          201: setorSchema,
+          409: z4.object({ message: z4.string() }),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    setorService.criar
+  );
+
+  // PATCH /rh/setores/:id
+  server.patch(
+    `${prefix}/setores/:id`,
+    {
+      preHandler: permission(["gestor", "rh"]),
+      schema: {
+        summary: `Atualizar setor (${prefix})`,
+        tags: ["Setor"],
+        params: z4.object({ id: z4.string() }),
+        body: z4.object({
+          nome: z4.string().optional(),
+          descricao: z4.string().optional(),
+          ativo: z4.boolean().optional(),
+        }),
+        response: {
+          200: setorSchema,
+          404: z4.object({ message: z4.string() }),
+          409: z4.object({ message: z4.string() }),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    setorService.atualizar
+  );
+
+  // DELETE /rh/setores/:id
+  server.delete(
+    `${prefix}/setores/:id`,
+    {
+      preHandler: permission(["gestor", "rh"]),
+      schema: {
+        summary: `Desativar setor (${prefix})`,
+        tags: ["Setor"],
+        params: z4.object({ id: z4.string() }),
+        response: {
+          200: z4.object({ message: z4.string(), setor: setorSchema }),
+          404: z4.object({ message: z4.string() }),
+          500: internalServerErrorSchema,
+        },
+      },
+    },
+    setorService.deletar
+  );
 }

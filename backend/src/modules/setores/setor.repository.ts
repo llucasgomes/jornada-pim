@@ -1,6 +1,6 @@
 
 import { db } from "@/config/database";
-import { setor } from "@/database/schemas/sqlite";
+import { setor } from "@/database/schemas";
 import { eq, and } from "drizzle-orm";
 
 export const SetorRepository = {

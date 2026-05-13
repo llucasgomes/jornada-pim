@@ -1,18 +1,11 @@
-import { Component, inject, Input, Output } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { ZardButtonComponent } from "@/shared/components/button";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { UsuarioEmpresaEnriquecido } from '@/core/models/interfaces';
+import { SetorEmpresa } from '@/core/models/interfaces';
 import { lucideEye, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
-import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
-
-import { RhService } from '@/core/services/rh.service';
-
-import { useAtualizarColaboradorMutation } from '@/core/queries/rh.queries';
-import { ZardDialogService } from '@/shared/components/dialog';
-import { lastValueFrom } from 'rxjs';
-import { UploadService } from '@/core/services/upload';
-
-
+import { SetorService } from '@/core/services/setor.service';
+import { useAtualizarSetorMutation, useDeletarSetorMutation } from '@/core/queries/rh.queries';
+import { AuthService } from '@/core/services/auth.service';
 
 @Component({
   selector: 'app-actions-cell',
@@ -28,26 +21,33 @@ import { UploadService } from '@/core/services/upload';
   ],
 })
 export class ActionsCell {
-  @Input() onDesligar!: (id: string) => void; // ← recebe o callback do pai
-  @Input() colaborador!: UsuarioEmpresaEnriquecido;
+  @Input() colaborador!: SetorEmpresa;
 
-  rhService = inject(RhService);
-  uploadService = inject(UploadService);
-  dialogService = inject(ZardDialogService);
+  private authService = inject(AuthService);
+  private user = this.authService.getUser()!;
+  private empresaId = this.user.vinculo.empresaId;
 
-
-
-
+  atualizarMutation = useAtualizarSetorMutation(this.empresaId);
+  deletarMutation = useDeletarSetorMutation(this.empresaId);
 
   onVisualizar() {
     /* abre modal de visualização */
   }
-  onEditar = async () => {
 
+  onEditar() {
+    const novoNome = prompt('Novo nome do setor:', this.colaborador.nome);
+    if (novoNome === null || !novoNome.trim()) return;
 
-    return false; // Mantém o modal aberto durante o processamento
-  };
+    this.atualizarMutation.mutate({
+      id: this.colaborador.id,
+      dados: { nome: novoNome.trim() },
+    });
+  }
+
   onExcluir() {
+    const confirmou = confirm(`Deseja desativar o setor "${this.colaborador.nome}"?`);
+    if (!confirmou) return;
 
+    this.deletarMutation.mutate(this.colaborador.id);
   }
 }

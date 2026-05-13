@@ -14,10 +14,24 @@
     [zHideFooter]="true"
     zWidth="480px"
   >
-      <z-button class="cursor-pointer flex gap-3 w-auto" zType="secondary" zSize="lg">
-      <ng-icon name="lucidePlusCircle" class="size-4" />
-      <span>Novo Colaborador</span>
-    </z-button>
+      <div class="flex items-center gap-3">
+        <z-button 
+          class="cursor-pointer flex gap-3 w-auto" 
+          zType="outline" 
+          zSize="lg"
+          [zLoading]="isGerandoPdfTodos"
+          [zDisabled]="isGerandoPdfTodos"
+          (click)="onGerarPdfTodos()"
+        >
+          <ng-icon name="lucideFileText" class="size-4" />
+          <span>Gerar Espelhos (Mês)</span>
+        </z-button>
+        
+        <z-button class="cursor-pointer flex gap-3 w-auto" zType="secondary" zSize="lg">
+          <ng-icon name="lucidePlusCircle" class="size-4" />
+          <span>Novo Colaborador</span>
+        </z-button>
+      </div>
   </app-dialog>
 
 

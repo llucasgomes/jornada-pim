@@ -1,5 +1,5 @@
 import { db } from "@/config/database";
-import { registroPonto, usuarioEmpresa } from "@/database/schemas/sqlite";
+import { registroPonto, usuarioEmpresa } from "@/database/schemas";
 import { eq, and, desc } from "drizzle-orm";
 
 export const userEmpresaRepository = {

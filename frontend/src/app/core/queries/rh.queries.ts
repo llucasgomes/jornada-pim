@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { injectQuery, injectMutation, QueryClient } from '@tanstack/angular-query-experimental';
 import { RhService } from '@/core/services/rh.service';
+import { SetorService, CriarSetorPayload, AtualizarSetorPayload } from '@/core/services/setor.service';
 import { lastValueFrom, forkJoin } from 'rxjs';
 
 export function useColaboradoresQuery(empresaId: string) {
@@ -15,7 +16,7 @@ export function useColaboradoresQuery(empresaId: string) {
       const enriquecidosPromises = colaboradores.map(async (c) => {
         const detalhes = await lastValueFrom(
           forkJoin({
-            usuario: rhService.getColaboradorPeloId(c.usuarioId),
+            usuario: rhService.getColaboradorPeloId(c.id),
             historico: rhService.getHistoricoDoColaboradorNaEmpresa(c.id),
           }),
         );
@@ -89,4 +90,42 @@ export function useListarSetoresDaEmpresaQuery(empresaId:string){
   }));
 }
 
+// ─── Setor Mutations ─────────────────────────────────────────────────────────
 
+export function useCriarSetorMutation(empresaId: string) {
+  const setorService = inject(SetorService);
+  const queryClient = inject(QueryClient);
+
+  return injectMutation(() => ({
+    mutationFn: (payload: CriarSetorPayload) =>
+      lastValueFrom(setorService.criar(payload)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['setores', empresaId] });
+    },
+  }));
+}
+
+export function useAtualizarSetorMutation(empresaId: string) {
+  const setorService = inject(SetorService);
+  const queryClient = inject(QueryClient);
+
+  return injectMutation(() => ({
+    mutationFn: ({ id, dados }: { id: string; dados: AtualizarSetorPayload }) =>
+      lastValueFrom(setorService.atualizar(id, dados)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['setores', empresaId] });
+    },
+  }));
+}
+
+export function useDeletarSetorMutation(empresaId: string) {
+  const setorService = inject(SetorService);
+  const queryClient = inject(QueryClient);
+
+  return injectMutation(() => ({
+    mutationFn: (id: string) => lastValueFrom(setorService.deletar(id)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['setores', empresaId] });
+    },
+  }));
+}

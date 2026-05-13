@@ -2,15 +2,16 @@ import { Component, inject, Input, Output } from '@angular/core';
 import { ZardButtonComponent } from "@/shared/components/button";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { UsuarioEmpresaEnriquecido } from '@/core/models/interfaces';
-import { lucideEye, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
+import { lucideEye, lucidePencil, lucideTrash2, lucideFileText } from '@ng-icons/lucide';
 import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
-import { VisualizarColaborador } from '../visualizar-colaborador/visualizar-colaborador';
+import { RHColaboradoresVisualizarColaborador } from '../visualizar-colaborador/visualizar-colaborador';
 import { RhService } from '@/core/services/rh.service';
-import { EditarColaborador } from '../editar-colaborador/editar-colaborador';
+import { RHColaboradoresEditarColaborador } from '../editar-colaborador/editar-colaborador';
 import { useAtualizarColaboradorMutation } from '@/core/queries/rh.queries';
 import { ZardDialogService } from '@/shared/components/dialog';
 import { lastValueFrom } from 'rxjs';
 import { UploadService } from '@/core/services/upload';
+import { RelatorioService } from '@/core/services/relatorio.service';
 
 
 
@@ -24,6 +25,7 @@ import { UploadService } from '@/core/services/upload';
       lucideEye,
       lucidePencil,
       lucideTrash2,
+      lucideFileText,
     }),
   ],
 })
@@ -31,21 +33,26 @@ export class ActionsCell {
   @Input() onDesligar!: (id: string) => void; // ← recebe o callback do pai
   @Input() colaborador!: UsuarioEmpresaEnriquecido;
 
+  // referência da classe para passar ao zContent
+  VisualizarColaborador = RHColaboradoresVisualizarColaborador;
+  EditarColaborador = RHColaboradoresEditarColaborador;
+
   rhService = inject(RhService);
   uploadService = inject(UploadService);
   dialogService = inject(ZardDialogService);
+  relatorioService = inject(RelatorioService);
+
+  isGerandoPdf = false;
 
   // Injeta a mutation (precisamos do empresaId do colaborador atual)
   atualizarMutation = useAtualizarColaboradorMutation(this.colaborador?.id);
 
-  // referência da classe para passar ao zContent
-  VisualizarColaborador = VisualizarColaborador;
-  EditarColaborador = EditarColaborador;
+
 
   onVisualizar() {
     /* abre modal de visualização */
   }
-  onEditar = async (instance: EditarColaborador) => {
+  onEditar = async (instance: RHColaboradoresEditarColaborador) => {
     try {
       const alteracoes = instance.camposAlterados();
       // Pegamos o arquivo do componente de upload
@@ -79,5 +86,18 @@ export class ActionsCell {
   };
   onExcluir() {
     this.onDesligar(this.colaborador.id);
+  }
+
+  onGerarPdf() {
+    this.isGerandoPdf = true;
+    this.relatorioService.downloadRelatorioPorUsuario(this.colaborador.usuarioId).subscribe({
+      next: () => {
+        this.isGerandoPdf = false;
+      },
+      error: (err) => {
+        console.error('Erro ao gerar PDF', err);
+        this.isGerandoPdf = false;
+      }
+    });
   }
 }

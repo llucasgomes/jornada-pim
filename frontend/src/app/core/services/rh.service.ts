@@ -64,7 +64,7 @@ export class RhService {
   getStatsPorSetor(empresaId: string, setor: string, mes?: string): Observable<DashboardStats> {
     let query = `?empresaId=${empresaId}&setor=${encodeURIComponent(setor)}`;
     if (mes) query += `&mes=${mes}`;
-    return this.http.get<DashboardStats>(`${this.apiUrl}/resumo-mensal-setor${query}`);
+    return this.http.get<DashboardStats>(`${environment.apiUrl}/ponto/rh/resumo-mensal-setor${query}`);
   }
   getHistoricoDoColaboradorNaEmpresa(usuarioEmpresa: string) {
     return this.http.get<HistoricoAgrupado[]>(
@@ -94,5 +94,11 @@ export class RhService {
      let query = `?empresaId=${empresaId}`;
 
       return this.http.get<SetorEmpresa[]>(`${this.apiUrl}/all-setor${query}`);
+  }
+
+  getResumoMensal(empresaId: string, mes?: string): Observable<DashboardStats> {
+    let url = `${environment.apiUrl}/ponto/rh/resumo-mensal?empresaId=${empresaId}`;
+    if (mes) url += `&mes=${mes}`;
+    return this.http.get<DashboardStats>(url);
   }
 }

@@ -4,8 +4,8 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { UsuarioEmpresaEnriquecido } from '@/core/models/interfaces';
 import { lucideEye, lucidePencil, lucideTrash2 } from '@ng-icons/lucide';
 import { AppDialogComponent } from "@/shared/components/dialog-custon/dialog-custon";
-import { VisualizarColaborador } from '../visualizar-colaborador/visualizar-colaborador';
-import { EditarColaborador } from '../editar-colaborador/editar-colaborador';
+import { RHEquipeVisualizarColaborador } from '../visualizar-colaborador/visualizar-colaborador';
+import { RHEquipeEditarColaborador } from '../editar-colaborador/editar-colaborador';
 
 @Component({
   selector: 'app-actions-cell',
@@ -24,19 +24,19 @@ export class ActionsCell {
   @Input() colaborador!: UsuarioEmpresaEnriquecido;
 
   // referência da classe para passar ao zContent
-  VisualizarColaborador = VisualizarColaborador;
-  EditarColaborador = EditarColaborador;
+  VisualizarColaborador = RHEquipeVisualizarColaborador;
+  EditarColaborador = RHEquipeEditarColaborador;
 
   onVisualizar() {
     /* abre modal de visualização */
   }
-  onEditar = (instance: EditarColaborador) => {
+  onEditar = (instance: RHEquipeEditarColaborador) => {
     // Pegamos o valor atual do formulário que está dentro da instância do modal
-    const dadosParaSalvar = instance.form.value;
-    const id = instance.data.id; // ID original vindo do zData
+    const dadosParaSalvar = instance.getFormValues();
+    const id = instance.colaborador.id; // ID original vindo do zData
 
     console.log('dados para atualizar...', { id, dadosParaSalvar });
-    console.log('vindo da tabela...', instance.data); // Aqui tem todos os dados que você passou no zData, incluindo o ID
+    console.log('vindo da tabela...', instance.colaborador); // Aqui tem todos os dados que você passou no zData, incluindo o ID
 
     // Aqui você chama seu serviço:
     // this.colaboradorService.update(id, dadosParaSalvar).then(...)
