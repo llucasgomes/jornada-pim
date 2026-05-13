@@ -1,0 +1,68 @@
+<div class="w-full">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-foreground">Dashboard Gerencial</h1>
+    <p class="text-muted-foreground text-sm mt-1">Acompanhamento em tempo real da equipe</p>
+  </header>
+
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-20 gap-4 text-slate-500">
+      <div
+        class="w-10 h-10 border-4 border-slate-800 border-t-primary rounded-full animate-spin"
+      ></div>
+      <p class="animate-pulse">Calculando métricas...</p>
+    </div>
+  } @else {
+    <!-- 🔹 CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+
+      <!-- TOTAL -->
+      <app-card-details [total]="stats()?.totalColaboradores || 0" title="Total de Colaboradores" />
+
+      <!-- PRESENÇA -->
+      <app-card-details [total]="stats()?.presencaHoje || 0" title="Presentes Hoje" />
+
+      <!-- EXTRAS -->
+      <app-card-details [total]="stats()?.totalHorasExtras || ''" title="Horas Extras (hs)" />
+
+      <!-- ATRASOS -->
+      <app-card-details [total]="stats()?.totalAtrasos || ''" title="Atrasos (min)" />
+
+       <app-card-resumo></app-card-resumo>
+
+    </div>
+
+    <!-- 🔹 LINHA PRINCIPAL -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      <!-- 📊 GRÁFICO -->
+<div class=" col-span-1">
+     <app-card-grafico-bar [historicoMeses]="stats()?.historicoMeses || []" />
+
+</div>
+
+      <!--  RESUMO -->
+      <app-card-resumo></app-card-resumo>
+    </div>
+
+    <!-- 🔹 SEGUNDA LINHA -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+       <app-card-resumo></app-card-resumo>
+        <!--  TOP EXTRAS -->
+      <app-card-ranking
+        title="Top Horas Extras"
+        [fiveTopAtrasados]="stats()?.topExtras!"
+        tempo="hs"
+      />
+       <!--  TOP ATRASOS -->
+      <app-card-ranking title="Top Atrasos" [fiveTopAtrasados]="stats()?.topAtrasos!" tempo="min" />
+
+      <!--  FALTOSOS -->
+      <app-card-ranking
+        title="Mais Faltosos"
+        [fiveTopAtrasados]="stats()?.topFaltosos || []"
+        tempo="dia"
+      />
+
+
+    </div>
+  }
+</div>

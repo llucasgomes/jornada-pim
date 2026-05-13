@@ -1,0 +1,40 @@
+<div class="mt-auto">
+  <div
+    z-menu
+    [zMenuTriggerFor]="userMenu"
+    zPlacement="rightBottom"
+    [class]="
+      'hover:bg-accent flex cursor-pointer items-center justify-center gap-2 rounded-md ' +
+      (sidebarCollapsed() ? 'm-2 p-0' : 'p-2')
+    "
+  >
+    <z-avatar [zSrc]="user.imageUrl || 'https://zardui.com/images/avatar/imgs/avatar_image.jpg'" zAlt="foto do funcionario" />
+
+    @if (!sidebarCollapsed()) {
+      <div>
+        <span class="font-medium">{{ name }}</span>
+        <div class="text-xs">{{user.vinculo.perfil.toUpperCase()}} {{user.vinculo.setor?.toLocaleUpperCase()}}</div>
+      </div>
+
+      <ng-icon name="lucideChevronsUpDown" class="ml-auto" />
+    }
+  </div>
+
+  <ng-template #userMenu>
+    <div z-menu-content class="w-48">
+      <button type="button" z-menu-item>
+        <ng-icon name="lucideUser" class="mr-2" />
+        Profile
+      </button>
+      <button type="button" z-menu-item>
+        <ng-icon name="lucideSettings" class="mr-2" />
+        Settings
+      </button>
+      <z-divider zSpacing="sm" />
+      <button type="button" (click)="logout()" z-menu-item>
+        <ng-icon name="lucideLogOut" class="mr-2" />
+        Logout
+      </button>
+    </div>
+  </ng-template>
+</div>

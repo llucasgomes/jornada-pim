@@ -1,0 +1,108 @@
+import { db } from "@/config/database";
+import { registroPonto, usuarioEmpresa } from "@/database/schemas";
+import { eq, and, desc } from "drizzle-orm";
+
+export const userEmpresaRepository = {
+  async create(data: typeof usuarioEmpresa.$inferInsert) {
+    const [result] = await db.insert(usuarioEmpresa).values(data).returning();
+    return result;
+  },
+  async findActiveByUser(usuarioId: string) {
+    return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(
+        and(
+          eq(usuarioEmpresa.usuarioId, usuarioId),
+          eq(usuarioEmpresa.ativo, true),
+        ),
+      );
+  },
+  async findByEmpresa(empresaId: string) {
+    return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(eq(usuarioEmpresa.empresaId, empresaId));
+  },
+  async findByUserAndEmpresa(usuarioId: string, empresaId: string) {
+    const [result] = await db
+      .select()
+      .from(usuarioEmpresa)
+      .where(
+        and(
+          eq(usuarioEmpresa.usuarioId, usuarioId),
+          eq(usuarioEmpresa.empresaId, empresaId),
+        ),
+      )
+      .limit(1);
+    return result ?? null;
+  },
+
+  async deactivate(usuarioEmpresaId: string) {
+    const [result] = await db
+      .update(usuarioEmpresa)
+      .set({ ativo: false, updatedAt: new Date().toISOString() })
+      .where(eq(usuarioEmpresa.id, usuarioEmpresaId))
+      .returning();
+    return result;
+  },
+  async findUserEmpresById(usuarioEmpresaId: string){
+ return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(eq(usuarioEmpresa.id, usuarioEmpresaId));
+  },
+  async findUsersByEmpresaAndSetor(empresaId: string, setor: string) {
+    return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(
+        and(
+          eq(usuarioEmpresa.empresaId, empresaId),
+          eq(usuarioEmpresa.setor, setor),
+          eq(usuarioEmpresa.ativo, true),
+        ),
+      );
+  },
+  async findUsersByEmpresa(empresaId: string) {
+    return db
+      .select()
+      .from(usuarioEmpresa)
+      .where(
+        and(
+          eq(usuarioEmpresa.empresaId, empresaId),
+          eq(usuarioEmpresa.ativo, true),
+        ),
+      );
+  },
+  async findBatidasByUsuarioEmpresa(
+    usuarioEmpresaId: string,
+    dataInicio?: string,
+    dataFim?: string,
+  ) {
+    const query = db
+      .select()
+      .from(registroPonto)
+      .where(eq(registroPonto.usuarioEmpresaId, usuarioEmpresaId))
+      .orderBy(desc(registroPonto.timestamp)); // Mais recentes primeiro
+
+    // Opcional: Adicionar filtro por período se desejar
+    return query;
+  },
+  async update(
+    usuarioEmpresaId: string,
+    data: Partial<typeof usuarioEmpresa.$inferInsert>,
+  ) {
+
+   
+    const [result] = await db
+      .update(usuarioEmpresa)
+      .set({
+        ...data,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(usuarioEmpresa.id, usuarioEmpresaId))
+      .returning();
+    return result;
+  },
+};

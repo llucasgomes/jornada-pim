@@ -2,6 +2,8 @@
 
 import fasttifyCors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
+import fastifyMultipart from '@fastify/multipart'
+import fastifyRateLimit from '@fastify/rate-limit'
 import fastifySwagger from '@fastify/swagger'
 import ScalarFastifyApiReference from '@scalar/fastify-api-reference'
 import fastify from 'fastify'
@@ -16,8 +18,13 @@ import {
 import { env } from './config/env'
 import authRoutes from './modules/auth/auth.route'
 import userRoutes from './modules/user/user.route'
+import uploadRoutes from './modules/upload/upload.route'
 import { globalErrorHandler } from './shared/errors/globalErrorHandler'
 import registroPontoRoutes from './modules/registro-ponto/registro-ponto.route'
+import dashboardRoutes from './modules/dashboard/dashboard.route'
+import relatorioRoutes from './modules/cartao-de-ponto-pdf/cartao-de-ponto-pdf.route'
+import setorRoutes from './modules/setores/setor.route'
+import userEmpresaRoutes from './modules/user-empresa/user-empresa.route'
 
 export function buildApp() {
   const server = fastify().withTypeProvider<ZodTypeProvider>()
@@ -26,8 +33,19 @@ export function buildApp() {
   server.setValidatorCompiler(validatorCompiler)
 
   server.register(fasttifyCors, {
-    origin: '*', // Permitir todas as origens (ajuste conforme necessário)
+    origin: "*", // Permitir todas as origens (ajuste conforme necessário)
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // ADICIONE 'PATCH' AQUI
+    allowedHeaders: ["Content-Type", "Authorization"], // Garante que headers comuns sejam aceitos
+  });
+
+  server.register(fastifyMultipart)
+
+  // Rate limit global — 100 req/min por IP
+  server.register(fastifyRateLimit, {
+    max: 1000,
+    timeWindow: '1 minute',
   })
+
   server.register(fastifyJwt, {
     secret: env.JWT_SECRET,
   })
@@ -35,8 +53,8 @@ export function buildApp() {
   server.register(fastifySwagger, {
     openapi: {
       info: {
-        title: 'API - JornadaPIM',
-        version: '1.0.0',
+        title: "API - JornadaPIM",
+        version: "1.0.0",
         description: `
 ## Sobre o projeto
 
@@ -67,6 +85,7 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
 | \`colaborador\` | Registra ponto, consulta próprio histórico e banco de horas |
 | \`gestor\` | Acompanha equipe, visualiza dashboard, aprova ajustes |
 | \`rh\` | Acesso total, cadastra colaboradores, gera espelho mensal |
+| \`administrador\` | Acesso total, cadastra colaboradores, gera espelho mensal,empresas | 
 
 ---
 
@@ -81,17 +100,27 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
 
 ## Credenciais de teste
 
-| Matrícula | Senha | Perfil |
-|---|---|---|
-| PIM-0901 | 123456789 | gestor |
-| PIM-0902 | 123456789 | gestor |
-| PIM-0903 | 123456789 | rh |
-| PIM-0001 | 123456789 | colaborador |
+| CPF | Senha | Perfil | Setor |
+|----|----|----|----|
+| 123.456.789-01 | 123456789 | gestor | Setor A |
+| 123.456.789-02 | 123456789 | gestor | Setor B |
+| 123.456.789-03 | 123456789 | rh | Setor D |
+| 123.456.789-04 | 123456789 | colaborador | Setor C |
     `,
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT", // Especifica que é um JWT
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }], // Aplica o esquema de segurança globalmente
     },
     transform: jsonSchemaTransform,
-  })
+  });
 
   server.register(ScalarFastifyApiReference, {
     routePrefix: '/docs',
@@ -104,9 +133,15 @@ O token é obtido na rota \`POST /auth/login\` e expira em **8 horas**.
     return { message: 'servidor ok' }
   })
 
-  server.register(authRoutes)
+  server.register(authRoutes) // Login: rate limit extra de 5 tentativas/15min aplicado na rota
   server.register(userRoutes)
+  server.register(uploadRoutes)
   server.register(registroPontoRoutes)
+  server.register(dashboardRoutes)
+  server.register(relatorioRoutes)
+  server.register(setorRoutes)
+
+  server.register(userEmpresaRoutes)
 
   //handle errors Global
   // registrar o handler global

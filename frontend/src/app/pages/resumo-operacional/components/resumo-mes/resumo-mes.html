@@ -1,0 +1,156 @@
+<div class="flex flex-col gap-6 w-full">
+  
+  <!-- Header -->
+  <div class="flex flex-col gap-1">
+    <h1 class="text-2xl font-bold tracking-tight">Resumo Mensal</h1>
+    <p class="text-sm text-muted-foreground">Visão consolidada da operação e absenteísmo deste mês.</p>
+  </div>
+
+  @if (loading) {
+    <div class="flex items-center justify-center py-20 text-muted-foreground">Carregando dados...</div>
+  } @else if (error || !stats) {
+    <div class="flex items-center justify-center py-20 text-destructive">Erro ao carregar dados do resumo mensal.</div>
+  } @else {
+    <!-- Cards de KPI -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <!-- Total Horas Extras -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="tracking-tight text-sm font-medium">Horas Extras Totais</h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="text-2xl font-bold">{{ stats.totalHorasExtras }}h</div>
+          <p class="text-xs text-muted-foreground">Média de {{ stats.mediaExtras | number:'1.1-1' }}h por colaborador</p>
+        </div>
+      </div>
+      
+      <!-- Faltas Totais -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="tracking-tight text-sm font-medium">Absenteísmo (Faltas)</h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-destructive"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="text-2xl font-bold">{{ stats.totalFaltas }}</div>
+          <p class="text-xs text-muted-foreground">Em {{ stats.totalDiasProcessados }} dias processados</p>
+        </div>
+      </div>
+
+      <!-- Colaboradores Ativos -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="tracking-tight text-sm font-medium">Colaboradores Ativos</h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="text-2xl font-bold">{{ stats.totalColaboradores }}</div>
+          <p class="text-xs text-muted-foreground">{{ stats.presencaHoje }} presentes hoje</p>
+        </div>
+      </div>
+      
+      <!-- Total Atrasos -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+        <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+          <h3 class="tracking-tight text-sm font-medium">Atrasos no Mês</h3>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-amber-500"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/></svg>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="text-2xl font-bold">{{ stats.totalAtrasos }}</div>
+          <p class="text-xs text-muted-foreground">Minutos acumulados de atraso</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Área de Rankings -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <!-- Gráfico de Horas Extras -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm col-span-4">
+        <div class="p-6 flex flex-col space-y-1.5">
+          <h3 class="font-semibold leading-none tracking-tight">Evolução Diária das Horas Extras</h3>
+          <p class="text-sm text-muted-foreground">Distribuição diária de horas extras ao longo do mês.</p>
+        </div>
+        <div class="p-6 pt-0">
+          @if (stats.graficoExtras.length) {
+            <div class="flex items-end gap-1 h-[200px]">
+              @for (ponto of stats.graficoExtras; track ponto.data) {
+                <div class="flex-1 flex flex-col items-center gap-1 group cursor-default">
+                  <span class="text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    {{ ponto.total }}h
+                  </span>
+                  <div
+                    class="w-full rounded-t bg-primary/70 hover:bg-primary transition-colors"
+                    [style.height.%]="ponto.total > 0 ? (ponto.total / 10) * 100 : 2">
+                  </div>
+                  <span class="text-[9px] text-muted-foreground">
+                    {{ ponto.data.split('-')[2] }}
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="flex items-center justify-center min-h-[200px] text-muted-foreground opacity-50">
+              Sem dados de gráfico disponíveis
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Top Faltosos -->
+      <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm col-span-3">
+        <div class="p-6 flex flex-col space-y-1.5">
+          <h3 class="font-semibold leading-none tracking-tight">Top Faltas</h3>
+          <p class="text-sm text-muted-foreground">Colaboradores com mais faltas no mês.</p>
+        </div>
+        <div class="p-6 pt-0">
+          @if (stats.topFaltosos.length) {
+            <div class="space-y-4">
+              @for (pessoa of stats.topFaltosos; track pessoa.id) {
+                <div class="flex items-center gap-4">
+                  <span class="relative flex shrink-0 overflow-hidden rounded-full h-9 w-9 bg-primary/20 items-center justify-center font-bold text-primary text-xs">
+                    {{ pessoa.nome.substring(0, 2).toUpperCase() }}
+                  </span>
+                  <div class="flex flex-col flex-1">
+                    <p class="text-sm font-medium leading-none">{{ pessoa.nome }}</p>
+                    <p class="text-sm text-muted-foreground">{{ pessoa.setor ?? 'Sem setor' }} • {{ pessoa.cargo ?? '' }}</p>
+                  </div>
+                  <div class="font-medium text-destructive text-sm">{{ pessoa.total }} faltas</div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-sm text-muted-foreground text-center py-8">Nenhuma falta registrada.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Atrasos -->
+    <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
+      <div class="p-6 flex flex-col space-y-1.5">
+        <h3 class="font-semibold leading-none tracking-tight">Top Atrasos</h3>
+        <p class="text-sm text-muted-foreground">Colaboradores com mais atrasos acumulados no mês.</p>
+      </div>
+      <div class="p-6 pt-0">
+        @if (stats.topAtrasos.length) {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (pessoa of stats.topAtrasos; track pessoa.id) {
+              <div class="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-muted/30">
+                <span class="relative flex shrink-0 overflow-hidden rounded-full h-9 w-9 bg-amber-100 items-center justify-center font-bold text-amber-700 text-xs">
+                  {{ pessoa.nome.substring(0, 2).toUpperCase() }}
+                </span>
+                <div class="flex flex-col flex-1 min-w-0">
+                  <p class="text-sm font-medium leading-none truncate">{{ pessoa.nome }}</p>
+                  <p class="text-xs text-muted-foreground">{{ pessoa.setor ?? '' }}</p>
+                </div>
+                <div class="font-semibold text-amber-600 text-sm whitespace-nowrap">{{ pessoa.total }}min</div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-muted-foreground text-center py-6">Nenhum atraso registrado.</p>
+        }
+      </div>
+    </div>
+  }
+</div>

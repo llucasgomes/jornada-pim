@@ -1,60 +1,71 @@
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm'
-import { db } from '@/config/database'
-import { registro_ponto } from '@/database/schemas'
-import type { CreateRegistroPontoDto } from './dtos/create-registro-ponto.dto'
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { db } from "@/config/database";
+import { registroPonto } from "@/database/schemas";
+import type { CreateRegistroPontoDto } from "./dtos/create-registro-ponto.dto";
+
+const localDate = (col: unknown) => sql`DATE(datetime(${col}, '-4 hours'))`;
+
+// Filtro global para ignorar registros com soft delete
+const notDeleted = isNull(registroPonto.deletedAt);
 
 export const registroPontoRepository = {
-  async create(data: CreateRegistroPontoDto) {
-    const [result] = await db
-      .insert(registro_ponto)
-      .values(data)
-      .returning()
-    return result
+  async create(data: typeof registroPonto.$inferInsert) {
+    const [result] = await db.insert(registroPonto).values(data).returning();
+    return result;
   },
 
-  // busca todas as batidas de um usuário em um dia específico
-  async findByUsuarioEDia(usuario_id: string, data: string) {
+  async findByUsuarioEDia(usuarioEmpresaId: string, data: string) {
     return db
       .select()
-      .from(registro_ponto)
+      .from(registroPonto)
       .where(
         and(
-          eq(registro_ponto.usuario_id, usuario_id),
-          sql`DATE(${registro_ponto.timestamp} AT TIME ZONE 'America/Manaus') = ${data}`
-        )
+          eq(registroPonto.usuarioEmpresaId, usuarioEmpresaId),
+          sql`${localDate(registroPonto.timestamp)} = ${data}`,
+          notDeleted,
+        ),
       )
-      .orderBy(registro_ponto.timestamp)
+      .orderBy(registroPonto.timestamp);
   },
 
-  // busca histórico por período
-  async findByUsuarioEPeriodo(usuario_id: string, de: string, ate: string) {
+  async findByUsuarioEPeriodo(
+    usuarioEmpresaId: string,
+    de: string,
+    ate: string,
+  ) {
     return db
       .select()
-      .from(registro_ponto)
+      .from(registroPonto)
       .where(
         and(
-          eq(registro_ponto.usuario_id, usuario_id),
-          gte(sql`DATE(${registro_ponto.timestamp} AT TIME ZONE 'America/Manaus')`, de),
-          lte(sql`DATE(${registro_ponto.timestamp} AT TIME ZONE 'America/Manaus')`, ate)
-        )
+          eq(registroPonto.usuarioEmpresaId, usuarioEmpresaId),
+          sql`${localDate(registroPonto.timestamp)} >= ${de}`,
+          sql`${localDate(registroPonto.timestamp)} <= ${ate}`,
+          notDeleted,
+        ),
       )
-      .orderBy(desc(registro_ponto.timestamp))
+      .orderBy(desc(registroPonto.timestamp));
   },
 
   async findById(id: string) {
     const result = await db
       .select()
-      .from(registro_ponto)
-      .where(eq(registro_ponto.id, id))
-      .limit(1)
-    return result[0] ?? null
+      .from(registroPonto)
+      .where(and(eq(registroPonto.id, id), notDeleted))
+      .limit(1);
+    return result[0] ?? null;
   },
 
+  /**
+   * Soft delete — marca a batida com timestamp de exclusão ao invés de removê-la fisicamente.
+   * Isso preserva o histórico para auditoria trabalhista.
+   */
   async delete(id: string) {
-    const result = await db
-      .delete(registro_ponto)
-      .where(eq(registro_ponto.id, id))
-      .returning()
-    return result[0] ?? null
+    const [result] = await db
+      .update(registroPonto)
+      .set({ deletedAt: new Date().toISOString() })
+      .where(eq(registroPonto.id, id))
+      .returning();
+    return result ?? null;
   },
-}
+};

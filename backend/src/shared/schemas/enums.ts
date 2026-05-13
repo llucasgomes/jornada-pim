@@ -3,18 +3,18 @@ import { z } from 'zod/v4'
 export const perfilEnumSchema = z.enum(['colaborador', 'gestor', 'rh'])
 
 export const turnoEnumSchema = z.enum([
-  'manha',
-  'tarde',
-  'noite',
-  'administrativo',
-])
+  "manha",
+  "tarde",
+  "noite",
+  "administrativo",
+]);
 
 export const tipoBatidaEnumSchema = z.enum([
-  'entrada',
-  'saida_almoco',
-  'retorno_almoco',
-  'saida',
-])
+  "entrada",
+  "saida_intervalo",
+  "retorno_intervalo",
+  "saida",
+]);
 
 export const origemBatidaEnumSchema = z.enum(['sistema', 'ajuste'])
 

@@ -1,9 +1,194 @@
 {
-  "id": "604810e1-d3b2-4f2f-9367-956bcc512f98",
+  "id": "996a9a20-b37a-4b6d-a4e9-5ecddf37f9dc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.ajuste_ponto": {
+      "name": "ajuste_ponto",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_empresa_id": {
+          "name": "usuario_empresa_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "motivo": {
+          "name": "motivo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aprovado_por": {
+          "name": "aprovado_por",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "status_ajuste",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendente'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ajuste_ponto_usuario_empresa_id_usuario_empresa_id_fk": {
+          "name": "ajuste_ponto_usuario_empresa_id_usuario_empresa_id_fk",
+          "tableFrom": "ajuste_ponto",
+          "tableTo": "usuario_empresa",
+          "columnsFrom": [
+            "usuario_empresa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ajuste_ponto_aprovado_por_usuario_id_fk": {
+          "name": "ajuste_ponto_aprovado_por_usuario_id_fk",
+          "tableFrom": "ajuste_ponto",
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "aprovado_por"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.empresa": {
+      "name": "empresa",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cnpj": {
+          "name": "cnpj",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logo": {
+          "name": "logo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "razao_social": {
+          "name": "razao_social",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "telefone": {
+          "name": "telefone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sequencial_matricula": {
+          "name": "sequencial_matricula",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "empresa_cnpj_unique": {
+          "name": "empresa_cnpj_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cnpj"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.registro_ponto": {
       "name": "registro_ponto",
       "schema": "",
@@ -15,8 +200,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "usuario_id": {
-          "name": "usuario_id",
+        "usuario_empresa_id": {
+          "name": "usuario_empresa_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -54,16 +239,26 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "registro_ponto_usuario_id_usuario_id_fk": {
-          "name": "registro_ponto_usuario_id_usuario_id_fk",
+        "registro_ponto_usuario_empresa_id_usuario_empresa_id_fk": {
+          "name": "registro_ponto_usuario_empresa_id_usuario_empresa_id_fk",
           "tableFrom": "registro_ponto",
-          "tableTo": "usuario",
-          "columnsFrom": ["usuario_id"],
-          "columnsTo": ["id"],
+          "tableTo": "usuario_empresa",
+          "columnsFrom": [
+            "usuario_empresa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -71,8 +266,12 @@
           "name": "registro_ponto_registrado_por_usuario_id_fk",
           "tableFrom": "registro_ponto",
           "tableTo": "usuario",
-          "columnsFrom": ["registrado_por"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "registrado_por"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -94,8 +293,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "usuario_id": {
-          "name": "usuario_id",
+        "usuario_empresa_id": {
+          "name": "usuario_empresa_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -108,23 +307,23 @@
         },
         "horas_trabalhadas": {
           "name": "horas_trabalhadas",
-          "type": "numeric",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
-          "default": "'0'"
+          "default": 0
         },
         "horas_esperadas": {
           "name": "horas_esperadas",
-          "type": "numeric",
+          "type": "real",
           "primaryKey": false,
           "notNull": true
         },
         "horas_extras": {
           "name": "horas_extras",
-          "type": "numeric",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
-          "default": "'0'"
+          "default": 0
         },
         "atraso_minutos": {
           "name": "atraso_minutos",
@@ -144,12 +343,111 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "resumo_diario_usuario_id_usuario_id_fk": {
-          "name": "resumo_diario_usuario_id_usuario_id_fk",
+        "resumo_diario_usuario_empresa_id_usuario_empresa_id_fk": {
+          "name": "resumo_diario_usuario_empresa_id_usuario_empresa_id_fk",
           "tableFrom": "resumo_diario",
-          "tableTo": "usuario",
-          "columnsFrom": ["usuario_id"],
-          "columnsTo": ["id"],
+          "tableTo": "usuario_empresa",
+          "columnsFrom": [
+            "usuario_empresa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.setor": {
+      "name": "setor",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "empresa_id": {
+          "name": "empresa_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "uq_setor_nome_empresa": {
+          "name": "uq_setor_nome_empresa",
+          "columns": [
+            {
+              "expression": "nome",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "empresa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "setor_empresa_id_empresa_id_fk": {
+          "name": "setor_empresa_id_empresa_id_fk",
+          "tableFrom": "setor",
+          "tableTo": "empresa",
+          "columnsFrom": [
+            "empresa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -177,8 +475,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "matricula": {
-          "name": "matricula",
+        "cpf": {
+          "name": "cpf",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -189,48 +487,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "perfil": {
-          "name": "perfil",
-          "type": "perfil",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'colaborador'"
-        },
-        "cargo": {
-          "name": "cargo",
+        "image": {
+          "name": "image",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "setor": {
-          "name": "setor",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "turno": {
-          "name": "turno",
-          "type": "turno",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "carga_horaria_dia": {
-          "name": "carga_horaria_dia",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "horario_entrada": {
-          "name": "horario_entrada",
-          "type": "time",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "horario_saida": {
-          "name": "horario_saida",
-          "type": "time",
           "primaryKey": false,
           "notNull": false
         },
@@ -260,12 +519,166 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "usuario_matricula_unique": {
-          "name": "usuario_matricula_unique",
+        "usuario_cpf_unique": {
+          "name": "usuario_cpf_unique",
           "nullsNotDistinct": false,
-          "columns": ["matricula"]
+          "columns": [
+            "cpf"
+          ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.usuario_empresa": {
+      "name": "usuario_empresa",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "empresa_id": {
+          "name": "empresa_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "matricula": {
+          "name": "matricula",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "setor": {
+          "name": "setor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "perfil": {
+          "name": "perfil",
+          "type": "perfil",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'colaborador'"
+        },
+        "turno": {
+          "name": "turno",
+          "type": "turno",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "carga_horaria_dia": {
+          "name": "carga_horaria_dia",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "horario_entrada": {
+          "name": "horario_entrada",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "horario_saida": {
+          "name": "horario_saida",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ativo": {
+          "name": "ativo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "uq_matricula_empresa": {
+          "name": "uq_matricula_empresa",
+          "columns": [
+            {
+              "expression": "empresa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "matricula",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "usuario_empresa_usuario_id_usuario_id_fk": {
+          "name": "usuario_empresa_usuario_id_usuario_id_fk",
+          "tableFrom": "usuario_empresa",
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "usuario_empresa_empresa_id_empresa_id_fk": {
+          "name": "usuario_empresa_empresa_id_empresa_id_fk",
+          "tableFrom": "usuario_empresa",
+          "tableTo": "empresa",
+          "columnsFrom": [
+            "empresa_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -275,27 +688,59 @@
     "public.origem_batida": {
       "name": "origem_batida",
       "schema": "public",
-      "values": ["sistema", "ajuste"]
+      "values": [
+        "sistema",
+        "ajuste"
+      ]
     },
     "public.perfil": {
       "name": "perfil",
       "schema": "public",
-      "values": ["colaborador", "gestor", "rh"]
+      "values": [
+        "colaborador",
+        "gestor",
+        "rh",
+        "administrador"
+      ]
+    },
+    "public.status_ajuste": {
+      "name": "status_ajuste",
+      "schema": "public",
+      "values": [
+        "pendente",
+        "aprovado",
+        "rejeitado"
+      ]
     },
     "public.status_dia": {
       "name": "status_dia",
       "schema": "public",
-      "values": ["completo", "incompleto", "falta", "afastamento"]
+      "values": [
+        "completo",
+        "incompleto",
+        "falta",
+        "afastamento"
+      ]
     },
     "public.tipo_batida": {
       "name": "tipo_batida",
       "schema": "public",
-      "values": ["entrada", "saida_almoco", "retorno_almoco", "saida"]
+      "values": [
+        "entrada",
+        "saida_almoco",
+        "retorno_almoco",
+        "saida"
+      ]
     },
     "public.turno": {
       "name": "turno",
       "schema": "public",
-      "values": ["manha", "tarde", "noite", "administrativo"]
+      "values": [
+        "manha",
+        "tarde",
+        "noite",
+        "administrativo"
+      ]
     }
   },
   "schemas": {},

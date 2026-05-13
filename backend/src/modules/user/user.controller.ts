@@ -5,9 +5,9 @@ import {
   notFoundErrorSchema,
 } from '@/shared/errors/errorSchemas'
 import { permission } from '@/shared/middlewares/permission'
-import { createUserDto } from './dtos/create-user.dto'
-import { userResponseDto } from './dtos/user-response'
+
 import { userService } from './user.service'
+import { createUserDto, userResponseDto } from './user.dto'
 
 export default function userController(_server: FastifyInstance) {
   _server.post(
@@ -19,7 +19,7 @@ export default function userController(_server: FastifyInstance) {
         tags: ['Usuário'],
         body: createUserDto,
         response: {
-          201: createUserDto,
+          201: userResponseDto,
         },
       },
     },
@@ -34,7 +34,7 @@ export default function userController(_server: FastifyInstance) {
         summary: 'Rota para obter todos os usuários',
         tags: ['Usuário'],
         response: {
-          200: z4.array(userResponseDto),
+         200: z4.array(userResponseDto),
           500: internalServerErrorSchema,
         },
       },
@@ -75,13 +75,13 @@ export default function userController(_server: FastifyInstance) {
   )
   // Rota para obter usuario pelo id (matricula)
   _server.get(
-    '/:matricula',
+    '/:id',
     {
       schema: {
         summary: 'Rota para obter um usuário por matrícula',
         tags: ['Usuário'],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          id: z4.string().uuid(),
         }),
         response: {
           200: userResponseDto,
@@ -95,13 +95,13 @@ export default function userController(_server: FastifyInstance) {
 
   //Rota para atualizar usuario pelo id (matricula)
   _server.put(
-    '/:matricula',
+    '/:id',
     {
       schema: {
         summary: 'Rota para atualizar um usuário por matrícula',
         tags: ['Usuário'],
         params: z4.object({
-          matricula: z4.string().min(1, 'A matrícula é obrigatória'),
+          id: z4.string().min(1, 'O ID do usuario é obrigatorio'),
         }),
         body: createUserDto.partial(),
         response: {
@@ -143,4 +143,29 @@ export default function userController(_server: FastifyInstance) {
     },
     userService.delete
   )
+
+  // ROTAS MIGRADAS DOS CONTROLLERS ANTIGOS (GESTOR / RH)
+  const prefixes = ["/gestor", "/rh"];
+
+  for (const prefix of prefixes) {
+    // Rota para obter usuario pelo userId
+    _server.get(
+      `${prefix}/colaborador/:userId`,
+      {
+        schema: {
+          summary: `Rota para obter um usuário pela ID (${prefix})`,
+          tags: ["Usuário"],
+          params: z4.object({
+            userId: z4.string().uuid(),
+          }),
+          response: {
+            200: userResponseDto,
+            404: notFoundErrorSchema,
+            500: internalServerErrorSchema,
+          },
+        },
+      },
+      userService.findById
+    );
+  }
 }

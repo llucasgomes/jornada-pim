@@ -1,0 +1,61 @@
+<div class="">
+  <header class="mb-8 flex items-center">
+    <div class="flex-1">
+      <h1 class="text-3xl font-bold text-foreground">Lista de Setores da Empresa</h1>
+    </div>
+
+    <z-button class="cursor-pointer flex gap-3 w-auto" zType="secondary" zSize="lg" (click)="toggleFormCriar()">
+      <ng-icon name="lucidePlusCircle" class="size-4" />
+      <span>{{ showFormCriar ? 'Cancelar' : 'Novo Setor' }}</span>
+    </z-button>
+  </header>
+
+  <!-- Formulário de criação -->
+  @if (showFormCriar) {
+    <div class="mb-6 p-6 rounded-xl border border-border bg-card shadow-sm">
+      <h2 class="text-lg font-semibold text-foreground mb-4">Criar Novo Setor</h2>
+      <div class="flex flex-col gap-4 sm:flex-row">
+        <input
+          type="text"
+          [(ngModel)]="novoSetorNome"
+          placeholder="Nome do setor *"
+          class="flex-1 px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <input
+          type="text"
+          [(ngModel)]="novoSetorDescricao"
+          placeholder="Descrição (opcional)"
+          class="flex-1 px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <z-button
+          class="cursor-pointer"
+          zType="default"
+          zSize="lg"
+          (click)="criarSetor()"
+          [zDisabled]="!novoSetorNome.trim() || criarSetorMutation.isPending()"
+        >
+          {{ criarSetorMutation.isPending() ? 'Salvando...' : 'Salvar' }}
+        </z-button>
+      </div>
+    </div>
+  }
+
+  @if (setoresQuery.isPending()) {
+    <z-loader />
+  } @else if (setoresQuery.isError()) {
+    <div class="text-destructive py-4 text-center">Erro ao carregar setores.</div>
+  } @else if (setoresQuery.data()?.length) {
+    <app-table
+      [data]="setoresQuery.data()!"
+      [columns]="columns"
+      [paginate]="true"
+      [pageSize]="10"
+    />
+  } @else {
+    <z-empty
+      zIcon="lucideUsers"
+      zTitle="Nenhum setor encontrado"
+      zDescription="Não há setores cadastrados. Adicione um novo setor para começar."
+    />
+  }
+</div>
